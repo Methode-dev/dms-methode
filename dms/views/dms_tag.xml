@@ -18,7 +18,7 @@
                     name="all"
                     domain="['|', ('active', '=', False), ('active', '=', True)]"
                 />
-                <group expand="0" name="group_by" string="Group By">
+                <group name="group_by">
                     <filter
                         name="group_by_category"
                         string="Category"

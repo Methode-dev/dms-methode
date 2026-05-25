@@ -143,13 +143,18 @@ class DmsAccessGroups(models.Model):
         "parent_group_id",
         "parent_group_id.users",
         "group_ids",
-        "group_ids.users",
         "explicit_user_ids",
     )
     def _compute_users(self):
         for record in self:
+            if record.group_ids:
+                group_users = self.env["res.users"].search(
+                    [("group_ids", "in", record.group_ids.ids)]
+                )
+            else:
+                group_users = self.env["res.users"]
             users = (
-                record.group_ids.users
+                group_users
                 | record.explicit_user_ids
                 | record.parent_group_id.users
             )

@@ -21,7 +21,7 @@
         t-inherit="web.KanbanView.Buttons"
         t-inherit-mode="primary"
     >
-        <xpath expr="//div" position="inside">
+        <xpath expr="." position="inside">
             <t t-if="props.archInfo.activeActions.create">
                 <button
                     type="button"
