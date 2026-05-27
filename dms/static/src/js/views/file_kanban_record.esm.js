@@ -4,24 +4,29 @@
 //  **********************************************************************************/
 import {KanbanRecord} from "@web/views/kanban/kanban_record";
 import {useFileViewer} from "@web/core/file_viewer/file_viewer_hook";
-import {useService} from "@web/core/utils/hooks";
+import {FileModel} from "@web/core/file_viewer/file_model";
 
 const videoReadableTypes = ["x-matroska", "mp4", "webm"];
 const audioReadableTypes = ["mp3", "ogg", "wav", "aac", "mpa", "flac", "m4a"];
 
+class DmsFileModel extends FileModel {
+    get urlRoute() {
+        return `/web/content`;
+    }
+    get urlQueryParams() {
+        return {
+            id: this.id,
+            field: "content",
+            model: "dms.file",
+            filename_field: "name",
+        };
+    }
+}
+
 export class FileKanbanRecord extends KanbanRecord {
     setup() {
         super.setup();
-        this.store = useService("mail.store");
         this.fileViewer = useFileViewer();
-    }
-
-    isVideo(mimetype) {
-        return videoReadableTypes.includes(mimetype);
-    }
-
-    isAudio(mimetype) {
-        return audioReadableTypes.includes(mimetype);
     }
 
     /**
@@ -30,28 +35,23 @@ export class FileKanbanRecord extends KanbanRecord {
      * Override to open the preview upon clicking the image, if compatible.
      */
     onGlobalClick(ev) {
-        const self = this;
-
         if (ev.target.closest(".o_kanban_dms_file_preview")) {
-            const file_type = self.props.record.data.name.split(".")[1];
-            let mimetype = "";
+            const record = this.props.record;
+            const fileExt = record.data.name.split(".").pop();
+            let mimetype = record.data.mimetype;
 
-            if (self.isVideo(file_type)) {
-                mimetype = `video/${file_type}`;
-            } else if (self.isAudio(file_type)) {
+            if (videoReadableTypes.includes(fileExt)) {
+                mimetype = `video/${fileExt}`;
+            } else if (audioReadableTypes.includes(fileExt)) {
                 mimetype = "audio/mpeg";
-            } else {
-                mimetype = self.props.record.data.mimetype;
             }
 
-            const attachment = this.store.Attachment.insert({
-                id: self.props.record.data.id,
-                filename: self.props.record.data.name,
-                name: self.props.record.data.name,
+            const file = Object.assign(new DmsFileModel(), {
+                id: record.data.id,
+                name: record.data.name,
                 mimetype: mimetype,
-                model_name: self.props.record.resModel,
             });
-            this.fileViewer.open(attachment);
+            this.fileViewer.open(file);
             return;
         }
         return super.onGlobalClick(ev);
