@@ -60,7 +60,6 @@ class DmsDirectory(models.Model):
         comodel_name="dms.storage",
         string="Storage",
         ondelete="restrict",
-        auto_join=True,
         store=True,
     )
     parent_id = fields.Many2one(
@@ -116,7 +115,6 @@ class DmsDirectory(models.Model):
         comodel_name="dms.directory",
         inverse_name="parent_id",
         string="Subdirectories",
-        auto_join=False,
         copy=True,
     )
 
@@ -153,7 +151,6 @@ class DmsDirectory(models.Model):
         comodel_name="dms.file",
         inverse_name="directory_id",
         string="Files",
-        auto_join=False,
         copy=True,
     )
 

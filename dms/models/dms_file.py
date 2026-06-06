@@ -49,7 +49,6 @@ class DMSFile(models.Model):
         domain="[('permission_create', '=', True)]",
         context={"dms_directory_show_path": True},
         ondelete="restrict",
-        auto_join=True,
         required=True,
         index="btree",
         tracking=True,  # Leave log if "moved" to another directory
