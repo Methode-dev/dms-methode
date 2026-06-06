@@ -3,7 +3,7 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.osv import expression
+from odoo.fields import Domain
 
 
 class DmsDirectory(models.Model):
@@ -120,7 +120,7 @@ class DmsDirectory(models.Model):
             domain = []
         self._check_parent_field()
         self.check_access("read")
-        if expression.is_false(self, domain):
+        if Domain(domain).is_false():
             return []
         query = self._where_calc(domain)
         self._apply_ir_rules(query, "read")

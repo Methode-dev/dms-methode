@@ -14,7 +14,7 @@ from typing import Literal  # noqa # pylint: disable=unused-import
 
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError, ValidationError
-from odoo.osv.expression import AND, OR
+from odoo.fields import Domain
 from odoo.tools import consteq, human_size
 
 from ..tools.file import check_name, unique_name
@@ -221,7 +221,7 @@ class DmsDirectory(models.Model):
         if operation == "create":
             # When creating, I need create access in parent directory, or
             # self-create permission if it's a root directory
-            result = OR(
+            result = Domain.OR(
                 [
                     [("is_root_directory", "=", False)] + result,
                     [("is_root_directory", "=", True)] + self_filter,
@@ -743,12 +743,9 @@ class DmsDirectory(models.Model):
         action = self.env["ir.actions.act_window"]._for_xml_id(
             "dms.action_dms_directory"
         )
-        domain = AND(
-            [
-                literal_eval(action["domain"].strip()),
-                [("parent_id", "child_of", self.id)],
-            ]
-        )
+        domain = literal_eval(action["domain"].strip()) + [
+            ("parent_id", "child_of", self.id)
+        ]
         action["display_name"] = self.name
         action["domain"] = domain
         action["context"] = dict(
@@ -761,12 +758,9 @@ class DmsDirectory(models.Model):
     def action_dms_files_all_directory(self):
         self.ensure_one()
         action = self.env["ir.actions.act_window"]._for_xml_id("dms.action_dms_file")
-        domain = AND(
-            [
-                literal_eval(action["domain"].strip()),
-                [("directory_id", "child_of", self.id)],
-            ]
-        )
+        domain = literal_eval(action["domain"].strip()) + [
+            ("directory_id", "child_of", self.id)
+        ]
         action["display_name"] = self.name
         action["domain"] = domain
         action["context"] = dict(

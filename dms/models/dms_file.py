@@ -14,7 +14,6 @@ from PIL import Image
 
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError, ValidationError
-from odoo.osv import expression
 from odoo.tools import consteq, human_size
 from odoo.tools.mimetypes import guess_mimetype
 
@@ -300,7 +299,7 @@ class DMSFile(models.Model):
         if not comodel_domain:
             comodel_domain = []
         files_ids = self.search([("directory_id", operator, directory_id)]).ids
-        return expression.AND([comodel_domain, [(field, "in", files_ids)]])
+        return comodel_domain + [(field, "in", files_ids)]
 
     @api.model
     def search_panel_select_range(self, field_name, **kwargs):
