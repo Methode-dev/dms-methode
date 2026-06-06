@@ -6,7 +6,6 @@ from typing import Optional  # noqa # pylint: disable=unused-import
 
 from odoo import _, http
 from odoo.http import content_disposition, request
-from odoo.osv.expression import OR
 
 from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.web.controllers.utils import ensure_db
@@ -69,7 +68,7 @@ class CustomerPortal(CustomerPortal):
         ]
         # search
         if search and search_in == "name":
-            domain += OR([[], [("name", "ilike", search)]])
+            domain += [("name", "ilike", search)]
         # content according to pager and archive selected
         items = request.env["dms.directory"].search(domain, order=sort_order)
         request.session["my_dms_folder_history"] = items.ids

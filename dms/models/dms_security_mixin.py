@@ -8,12 +8,8 @@ from logging import getLogger
 
 from odoo import api, fields, models
 from odoo.exceptions import AccessError
-from odoo.osv.expression import (
-    FALSE_DOMAIN,
-    NEGATIVE_TERM_OPERATORS,
-    OR,
-    TRUE_DOMAIN,
-)
+from odoo.fields import Domain
+from odoo.orm.domains import NEGATIVE_CONDITION_OPERATORS
 from odoo.tools import SQL
 
 _logger = getLogger(__name__)
@@ -129,11 +125,16 @@ class DmsSecurityMixin(models.AbstractModel):
                 # This is normal if you are upgrading the database.
                 # Otherwise, you probably have garbage DMS data.
                 # These records will be accessible by DB users only.
+                # The new Domain API rejects constant leaves such as
+                # ``(True, "=", bool)``, so gate the model match with a
+                # TRUE/FALSE domain instead (equivalent semantics).
+                db_user_access = (
+                    Domain.TRUE
+                    if self.env.user.has_group("base.group_user")
+                    else Domain.FALSE
+                )
                 domains.append(
-                    [
-                        ("res_model", "=", group["res_model"]),
-                        (True, "=", self.env.user.has_group("base.group_user")),
-                    ]
+                    Domain([("res_model", "=", group["res_model"])]) & db_user_access
                 )
                 continue
             # Check model access only once per batch
@@ -153,7 +154,7 @@ class DmsSecurityMixin(models.AbstractModel):
             domains.append(
                 [("res_model", "=", model._name), ("res_id", "in", related_ok.ids)]
             )
-        result = inherited_access_domain + OR(domains)
+        result = Domain.AND([inherited_access_domain, Domain.OR(domains)])
         return result
 
     @api.model
@@ -211,19 +212,19 @@ class DmsSecurityMixin(models.AbstractModel):
             value = bool(value)
         # Tricky one, to know if you want to search
         # positive or negative access
-        positive = (operator not in NEGATIVE_TERM_OPERATORS) == bool(value)
+        positive = (operator not in NEGATIVE_CONDITION_OPERATORS) == bool(value)
         if _self.env.su:
             # You're SUPERUSER_ID
-            return TRUE_DOMAIN if positive else FALSE_DOMAIN
+            return Domain.TRUE if positive else Domain.FALSE
 
-        result = OR(
+        result = Domain.OR(
             [
                 _self._get_domain_by_access_groups(operation),
                 _self._get_domain_by_inheritance(operation),
             ]
         )
         if not positive:
-            result.insert(0, "!")
+            result = ~result
         return result
 
     @api.model
