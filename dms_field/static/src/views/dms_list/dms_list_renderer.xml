@@ -9,6 +9,21 @@
                         t-ref="dms_add_directory"
                         t-on-click="onDMSAddDirectoryRecord"
                     />
+                    <button
+                        class="btn btn-primary o_dms_upload_file"
+                        t-on-click="onClickUpload"
+                        title="Upload files into the folder"
+                    >
+                        <i class="fa fa-upload me-1" />
+                        Upload
+                    </button>
+                    <input
+                        type="file"
+                        multiple="multiple"
+                        class="o_hidden o_dms_file_input"
+                        t-ref="fileInput"
+                        t-on-change="onFileInputChange"
+                    />
                     <div class="o_dms_extra_actions btn-group" t-ref="extra_actions" />
                 </div>
                 <div

@@ -121,45 +121,24 @@ class DmsDirectory(models.Model):
         self._check_parent_field()
         self.check_access("read")
         if Domain(domain).is_false():
-            return []
-        query = self._where_calc(domain)
-        self._apply_ir_rules(query, "read")
-        from_clause, from_params = query.from_clause
-        where_clause, where_clause_arguments = query.where_clause
-        parent_where = where_clause and (f" WHERE {where_clause}") or ""
-        parent_query = f'SELECT "{self._table}".id FROM ' + from_clause + parent_where
-        no_parent_clause = f'"{self._table}"."{self._parent_name}" IS NULL'
-        no_access_clause = (
-            f'"{self._table}"."{self._parent_name}" NOT IN ({parent_query})'
-        )
-        parent_clause = f"({no_parent_clause} OR {no_access_clause})"
-        order_by = f" ORDER BY {self._order_to_sql(order, self._where_calc([])).code}"
-        where_clause_params = where_clause_arguments
-        where_str = (
-            where_clause
-            and (f" WHERE {where_clause} AND {parent_clause}")
-            or (f" WHERE {parent_clause}")
+            return 0 if count else []
+        # ``search`` already applies the domain, ir.rules and access rights
+        # (replacing the former _where_calc/_apply_ir_rules internals, which
+        # were removed/reworked in Odoo 19).
+        matching = self.search(domain, order=order)
+        matching_ids = set(matching.ids)
+        parent_field = self._parent_name
+        # A record is a root of the filtered hierarchy when it has no parent,
+        # or its parent is not part of the matching set (inaccessible or out of
+        # the domain), so it must be shown as a top level node.
+        roots = matching.filtered(
+            lambda rec: not rec[parent_field]
+            or rec[parent_field].id not in matching_ids
         )
         if count:
-            # pylint: disable=sql-injection
-            query_str = "SELECT count(1) FROM " + from_clause + where_str
-            self._cr.execute(query_str, where_clause_params)
-            return self._cr.fetchone()[0]
-        limit_str = limit and " limit %s" or ""
-        offset_str = offset and " offset %s" or ""
-        query_str = (
-            f'SELECT "{self._table}".id FROM '
-            + from_clause
-            + where_str
-            + order_by
-            + limit_str
-            + offset_str
-        )
-        complete_where_clause_params = where_clause_params + where_clause_arguments
-        if limit:
-            complete_where_clause_params.append(limit)
+            return len(roots)
         if offset:
-            complete_where_clause_params.append(offset)
-        # pylint: disable=sql-injection
-        self._cr.execute(query_str, complete_where_clause_params)
-        return list({x[0] for x in self._cr.fetchall()})
+            roots = roots[offset:]
+        if limit:
+            roots = roots[:limit]
+        return roots.ids

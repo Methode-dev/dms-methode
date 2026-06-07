@@ -20,6 +20,7 @@ export class DmsListRenderer extends Component {
         this.js_tree = useRef("jstree");
         this.extra_actions = useRef("extra_actions");
         this.dms_add_directory = useRef("dms_add_directory");
+        this.fileInput = useRef("fileInput");
         this.nodeSelectedState = useState({data: {}});
         this.store = useService("mail.store");
         this.fileViewer = useFileViewer();
@@ -152,7 +153,25 @@ export class DmsListRenderer extends Component {
             this.props.rendererActions.onDMSDeleteNode(data.node);
         });
         this.$tree.on("loaded.jstree", () => {
-            this.$tree.jstree("open_all");
+            const tree = this.$tree.jstree(true);
+            tree.open_all();
+            // Auto-select the first directory so directory actions (e.g. the
+            // Upload button) are usable without manually picking a folder.
+            const selected = tree.get_selected(true);
+            const hasDirectory = selected.some(
+                (node) => node.data && node.data.resModel === "dms.directory"
+            );
+            if (hasDirectory) {
+                return;
+            }
+            const topNodeIds = tree.get_node("#").children || [];
+            for (const nodeId of topNodeIds) {
+                const node = tree.get_node(nodeId);
+                if (node && node.data && node.data.resModel === "dms.directory") {
+                    tree.select_node(nodeId);
+                    break;
+                }
+            }
         });
     }
 
@@ -511,9 +530,76 @@ export class DmsListRenderer extends Component {
     }
     async onDrop(ev) {
         ev.preventDefault();
-        const directoryId = this.nodeSelectedState.data.data.id;
+        await this._uploadFiles(
+            ev.dataTransfer.files,
+            this.nodeSelectedState.data?.data?.id
+        );
+        this.unhighlight(ev);
+    }
+    get isDirectorySelected() {
+        return (
+            this.nodeSelectedState.data.resModel === "dms.directory" &&
+            Boolean(this.nodeSelectedState.data.data?.perm_create)
+        );
+    }
+    /**
+     * Resolve the directory to upload into: the currently selected folder, or
+     * the first uploadable folder in the tree. This keeps the Upload button
+     * usable even when no node is explicitly selected.
+     */
+    _getUploadTargetDirectoryId() {
+        if (this.isDirectorySelected) {
+            return this.nodeSelectedState.data.data.id;
+        }
+        const tree = this.$tree && this.$tree.jstree(true);
+        const rootNode = tree && tree.get_node("#");
+        const childIds = (rootNode && rootNode.children) || [];
+        for (const nodeId of childIds) {
+            const node = tree.get_node(nodeId);
+            if (
+                node &&
+                node.data &&
+                node.data.resModel === "dms.directory" &&
+                node.data.data &&
+                node.data.data.perm_create
+            ) {
+                return node.data.data.id;
+            }
+        }
+        return false;
+    }
+    onClickUpload() {
+        const directoryId = this._getUploadTargetDirectoryId();
+        if (!directoryId) {
+            this.notification.add(
+                _t("Please create or select a folder to upload the files into."),
+                {type: "warning"}
+            );
+            return;
+        }
+        this._uploadDirectoryId = directoryId;
+        this.fileInput.el.click();
+    }
+    async onFileInputChange(ev) {
+        await this._uploadFiles(ev.target.files, this._uploadDirectoryId);
+        this._uploadDirectoryId = false;
+        // Reset so selecting the same file again still fires "change".
+        ev.target.value = "";
+    }
+    async _uploadFiles(files, directoryId) {
+        if (!files || !files.length) {
+            return;
+        }
+        directoryId = directoryId || this.nodeSelectedState.data?.data?.id;
+        if (!directoryId) {
+            this.notification.add(
+                _t("Please create or select a folder to upload the files into."),
+                {type: "warning"}
+            );
+            return;
+        }
         const res = await this.props.rendererActions
-            .onDMSDroppedFile(directoryId, ev.dataTransfer.files)
+            .onDMSDroppedFile(directoryId, files)
             .catch((error) => {
                 this.notification.add(error.data.message, {
                     type: "danger",
@@ -522,29 +608,37 @@ export class DmsListRenderer extends Component {
         if (res === "no_attachments") {
             this.notification.add(_t("An error occurred during the upload"));
         } else {
-            const selected_id = this.$tree.find(".jstree-clicked").attr("id");
-            const model_data = this.$tree.jstree(true)._model.data;
-            const state = this.$tree.jstree(true).get_state();
-            const open_res_ids = state.core.open.map(
-                (id) => model_data[id].data.data.id
-            );
-            this.$tree.on("refresh_node.jstree", () => {
-                const model_data_entries = Object.entries(model_data);
-                const ids = model_data_entries
-                    .filter(
-                        ([, value]) =>
-                            value.data &&
-                            open_res_ids.includes(value.data.data.id) &&
-                            value.data.model === "dms.directory"
-                    )
-                    .map((tuple) => tuple[0]);
-                for (var id of ids) {
-                    this.$tree.jstree(true).open_node(id);
-                }
-            });
-            this.$tree.jstree(true).refresh_node(selected_id);
+            this._refreshSelectedNode();
         }
-        this.unhighlight(ev);
+    }
+    _refreshSelectedNode() {
+        const selected_id = this.$tree.find(".jstree-clicked").attr("id");
+        if (!selected_id) {
+            // Uploaded via the button without a manual selection: refresh the
+            // whole tree so the new file appears.
+            this.$tree.jstree(true).refresh();
+            return;
+        }
+        const model_data = this.$tree.jstree(true)._model.data;
+        const state = this.$tree.jstree(true).get_state();
+        const open_res_ids = state.core.open.map(
+            (id) => model_data[id].data.data.id
+        );
+        this.$tree.on("refresh_node.jstree", () => {
+            const model_data_entries = Object.entries(model_data);
+            const ids = model_data_entries
+                .filter(
+                    ([, value]) =>
+                        value.data &&
+                        open_res_ids.includes(value.data.data.id) &&
+                        value.data.model === "dms.directory"
+                )
+                .map((tuple) => tuple[0]);
+            for (var id of ids) {
+                this.$tree.jstree(true).open_node(id);
+            }
+        });
+        this.$tree.jstree(true).refresh_node(selected_id);
     }
 }
 

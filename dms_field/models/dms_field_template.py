@@ -1,6 +1,8 @@
 # Copyright 2024 Tecnativa - Víctor Martínez
 # Copyright 2025 Simone Rubino - PyTech
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
+import re
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -191,6 +193,13 @@ class DmsFieldTemplate(models.Model):
             record.ids,
             engine="inline_template",
         )[record.id]
+        # A directory name must be a valid file name (see
+        # dms.directory._check_name). Names rendered from record fields can
+        # contain path separators (e.g. order references like "PDA-ICS/1000"),
+        # so replace the characters that are invalid in a file name.
+        directory_name = re.sub(r"[\\/\x00]+", "-", directory_name or "").strip()
+        if not directory_name:
+            directory_name = f"Directory {record.id}"
         vals = {
             "storage_id": directory.storage_id.id,
             "res_id": record.id,

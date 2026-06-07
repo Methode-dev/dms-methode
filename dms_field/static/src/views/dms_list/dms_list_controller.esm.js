@@ -91,6 +91,21 @@ export function getDMSListControllerObject() {
                         }),
                     ],
                 ];
+            } else if (model === "project.task") {
+                // Operations task documents live in the task company's own
+                // storage (see dms.field.template.create_dms_directory).
+                // Restrict to non-attachment storages so the folder is always
+                // found (the res_id filter keeps results task-specific), and
+                // scope to the company when it is available on the record.
+                autocompute_directory = true;
+                show_storage = false;
+                storage_domain = [["save_type", "!=", "attachment"]];
+                const companyData = this.model.root.data.company_id;
+                const companyId =
+                    companyData && (companyData.id || companyData[0]);
+                if (companyId) {
+                    storage_domain.push(["company_id", "=", companyId]);
+                }
             } else {
                 storage_domain = [["field_template_ids.model", "=", model]];
                 autocompute_directory = true;
