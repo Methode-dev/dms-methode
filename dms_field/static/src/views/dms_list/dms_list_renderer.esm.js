@@ -503,14 +503,16 @@ export class DmsListRenderer extends Component {
         });
     }
     onDMSPreviewFile(node) {
-        const attachment = this.store.Attachment.insert({
-            id: node.data.data.id,
-            filename: node.data.data.name,
-            name: node.data.data.name,
-            mimetype: node.data.data.mimetype,
-            model_name: node.data.resModel,
-        });
-        this.fileViewer.open(attachment);
+        // A dms.file has no ir.attachment id to feed the mail file viewer
+        // (whose source URL is /web/content/<attachment_id>), so open its
+        // content field directly: images/PDFs preview in the browser, other
+        // types download. Works for every storage type.
+        const data = node.data.data;
+        const contentUrl =
+            `/web/content?model=dms.file&id=${data.id}` +
+            `&field=content&filename_field=name` +
+            `&filename=${encodeURIComponent(data.name || "")}`;
+        window.open(contentUrl, "_blank");
     }
     get showDragZone() {
         return (
