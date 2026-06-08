@@ -126,6 +126,8 @@
                         <button
                             class="btn btn-primary o_preview_file"
                             t-if="nodeSelectedState.data.resModel === 'dms.file'"
+                            t-att-disabled="!isSelectedFileViewable"
+                            t-att-title="isSelectedFileViewable ? '' : 'This file type cannot be previewed — use Download instead.'"
                             t-on-click="() => this.onDMSPreviewFile(nodeSelectedState)"
                         >
                             Open

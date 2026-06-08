@@ -12,8 +12,17 @@ import {loadBundle, loadCSS, loadJS} from "@web/core/assets";
 import {FormViewDialog} from "@web/views/view_dialogs/form_view_dialog";
 import {_t} from "@web/core/l10n/translation";
 import {download} from "@web/core/network/download";
+import {FileModelMixin} from "@web/core/file_viewer/file_model";
 import {useFileViewer} from "@web/core/file_viewer/file_viewer_hook";
 import {useService} from "@web/core/utils/hooks";
+
+// File-viewer model whose source points at a dms.file's content field, so the
+// in-page viewer (the same overlay the Documents app uses) can display it.
+class DmsFileViewerModel extends FileModelMixin(Object) {
+    get urlRoute() {
+        return `/web/content/dms.file/${this.id}/content`;
+    }
+}
 
 export class DmsListRenderer extends Component {
     setup() {
@@ -334,6 +343,9 @@ export class DmsListRenderer extends Component {
             action: () => {
                 this.onDMSPreviewFile(node);
             },
+            _disabled: () => {
+                return !this._isNodeViewable(node);
+            },
         };
         menu.download = {
             separator_before: false,
@@ -503,17 +515,30 @@ export class DmsListRenderer extends Component {
             resId: node.data.data.id,
         });
     }
+    _buildViewerFile(fileData) {
+        const file = new DmsFileViewerModel();
+        file.id = fileData.id;
+        file.name = fileData.name;
+        file.mimetype = fileData.mimetype;
+        file.extension = fileData.extension;
+        return file;
+    }
+    _isNodeViewable(node) {
+        if (!node || !node.data || node.data.resModel !== "dms.file") {
+            return false;
+        }
+        return this._buildViewerFile(node.data.data).isViewable;
+    }
+    get isSelectedFileViewable() {
+        return this._isNodeViewable(this.nodeSelectedState);
+    }
     onDMSPreviewFile(node) {
-        // A dms.file has no ir.attachment id to feed the mail file viewer
-        // (whose source URL is /web/content/<attachment_id>), so open its
-        // content field directly: images/PDFs preview in the browser, other
-        // types download. Works for every storage type.
-        const data = node.data.data;
-        const contentUrl =
-            `/web/content?model=dms.file&id=${data.id}` +
-            `&field=content&filename_field=name` +
-            `&filename=${encodeURIComponent(data.name || "")}`;
-        window.open(contentUrl, "_blank");
+        // Only previewable types open in the in-page viewer; for the rest the
+        // Open/Preview action is disabled in the UI and users download instead.
+        const file = this._buildViewerFile(node.data.data);
+        if (file.isViewable) {
+            this.fileViewer.open(file);
+        }
     }
     get showDragZone() {
         return (
