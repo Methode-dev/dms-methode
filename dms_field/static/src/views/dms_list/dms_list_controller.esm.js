@@ -289,6 +289,9 @@ export function getDMSListControllerObject() {
                 icon: "fa fa-folder-o",
                 type: "directory",
                 data: dt,
+                // Native tooltip so the full name shows on hover even when the
+                // label is truncated with an ellipsis.
+                a_attr: {title: directory.name},
             };
             if (showFiles) {
                 directoryNode.children =
@@ -323,6 +326,9 @@ export function getDMSListControllerObject() {
                 icon: mimetype2fa(dt.data.mimetype, {prefix: "fa fa-"}),
                 type: "file",
                 data: dt,
+                // Native tooltip so the full name shows on hover even when the
+                // label is truncated with an ellipsis.
+                a_attr: {title: dt.data.display_name},
             };
         },
         makeNodeStorage(storage, children) {

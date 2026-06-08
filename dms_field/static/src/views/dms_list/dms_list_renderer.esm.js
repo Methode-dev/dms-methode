@@ -186,18 +186,16 @@ export class DmsListRenderer extends Component {
     }
 
     updatePreview(node) {
-        var $buttons = this.$(this.extra_actions.el);
-        $buttons.empty();
+        // Keep the header toolbar empty: the node actions (Rename, Cut, Delete,
+        // Open, Preview, ...) remain available through the right-click context
+        // menu, so we no longer duplicate them as buttons next to "Upload".
+        this.$(this.extra_actions.el).empty();
         if (
             node.data &&
             ["dms.directory", "dms.file"].indexOf(node.data.resModel) !== -1
         ) {
             this.nodeSelectedState.data = {};
             this.nodeSelectedState.data = node.data;
-            var menu = this.loadContextMenu(node);
-            Object.entries(menu).forEach(([, action]) => {
-                this.generateActionButton(node, action, $buttons);
-            });
         }
     }
 

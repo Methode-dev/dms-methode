@@ -44,6 +44,11 @@
         .dms_document_col {
             padding: 0;
             width: 50%;
+            // The columns live in a Bootstrap .row (flexbox). Flex items default
+            // to min-width:auto, so they refuse to shrink below their content —
+            // a long filename would push this column (and the wholerow
+            // highlight) past 50%. min-width:0 lets it honour the width and clip.
+            min-width: 0;
         }
         @media (max-width: 768px) {
             width: 100%;
@@ -63,13 +68,37 @@
         }
         .dms_document_row {
             height: 100% !important;
+            // NOTE: ".dms_document_col_tree > div" already IS the
+            // .dms_document_tree element, so target its children directly.
+            // Re-nesting ".dms_document_tree" here matched nothing, which is why
+            // none of these rules (including the original height ones) applied.
             .dms_document_col_tree > div {
                 height: 100%;
-                .dms_document_tree {
+                .dms_content {
                     height: 100%;
-                    .dms_content,
-                    .dms_tree {
-                        height: 100%;
+                }
+                .dms_tree {
+                    height: 100%;
+                    overflow-x: hidden;
+
+                    // jsTree wraps the tree in an inline-block <ul> that grows
+                    // to the widest node; cap it to the column width.
+                    .jstree-container-ul,
+                    .jstree-wholerow-ul {
+                        display: block;
+                        width: 100%;
+                        min-width: 0;
+                    }
+
+                    // Truncate each label (the only element holding the
+                    // filename text); leave room for the expand icon (2.4em).
+                    // The full name is shown on hover via the anchor's native
+                    // title tooltip (set in the controller) — wrapping on hover
+                    // fought jsTree's wholerow layout and flickered.
+                    .jstree-anchor {
+                        max-width: calc(100% - 2.4em);
+                        overflow: hidden;
+                        text-overflow: ellipsis;
                     }
                 }
             }
