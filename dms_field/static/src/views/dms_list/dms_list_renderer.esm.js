@@ -160,6 +160,30 @@ export class DmsListRenderer extends Component {
         this.$tree.on("changed.jstree", (e, data) => {
             this.treeChanged(data);
         });
+        // Double-click a previewable file to open it in the in-page viewer —
+        // same behaviour as the "Open" button. Bound on the container (rather
+        // than delegated to the anchor) so it also fires when the double-click
+        // lands on the wholerow overlay. Directories keep jsTree's default
+        // double-click expand/collapse; non-previewable files do nothing.
+        this.$tree.on("dblclick.jstree", (e) => {
+            const tree = this.$tree.jstree(true);
+            if (!tree) {
+                return;
+            }
+            const nodeEl = this.$(e.target).closest(".jstree-node");
+            if (!nodeEl.length) {
+                return;
+            }
+            const node = tree.get_node(nodeEl.attr("id"));
+            if (
+                node &&
+                node.data &&
+                node.data.resModel === "dms.file" &&
+                this._isNodeViewable(node)
+            ) {
+                this.onDMSPreviewFile(node);
+            }
+        });
         this.$tree.on("move_node.jstree", (e, data) => {
             var jstree = this.$tree.jstree(true);
             this.props.rendererActions.onDMSMoveNode(
