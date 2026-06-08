@@ -45,6 +45,37 @@
     height: 100%;
     .dms_document_container {
         height: 100%;
+        // Stack the header (natural height) above the row, which fills only the
+        // remaining height — so header + list never exceed the container (which
+        // was causing the extra page scroll).
+        display: flex;
+        flex-direction: column;
+        // Control-panel-style top bar: action buttons on the left, an
+        // always-visible search box on the right.
+        .o_dms_header {
+            flex: 0 0 auto;
+            // Stay pinned to the top while the list scrolls (works whether the
+            // list scrolls internally or the whole widget scrolls). Opaque
+            // background + z-index so scrolled rows pass cleanly underneath.
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            background-color: var(--bs-body-bg, #fff);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            .o_dms_header_buttons {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .o_dms_header_search {
+                flex: 0 1 22rem;
+                min-width: 8rem;
+            }
+        }
         .dms_document_col {
             padding: 0;
             // The columns live in a Bootstrap .row (flexbox). Flex items default
@@ -52,6 +83,12 @@
             // a long filename would push a column (and the wholerow highlight)
             // past its width. min-width:0 lets it honour the widths below.
             min-width: 0;
+            // Fill the row's height and scroll independently, so a long list on
+            // the left no longer grows the page and pushes the file summary
+            // (right) off-screen — both fill the available height and stay in view.
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
         // The list (tree) takes 2/3 of the width; the file summary takes 1/3.
         .dms_document_col_tree {
@@ -77,7 +114,9 @@
             }
         }
         .dms_document_row {
-            height: 100% !important;
+            // Fill the height left below the header; the columns scroll within.
+            flex: 1 1 auto;
+            min-height: 0;
             // NOTE: ".dms_document_col_tree > div" already IS the
             // .dms_document_tree element, so target its children directly.
             // Re-nesting ".dms_document_tree" here matched nothing, which is why

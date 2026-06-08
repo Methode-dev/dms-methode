@@ -30,6 +30,7 @@ export class DmsListRenderer extends Component {
         this.extra_actions = useRef("extra_actions");
         this.dms_add_directory = useRef("dms_add_directory");
         this.fileInput = useRef("fileInput");
+        this.searchInput = useRef("searchInput");
         this.nodeSelectedState = useState({data: {}});
         this.store = useService("mail.store");
         this.fileViewer = useFileViewer();
@@ -80,6 +81,10 @@ export class DmsListRenderer extends Component {
             () => {
                 this.nodeSelectedState.data = {};
                 this.updatePreview({});
+                // Reset the search box when switching records.
+                if (this.searchInput.el) {
+                    this.searchInput.el.value = "";
+                }
                 this.$tree.jstree("destroy");
                 this.config = this.buildTreeConfig();
                 this.$tree.jstree(this.config);
@@ -116,6 +121,11 @@ export class DmsListRenderer extends Component {
             },
             state: {
                 key: "documents",
+            },
+            search: {
+                show_only_matches: true,
+                show_only_matches_children: true,
+                case_sensitive: false,
             },
             conditionalselect: this.checkSelect.bind(this),
             plugins: plugins,
@@ -513,6 +523,36 @@ export class DmsListRenderer extends Component {
             resModel: node.data.resModel,
             title: _t("Open: ") + node.data.data.name,
             resId: node.data.data.id,
+        });
+    }
+    onSearchInput(ev) {
+        const value = ev.target.value || "";
+        const tree = this.$tree && this.$tree.jstree(true);
+        if (!tree) {
+            return;
+        }
+        if (value.trim()) {
+            tree.search(value);
+        } else {
+            tree.clear_search();
+        }
+    }
+    onDownloadSelected() {
+        const data =
+            this.nodeSelectedState.data && this.nodeSelectedState.data.data;
+        if (!data) {
+            return;
+        }
+        download({
+            url: "/web/content",
+            data: {
+                id: data.id,
+                download: true,
+                field: "content",
+                model: "dms.file",
+                filename_field: "name",
+                filename: data.name,
+            },
         });
     }
     _buildViewerFile(fileData) {

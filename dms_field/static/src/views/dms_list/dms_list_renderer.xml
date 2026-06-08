@@ -3,28 +3,51 @@
     <t t-name="dms_list.Renderer">
         <div class="dms_treeview">
             <div class="container-fluid dms_document_container ">
-                <div class="row o_dms_header btn-group">
-                    <button
-                        class="btn btn-secondary o_dms_add_directory fa fa-database o_hidden"
-                        t-ref="dms_add_directory"
-                        t-on-click="onDMSAddDirectoryRecord"
-                    />
-                    <button
-                        class="btn btn-primary o_dms_upload_file"
-                        t-on-click="onClickUpload"
-                        title="Upload files into the folder"
-                    >
-                        <i class="fa fa-upload me-1" />
-                        Upload
-                    </button>
-                    <input
-                        type="file"
-                        multiple="multiple"
-                        class="o_hidden o_dms_file_input"
-                        t-ref="fileInput"
-                        t-on-change="onFileInputChange"
-                    />
-                    <div class="o_dms_extra_actions btn-group" t-ref="extra_actions" />
+                <div class="o_dms_header">
+                    <div class="o_dms_header_buttons">
+                        <button
+                            class="btn btn-secondary o_dms_add_directory fa fa-database o_hidden"
+                            t-ref="dms_add_directory"
+                            t-on-click="onDMSAddDirectoryRecord"
+                        />
+                        <button
+                            class="btn btn-primary o_dms_upload_file"
+                            t-on-click="onClickUpload"
+                            title="Upload files into the folder"
+                        >
+                            <i class="fa fa-upload me-1" />
+                            Upload
+                        </button>
+                        <input
+                            type="file"
+                            multiple="multiple"
+                            class="o_hidden o_dms_file_input"
+                            t-ref="fileInput"
+                            t-on-change="onFileInputChange"
+                        />
+                        <button
+                            class="btn btn-secondary o_dms_download_file"
+                            t-if="nodeSelectedState.data.resModel === 'dms.file'"
+                            t-on-click="() => this.onDownloadSelected()"
+                            title="Download the selected file"
+                        >
+                            <i class="fa fa-download me-1" />
+                            Download
+                        </button>
+                        <div class="o_dms_extra_actions btn-group" t-ref="extra_actions" />
+                    </div>
+                    <div class="o_dms_header_search input-group">
+                        <span class="input-group-text">
+                            <i class="fa fa-search" />
+                        </span>
+                        <input
+                            type="text"
+                            class="form-control o_dms_search_input"
+                            placeholder="Search..."
+                            t-ref="searchInput"
+                            t-on-input="onSearchInput"
+                        />
+                    </div>
                 </div>
                 <div
                     t-attf-class="row dms_document_row #{env.isSmall ? 'dms_document_mobile' : 'dms_document_desktop'}"

@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <templates xml:space="preserve">
     <t t-name="dms_field.View">
-        <Layout display="props.display" className="'h-100 overflow-auto'">
-            <t t-component="props.Renderer" rendererActions="rendererActions" />
-        </Layout>
+        <!--
+            Wrap Layout in the controller root div carrying props.className, like
+            every standard Odoo controller (list/form/kanban). In a full-page
+            action this className includes "o_view_controller o_action", which
+            the webclient sizes as flex-column / height:100% / overflow:hidden
+            and scopes ".o_action .o_content { height:100%; overflow:auto }" to.
+            Without this wrapper the control panel + content had no bounded
+            height and scrolled together; with it the control panel stays fixed
+            and only .o_content (the list) scrolls. In an x2many sub-view
+            (task Documents tab) the className has no "o_action", so the div is
+            inert and the field container bounds it exactly as before.
+        -->
+        <div t-att-class="props.className" t-ref="root">
+            <Layout display="props.display" className="'flex-grow-1 overflow-auto'">
+                <t t-component="props.Renderer" rendererActions="rendererActions" />
+            </Layout>
+        </div>
     </t>
 </templates>
