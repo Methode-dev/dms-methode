@@ -99,6 +99,60 @@
                         max-width: calc(100% - 2.4em);
                         overflow: hidden;
                         text-overflow: ellipsis;
+                        // Bigger filename text.
+                        font-size: 1rem;
+                    }
+
+                    // Folders: show the name in bold to distinguish from files.
+                    .jstree-anchor.dms_folder_anchor {
+                        font-weight: bold;
+                    }
+
+                    // Even bigger node icon (folder / file). It is a Font
+                    // Awesome glyph, so font-size drives its size; override the
+                    // theme's 2.4em box so the larger icon stays snug instead of
+                    // bloating the row height.
+                    .jstree-themeicon {
+                        font-size: 1.4rem;
+                        width: 1.6rem;
+                        height: 1.6rem;
+                        line-height: 1.9rem;
+                        vertical-align: middle;
+                        // File icons are colourful SVGs set as a background
+                        // image by jsTree; scale them to the box above. (No
+                        // effect on the Font Awesome folder glyphs.)
+                        background-size: contain !important;
+                    }
+
+                    // Replace the +/- toggle sprite with a minimalist chevron
+                    // (like modern file lists): points right when collapsed,
+                    // rotates down when expanded, nothing for leaf nodes.
+                    .jstree-ocl {
+                        background-image: none !important;
+                        position: relative;
+                        cursor: pointer;
+                    }
+                    .jstree-closed > .jstree-ocl::before,
+                    .jstree-open > .jstree-ocl::before {
+                        content: "";
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        width: 7px;
+                        height: 7px;
+                        border: solid #888;
+                        border-width: 2px 2px 0 0;
+                        transform: translate(-50%, -50%) rotate(45deg);
+                        transition: transform 0.12s ease;
+                    }
+                    .jstree-open > .jstree-ocl::before {
+                        transform: translate(-50%, -50%) rotate(135deg);
+                    }
+                    .jstree-leaf > .jstree-ocl::before {
+                        content: none;
+                    }
+                    .jstree-ocl:hover::before {
+                        border-color: #333;
                     }
                 }
             }

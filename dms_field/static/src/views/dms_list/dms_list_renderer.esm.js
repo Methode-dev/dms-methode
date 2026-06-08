@@ -127,12 +127,15 @@ export class DmsListRenderer extends Component {
     startTreeTriggers() {
         this.$tree.on("open_node.jstree", (e, data) => {
             if (data.node.data && data.node.data.resModel === "dms.directory") {
-                data.instance.set_icon(data.node, "fa fa-folder-open-o");
+                data.instance.set_icon(
+                    data.node,
+                    "/dms/static/icons/folder_open.svg"
+                );
             }
         });
         this.$tree.on("close_node.jstree", (e, data) => {
             if (data.node.data && data.node.data.resModel === "dms.directory") {
-                data.instance.set_icon(data.node, "fa fa-folder-o");
+                data.instance.set_icon(data.node, "/dms/static/icons/folder.svg");
             }
         });
         this.$tree.on("changed.jstree", (e, data) => {

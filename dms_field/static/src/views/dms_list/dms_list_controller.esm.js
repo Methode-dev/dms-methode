@@ -286,12 +286,14 @@ export function getDMSListControllerObject() {
             var directoryNode = {
                 id: dt.id,
                 text: directory.name,
-                icon: "fa fa-folder-o",
+                // Colourful folder SVG (same as the preview pane). The
+                // open/close handlers swap it to folder_open.svg / folder.svg.
+                icon: directory.icon_url,
                 type: "directory",
                 data: dt,
-                // Native tooltip so the full name shows on hover even when the
-                // label is truncated with an ellipsis.
-                a_attr: {title: directory.name},
+                // Native tooltip (full name on hover) + a class so folders can
+                // be styled distinctly from files (bold name).
+                a_attr: {title: directory.name, class: "dms_folder_anchor"},
             };
             if (showFiles) {
                 directoryNode.children =
@@ -323,7 +325,12 @@ export function getDMSListControllerObject() {
             return {
                 id: dt.id,
                 text: dt.data.display_name,
-                icon: mimetype2fa(dt.data.mimetype, {prefix: "fa fa-"}),
+                // Use the colourful SVG (same icon as the preview pane); jsTree
+                // renders a path-like icon as a background image. Fall back to
+                // the Font Awesome glyph if no icon_url is available.
+                icon:
+                    dt.data.icon_url ||
+                    mimetype2fa(dt.data.mimetype, {prefix: "fa fa-"}),
                 type: "file",
                 data: dt,
                 // Native tooltip so the full name shows on hover even when the
