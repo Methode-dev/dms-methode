@@ -15,6 +15,7 @@
         "views/dms_directory.xml",
         "views/dms_field_template_views.xml",
         "views/dms_storage.xml",
+        "views/dms_file_explorer.xml",
         "security/ir.model.access.csv",
         "security/security.xml",
         "data/assets.xml",

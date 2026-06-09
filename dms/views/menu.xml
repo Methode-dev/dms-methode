@@ -13,18 +13,6 @@
         web_icon="dms,static/description/icon.png"
         groups="group_dms_user"
     >
-        <menuitem
-            id="menu_dms_file"
-            name="Files"
-            sequence="20"
-            action="action_dms_file"
-        />
-        <menuitem
-            id="menu_dms_directory"
-            name="Directories"
-            sequence="30"
-            action="action_dms_directory"
-        />
         <menuitem id="cat_menu_dms_config" name="Configuration" sequence="50">
             <menuitem
                 id="menu_dms_settings_general"
@@ -33,6 +21,24 @@
                 action="action_dms_settings_general"
                 groups="base.group_system"
             />
+            <menuitem
+                id="cat_menu_dms_config_documents"
+                name="Documents"
+                sequence="3"
+            >
+                <menuitem
+                    id="menu_dms_file"
+                    name="Files"
+                    sequence="20"
+                    action="action_dms_file"
+                />
+                <menuitem
+                    id="menu_dms_directory"
+                    name="Directories"
+                    sequence="30"
+                    action="action_dms_directory"
+                />
+            </menuitem>
             <menuitem
                 id="cat_menu_dms_config_organizing"
                 name="Organizing"

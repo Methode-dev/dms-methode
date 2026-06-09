@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="dms.FileExplorerSearchPanel">
+        <div class="o_search_panel file_explorer_search_panel d-flex flex-column">
+            <View t-props="dmsTreeViewProps" />
+        </div>
+    </t>
+</templates>

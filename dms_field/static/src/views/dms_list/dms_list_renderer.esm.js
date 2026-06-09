@@ -256,6 +256,13 @@ export class DmsListRenderer extends Component {
             data.selected.length === 1
         ) {
             this.updatePreview(data.node);
+            // Notify the host (e.g. the File Explorer search panel) when a
+            // directory is selected, so it can filter its own file list.
+            if (data.node?.data?.resModel === "dms.directory") {
+                this.props.rendererActions.onTreeDirectorySelected?.(
+                    data.node.data.data.id
+                );
+            }
         }
     }
 
@@ -277,6 +284,15 @@ export class DmsListRenderer extends Component {
         var menu = {};
         var jstree = this.$tree.jstree(true);
         if (node.data) {
+            if (this.props.explorer) {
+                // Read-only File Explorer: only Preview + Download on files; no
+                // create / rename / move / delete management actions, and no
+                // actions at all on folders.
+                if (node.data.resModel === "dms.file") {
+                    menu = this.loadContextMenuFile(jstree, node, menu);
+                }
+                return menu;
+            }
             if (node.data.resModel === "dms.directory") {
                 menu = this.loadContextMenuDirectoryBefore(jstree, node, menu);
                 menu = this.loadContextMenuBasic(jstree, node, menu);
@@ -641,6 +657,10 @@ export class DmsListRenderer extends Component {
     highlight(ev) {
         ev.stopPropagation();
         ev.preventDefault();
+        // Read-only File Explorer: never show the upload drop zone.
+        if (this.props.explorer) {
+            return;
+        }
         this.dragState.showDragZone = true;
     }
     unhighlight(ev) {
@@ -650,6 +670,10 @@ export class DmsListRenderer extends Component {
     }
     async onDrop(ev) {
         ev.preventDefault();
+        // Read-only File Explorer: dropping files never uploads.
+        if (this.props.explorer) {
+            return;
+        }
         await this._uploadFiles(
             ev.dataTransfer.files,
             this.nodeSelectedState.data?.data?.id

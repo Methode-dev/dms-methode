@@ -32,6 +32,9 @@ export function getDMSListControllerObject() {
                 onDMSMoveNode: this.onDMSMoveNode.bind(this),
                 onDMSDeleteNode: this.onDMSDeleteNode.bind(this),
                 onDMSDroppedFile: this.onDMSDroppedFile.bind(this),
+                // Optional host callback (e.g. the File Explorer search panel):
+                // undefined for the standard Documents tab / Task view usages.
+                onTreeDirectorySelected: this.props.onTreeDirectorySelected,
             };
             onRendered(() => {
                 this.processProps();

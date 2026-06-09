@@ -1,0 +1,23 @@
+// File Explorer: the left search panel hosts the dms_list folder/file tree.
+.file_explorer_search_panel {
+    // Wider than the default category search panel so the folder/file tree
+    // (folder names + file names) fits comfortably.
+    flex: 0 0 auto;
+    width: 24rem;
+    max-width: 45%;
+    height: 100%;
+    // The panel itself does not scroll; the embedded view scrolls internally.
+    overflow: hidden;
+
+    // The embedded dms_list view is not wrapped in an .o_action here (it is not
+    // a top-level action), so the ".o_action .o_content { height:100% }" rule
+    // does not apply. Give the embedded controller/content a bounded,
+    // scrollable height within the panel so the tree fills it.
+    .o_view_controller {
+        height: 100%;
+    }
+    .o_content {
+        height: 100%;
+        overflow: auto;
+    }
+}

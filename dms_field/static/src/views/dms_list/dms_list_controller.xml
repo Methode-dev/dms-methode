@@ -15,7 +15,11 @@
         -->
         <div t-att-class="props.className" t-ref="root">
             <Layout display="props.display" className="'flex-grow-1 overflow-auto'">
-                <t t-component="props.Renderer" rendererActions="rendererActions" />
+                <t
+                    t-component="props.Renderer"
+                    rendererActions="rendererActions"
+                    explorer="props.explorer"
+                />
             </Layout>
         </div>
     </t>
