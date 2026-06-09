@@ -98,7 +98,6 @@ export class DmsListRenderer extends Component {
             "conditionalselect",
             "massload",
             "wholerow",
-            "state",
             "sort",
             "search",
             "types",
@@ -118,9 +117,6 @@ export class DmsListRenderer extends Component {
             },
             contextmenu: {
                 items: this.loadContextMenu.bind(this),
-            },
-            state: {
-                key: "documents",
             },
             search: {
                 show_only_matches: true,
@@ -200,7 +196,39 @@ export class DmsListRenderer extends Component {
         });
         this.$tree.on("loaded.jstree", () => {
             const tree = this.$tree.jstree(true);
-            tree.open_all();
+            // Open only the first two depths of folders by default; deeper
+            // folders stay collapsed (but visible). Storage nodes are
+            // containers, not folders, so they don't count toward the depth —
+            // keeping the behaviour consistent between the Documents app
+            // (storage -> folders) and the task view (folders only). Children
+            // load lazily, so we recurse from each open_node callback once the
+            // node's children are available.
+            const MAX_FOLDER_DEPTH = 2;
+            const isOpenable = (n) =>
+                n &&
+                n.data &&
+                (n.data.resModel === "dms.storage" ||
+                    n.data.resModel === "dms.directory");
+            const openChildren = (parentId, parentFolderDepth) => {
+                const parent = tree.get_node(parentId);
+                for (const childId of (parent && parent.children) || []) {
+                    const child = tree.get_node(childId);
+                    if (!isOpenable(child)) {
+                        continue;
+                    }
+                    const isStorage = child.data.resModel === "dms.storage";
+                    const childFolderDepth = isStorage
+                        ? parentFolderDepth
+                        : parentFolderDepth + 1;
+                    if (!isStorage && childFolderDepth > MAX_FOLDER_DEPTH) {
+                        continue;
+                    }
+                    tree.open_node(childId, () => {
+                        openChildren(childId, childFolderDepth);
+                    });
+                }
+            };
+            openChildren("#", 0);
             // Auto-select the first directory so directory actions (e.g. the
             // Upload button) are usable without manually picking a folder.
             const selected = tree.get_selected(true);
