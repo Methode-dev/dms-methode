@@ -43,19 +43,35 @@
             top: 0;
             z-index: 3;
             background-color: var(--bs-body-bg, #fff);
-            display: flex;
+            // Three-column grid: buttons on the left, the search box truly
+            // centered, and an empty matching column on the right. The two
+            // equal 1fr side columns keep the middle (search) column dead-centre
+            // regardless of how wide the buttons are (e.g. when the conditional
+            // Download button appears).
+            display: grid;
+            grid-template-columns: 1fr minmax(8rem, 36rem) 1fr;
             align-items: center;
-            justify-content: space-between;
             gap: 0.5rem;
+            // Equal spacing above and below the bar.
+            padding-top: 0.5rem;
             padding-bottom: 0.5rem;
             .o_dms_header_buttons {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
+                justify-self: start;
+                // Keep each label on one line. A grid 1fr track can shrink to
+                // its content's min-content; without this the button text wraps
+                // when the column gets narrow — e.g. the (narrower) task view,
+                // when the Download button appears on file selection, or at
+                // mobile widths — which doubles the button height. nowrap keeps
+                // the buttons a single, consistent height across every view.
+                .btn {
+                    white-space: nowrap;
+                }
             }
             .o_dms_header_search {
-                flex: 0 1 22rem;
-                min-width: 8rem;
+                min-width: 0;
             }
         }
         .dms_document_col {
