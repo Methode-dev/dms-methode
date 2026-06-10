@@ -285,9 +285,20 @@ export class DmsListRenderer extends Component {
         var jstree = this.$tree.jstree(true);
         if (node.data) {
             if (this.props.explorer) {
-                // Read-only File Explorer: only Preview + Download on files; no
-                // create / rename / move / delete management actions, and no
-                // actions at all on folders.
+                // Match the grid's context menu: Rename (files + folders, when
+                // writable) plus Preview / Download on files. No create / move /
+                // delete management actions.
+                if (node.data.data.perm_write && !node.data.data.storage) {
+                    menu.rename = {
+                        separator_before: false,
+                        separator_after: false,
+                        icon: "fa fa-pencil",
+                        label: _t("Rename"),
+                        action: () => {
+                            jstree.edit(node);
+                        },
+                    };
+                }
                 if (node.data.resModel === "dms.file") {
                     menu = this.loadContextMenuFile(jstree, node, menu);
                 }

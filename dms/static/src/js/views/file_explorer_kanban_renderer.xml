@@ -12,11 +12,61 @@
         t-inherit-mode="primary"
     >
         <xpath expr="//t[@t-foreach='getGroupsOrRecords()']" position="before">
+            <!-- Sticky top bar: back / forward + a clickable folder breadcrumb.
+                 It is a full-width row at the top of the (flex-wrap) grid so the
+                 folders and files flow beneath it. -->
+            <div class="o_file_explorer_navbar">
+                <div class="btn-group btn-group-sm o_file_explorer_nav_buttons">
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        title="Back"
+                        t-att-disabled="!canGoBack"
+                        t-on-click="goBack"
+                    >
+                        <i class="fa fa-arrow-left" />
+                    </button>
+                    <button
+                        type="button"
+                        class="btn btn-light"
+                        title="Forward"
+                        t-att-disabled="!canGoForward"
+                        t-on-click="goForward"
+                    >
+                        <i class="fa fa-arrow-right" />
+                    </button>
+                </div>
+                <ol class="breadcrumb mb-0 o_file_explorer_breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a
+                            href="#"
+                            title="Home"
+                            t-on-click.prevent="() => this.navigateTo(false)"
+                        >
+                            <i class="fa fa-home" />
+                        </a>
+                    </li>
+                    <li
+                        t-foreach="explorerState.breadcrumb"
+                        t-as="crumb"
+                        t-key="crumb.id"
+                        t-att-class="'breadcrumb-item' + (crumb_index === explorerState.breadcrumb.length - 1 ? ' active' : '')"
+                    >
+                        <a
+                            t-if="crumb_index !== explorerState.breadcrumb.length - 1"
+                            href="#"
+                            t-on-click.prevent="() => this.navigateTo(crumb.id)"
+                            t-esc="crumb.name"
+                        />
+                        <t t-else="" t-esc="crumb.name" />
+                    </li>
+                </ol>
+            </div>
             <t t-foreach="explorerState.folders" t-as="folder" t-key="folder.id">
                 <div
                     class="o_kanban_record o_file_explorer_folder"
                     t-on-dblclick="() => this.openFolder(folder)"
-                    t-on-contextmenu.prevent="onFolderContextMenu"
+                    t-on-contextmenu="(ev) => this.onFolderContextMenu(ev, folder)"
                 >
                     <main class="o_file_explorer_card">
                         <div class="o_file_explorer_icon">

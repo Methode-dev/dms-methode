@@ -1,19 +1,22 @@
 // /** ********************************************************************************
 //     File Explorer kanban record.
 //     OS-file-explorer interactions: double-click a file to preview it,
-//     right-click to download it. Single click does nothing.
+//     right-click to open a context menu (Rename / Preview / Download).
+//     Single click does nothing.
 //     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 //  **********************************************************************************/
 import {download} from "@web/core/network/download";
 import {FileKanbanRecord} from "./file_kanban_record.esm";
 import {useEffect} from "@odoo/owl";
+import {useFileExplorerContextMenu} from "./file_explorer_context_menu.esm";
 
 export class FileExplorerKanbanRecord extends FileKanbanRecord {
     setup() {
         super.setup();
+        this.openContextMenu = useFileExplorerContextMenu();
         // Bind the OS-explorer interactions on the card root element:
         //   - double-click -> preview (in-page viewer)
-        //   - right-click  -> download (suppresses the browser context menu)
+        //   - right-click  -> context menu (Rename / Preview / Download)
         useEffect(
             (el) => {
                 if (!el) {
@@ -21,8 +24,17 @@ export class FileExplorerKanbanRecord extends FileKanbanRecord {
                 }
                 const onDblClick = () => this.openPreview();
                 const onContextMenu = (ev) => {
-                    ev.preventDefault();
-                    this.downloadFile();
+                    const data = this.props.record.data;
+                    this.openContextMenu(ev, {
+                        model: "dms.file",
+                        id: data.id,
+                        name: data.name,
+                        canRename: data.permission_write,
+                        isFile: true,
+                        onPreview: () => this.openPreview(),
+                        onDownload: () => this.downloadFile(),
+                        onRefresh: () => this.props.record.model.load(),
+                    });
                 };
                 el.addEventListener("dblclick", onDblClick);
                 el.addEventListener("contextmenu", onContextMenu);

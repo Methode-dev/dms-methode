@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="dms.FileExplorerRenameDialog">
+        <Dialog title="props.title or 'Rename'" size="'md'">
+            <div>
+                <input
+                    type="text"
+                    class="form-control"
+                    t-ref="input"
+                    t-model="state.value"
+                    t-on-keydown="onKeydown"
+                />
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="onConfirm">Rename</button>
+                <button class="btn btn-secondary" t-on-click="() => props.close()">
+                    Cancel
+                </button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

@@ -22,6 +22,40 @@
     }
 }
 
+// File Explorer top bar: back / forward + clickable folder breadcrumb. It is a
+// full-width row at the top of the (flex-wrap) grid, kept visible while the
+// files/folders scroll underneath.
+.o_file_explorer_kanban .o_file_explorer_navbar {
+    flex: 0 0 100%;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.25rem 0.4rem;
+    margin-bottom: 0.25rem;
+    background-color: var(--bs-body-bg, #fff);
+    border-bottom: 1px solid var(--bs-border-color, #dee2e6);
+
+    .o_file_explorer_nav_buttons {
+        flex: 0 0 auto;
+    }
+
+    .o_file_explorer_breadcrumb {
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        // Long paths scroll horizontally instead of wrapping.
+        flex-wrap: nowrap;
+        white-space: nowrap;
+        overflow-x: auto;
+    }
+}
+
 // File Explorer kanban: OS-file-explorer tile layout — a centred icon in an
 // (invisible) square box with the file name below it.
 .o_file_explorer_kanban {
