@@ -14,7 +14,7 @@ import {_t} from "@web/core/l10n/translation";
 import {download} from "@web/core/network/download";
 import {FileModelMixin} from "@web/core/file_viewer/file_model";
 import {useFileViewer} from "@web/core/file_viewer/file_viewer_hook";
-import {useService} from "@web/core/utils/hooks";
+import {useBus, useService} from "@web/core/utils/hooks";
 
 // File-viewer model whose source points at a dms.file's content field, so the
 // in-page viewer (the same overlay the Documents app uses) can display it.
@@ -36,10 +36,20 @@ export class DmsListRenderer extends Component {
         this.fileViewer = useFileViewer();
         this.notification = useService("notification");
         this.dialog = useService("dialog");
+        this.orm = useService("orm");
         this.dragState = useState({
             showDragZone: false,
         });
         this.dropZone = useRef("dropZone");
+
+        // File Explorer: keep the tree in sync with the grid. When the grid (or
+        // breadcrumb / back-forward) changes the current location, open the
+        // ancestor folders and highlight the current one.
+        if (this.props.explorerSearchModel) {
+            useBus(this.props.explorerSearchModel, "update", () =>
+                this.revealDirectory(this.props.explorerSearchModel.explorerDirectoryId)
+            );
+        }
 
         useEffect(
             (el) => {
@@ -264,6 +274,69 @@ export class DmsListRenderer extends Component {
                 );
             }
         }
+    }
+
+    /**
+     * Open the ancestor folders and select/reveal the directory `dirId` in the
+     * tree, so it stays in sync with the File Explorer grid. `dirId` falsy =>
+     * the root (clear the selection).
+     */
+    async revealDirectory(dirId) {
+        const tree = this.$tree && this.$tree.jstree(true);
+        if (!tree) {
+            return;
+        }
+        if (!dirId) {
+            tree.deselect_all(true);
+            return;
+        }
+        const targetNodeId = "directory_" + dirId;
+        const selected = tree.get_selected();
+        if (selected.length === 1 && selected[0] === targetNodeId) {
+            // Already on this node (e.g. the navigation originated from the tree).
+            return;
+        }
+        let record = null;
+        try {
+            const res = await this.orm.read("dms.directory", [dirId], [
+                "parent_path",
+                "storage_id",
+            ]);
+            record = res && res[0];
+        } catch {
+            return;
+        }
+        if (!record) {
+            return;
+        }
+        // parent_path is "id1/id2/.../dirId/" (root -> current). Build the chain
+        // of jsTree node ids from the storage down to (and including) the target.
+        const ancestorIds = (record.parent_path || "").split("/").filter(Boolean);
+        const chain = [];
+        if (record.storage_id) {
+            chain.push("storage_" + record.storage_id[0]);
+        }
+        for (const id of ancestorIds) {
+            chain.push("directory_" + id);
+        }
+        // Open every ancestor (all but the target) so the target node is loaded,
+        // then select and scroll it into view.
+        const toOpen = chain.slice(0, -1);
+        const openNext = (i) => {
+            if (i >= toOpen.length) {
+                if (tree.get_node(targetNodeId)) {
+                    tree.deselect_all(true);
+                    tree.select_node(targetNodeId);
+                    const el = document.getElementById(targetNodeId);
+                    if (el && el.scrollIntoView) {
+                        el.scrollIntoView({block: "nearest"});
+                    }
+                }
+                return;
+            }
+            tree.open_node(toOpen[i], () => openNext(i + 1));
+        };
+        openNext(0);
     }
 
     updatePreview(node) {

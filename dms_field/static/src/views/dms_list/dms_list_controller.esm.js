@@ -287,7 +287,9 @@ export function getDMSListControllerObject() {
                 ? "directory_" + directory.parent_id[0]
                 : "#";
             var directoryNode = {
-                id: dt.id,
+                // Deterministic node id so a directory can be targeted (selected
+                // / revealed) by id, e.g. when the File Explorer grid navigates.
+                id: "directory_" + directory.id,
                 text: directory.name,
                 // Colourful folder SVG (same as the preview pane). The
                 // open/close handlers swap it to folder_open.svg / folder.svg.
@@ -326,7 +328,7 @@ export function getDMSListControllerObject() {
                 resModel: "dms.file",
             };
             return {
-                id: dt.id,
+                id: "file_" + dt.data.id,
                 text: dt.data.display_name,
                 // Use the colourful SVG (same icon as the preview pane); jsTree
                 // renders a path-like icon as a background image. Fall back to

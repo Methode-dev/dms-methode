@@ -28,6 +28,9 @@ export class FileExplorerSearchPanel extends Component {
             explorer: true,
             onTreeDirectorySelected: (directoryId) =>
                 this.env.searchModel.selectDirectory(directoryId),
+            // Stable reference so the tree can subscribe to grid navigation and
+            // highlight/expand the current folder (keeping both panels in sync).
+            explorerSearchModel: this.env.searchModel,
         };
     }
 }

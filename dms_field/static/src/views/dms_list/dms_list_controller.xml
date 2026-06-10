@@ -19,6 +19,7 @@
                     t-component="props.Renderer"
                     rendererActions="rendererActions"
                     explorer="props.explorer"
+                    explorerSearchModel="props.explorerSearchModel"
                 />
             </Layout>
         </div>
