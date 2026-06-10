@@ -3,7 +3,10 @@
     <t t-name="dms_list.Renderer">
         <div class="dms_treeview">
             <div class="container-fluid dms_document_container ">
-                <div class="o_dms_header">
+                <!-- In the File Explorer (explorer mode) the whole top bar
+                     (Upload / Download / search) is hidden: that view already
+                     provides its own search bar and navigation. -->
+                <div class="o_dms_header" t-if="!props.explorer">
                     <div class="o_dms_header_buttons">
                         <button
                             class="btn btn-secondary o_dms_add_directory fa fa-database o_hidden"

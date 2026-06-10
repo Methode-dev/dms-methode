@@ -4,8 +4,9 @@
 //     Double-clicking a folder opens it (descends into it).
 //     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 //  **********************************************************************************/
-import {onWillStart, useState} from "@odoo/owl";
+import {onWillStart, onWillUnmount, useState} from "@odoo/owl";
 import {useBus, useService} from "@web/core/utils/hooks";
+import {_t} from "@web/core/l10n/translation";
 import {FileExplorerKanbanRecord} from "./file_explorer_kanban_record.esm";
 import {FileKanbanRenderer} from "./file_kanban_renderer.esm";
 import {FileNameLabel} from "./file_explorer_filename.esm";
@@ -15,6 +16,8 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
     setup() {
         super.setup();
         this.orm = useService("orm");
+        this.http = useService("http");
+        this.notification = useService("notification");
         this.openContextMenu = useFileExplorerContextMenu();
         this.explorerState = useState({folders: [], breadcrumb: []});
         this._lastDir = undefined;
@@ -23,6 +26,113 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
         // and breadcrumb whenever it changes (the search model fires "update" on
         // navigation).
         useBus(this.env.searchModel, "update", () => this._reloadLocation());
+        onWillUnmount(() => {
+            if (this._dragHideTimer) {
+                clearTimeout(this._dragHideTimer);
+            }
+        });
+    }
+
+    // ---- Drag & drop upload to the current location -------------------------
+    // The inherited file-kanban drop zone routes the drop through the kanban
+    // controller's hidden upload <input>, which the explorer does not render
+    // (create=0) — hence the "Cannot set properties of null" error. Override the
+    // handlers to (a) show a centered overlay while dragging and (b) upload the
+    // dropped files straight into the currently open folder.
+
+    highlight(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        // Cancel a pending hide so moving over child tiles doesn't flicker.
+        if (this._dragHideTimer) {
+            clearTimeout(this._dragHideTimer);
+            this._dragHideTimer = null;
+        }
+        this.dragState.showDragZone = true;
+    }
+
+    unhighlight(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        // Defer hiding: a continuing drag fires dragover again and cancels it.
+        if (this._dragHideTimer) {
+            clearTimeout(this._dragHideTimer);
+        }
+        this._dragHideTimer = setTimeout(() => {
+            this.dragState.showDragZone = false;
+            this._dragHideTimer = null;
+        }, 150);
+    }
+
+    async onDrop(ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if (this._dragHideTimer) {
+            clearTimeout(this._dragHideTimer);
+            this._dragHideTimer = null;
+        }
+        this.dragState.showDragZone = false;
+        await this._uploadFilesToCurrent(ev.dataTransfer && ev.dataTransfer.files);
+    }
+
+    async _uploadFilesToCurrent(files) {
+        const directoryId = this.currentDirectoryId;
+        if (!directoryId) {
+            this.notification.add(
+                _t("Open a folder first to upload files into it."),
+                {type: "warning"}
+            );
+            return;
+        }
+        if (!files || !files.length) {
+            return;
+        }
+        try {
+            const params = {
+                csrf_token: odoo.csrf_token,
+                ufile: [...files],
+                model: "dms.file",
+                id: 0,
+            };
+            const raw = await this.http.post(
+                "/web/binary/upload_attachment",
+                params,
+                "text"
+            );
+            const attachments = JSON.parse(raw);
+            if (attachments.error) {
+                this.notification.add(attachments.error, {type: "danger"});
+                return;
+            }
+            const attachmentIds = attachments.map((a) => a.id).filter(Boolean);
+            if (!attachmentIds.length) {
+                this.notification.add(_t("An error occurred during the upload"), {
+                    type: "danger",
+                });
+                return;
+            }
+            const fileDatas = await this.orm.call(
+                "dms.file",
+                "get_dms_files_from_attachments",
+                [],
+                {attachment_ids: attachmentIds}
+            );
+            const valsList = fileDatas.map((data) => ({
+                name: data.name,
+                content: data.datas,
+                mimetype: data.mimetype,
+                directory_id: directoryId,
+            }));
+            await this.orm.call("dms.file", "create", [valsList]);
+            // Refresh the file list so the new files appear.
+            await this.props.list.model.load();
+        } catch (error) {
+            this.notification.add(
+                (error.data && error.data.message) ||
+                    _t("An error occurred during the upload"),
+                {type: "danger"}
+            );
+        }
     }
 
     get currentDirectoryId() {

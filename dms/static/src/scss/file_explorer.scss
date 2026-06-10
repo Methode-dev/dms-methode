@@ -22,6 +22,30 @@
     }
 }
 
+// File Explorer drag-and-drop upload overlay. Covers the whole explorer content
+// (.o_content is position:relative) with a centred icon over a blurred backdrop,
+// so it's obvious a drop will upload into the current folder. pointer-events are
+// disabled so the underlying drag/drop events keep firing.
+.o_file_explorer_kanban .o_dropzone {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    color: var(--bs-primary, #714b67);
+    background-color: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    border: 2px dashed var(--bs-primary, #714b67);
+    border-radius: 0.5rem;
+
+    .fa {
+        opacity: 0.85;
+    }
+}
+
 // File Explorer top bar: back / forward + clickable folder breadcrumb. It is a
 // full-width row at the top of the (flex-wrap) grid, kept visible while the
 // files/folders scroll underneath.
