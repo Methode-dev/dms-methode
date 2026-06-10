@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <!--
+        Inherit the dms file kanban renderer (which adds the drop zone) and inject
+        the current location's subfolders as tiles, right before the file records
+        and inside the same flex-wrap container so folders and files flow together
+        (folders first, then files), like an OS file explorer.
+    -->
+    <t
+        t-name="dms.FileExplorerKanbanRenderer"
+        t-inherit="dms.KanbanRenderer"
+        t-inherit-mode="primary"
+    >
+        <xpath expr="//t[@t-foreach='getGroupsOrRecords()']" position="before">
+            <t t-foreach="explorerState.folders" t-as="folder" t-key="folder.id">
+                <div
+                    class="o_kanban_record o_file_explorer_folder"
+                    t-on-dblclick="() => this.openFolder(folder)"
+                    t-on-contextmenu.prevent="onFolderContextMenu"
+                >
+                    <main class="o_file_explorer_card">
+                        <div class="o_file_explorer_icon">
+                            <img t-att-src="folder.icon_url" alt="Folder" />
+                        </div>
+                        <div class="o_file_explorer_name">
+                            <FileNameLabel name="folder.name" />
+                        </div>
+                    </main>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

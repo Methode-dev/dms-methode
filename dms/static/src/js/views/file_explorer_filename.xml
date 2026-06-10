@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="dms.FileNameLabel">
+        <span t-ref="root" class="o_file_explorer_filename" t-esc="state.display" />
+    </t>
+
+    <t t-name="dms.FileNameTruncate">
+        <FileNameLabel name="value" />
+    </t>
+</templates>

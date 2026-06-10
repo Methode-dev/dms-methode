@@ -46,25 +46,25 @@
                 <attribute name="create">0</attribute>
                 <attribute name="edit">0</attribute>
                 <attribute name="delete">0</attribute>
+                <!-- OS-file-explorer tile layout (see file_explorer.scss). -->
+                <attribute name="class" add="o_file_explorer_kanban" separator=" " />
             </kanban>
-            <!-- Strip every file management / configuration entry from the card
-                 manage menu (Open form, Edit, Lock/Unlock, Archive/Unarchive,
-                 Delete, colour picker). Keep only Download — preview happens on
-                 click. -->
-            <xpath expr="//t[@t-name='menu']" position="replace">
-                <t t-name="menu">
-                    <div class="container">
-                        <div class="row">
-                            <div role="menuitem" class="col-12">
-                                <a
-                                    t-attf-href="/web/content?id=#{record.id.raw_value}&amp;field=content&amp;model=dms.file&amp;filename_field=name&amp;download=true"
-                                >
-                                    <i class="fa fa-download" />
-                                    Download
-                                </a>
-                            </div>
+            <!-- Remove the card manage dropdown (the 3-dots). In File Explorer:
+                 double-click a file to preview it, right-click to download it
+                 (both handled by the file_explorer_kanban record). -->
+            <xpath expr="//t[@t-name='menu']" position="replace" />
+            <!-- OS-file-explorer card: the icon centred in an (invisible) square
+                 box, with the file name displayed below it. -->
+            <xpath expr="//t[@t-name='card']" position="replace">
+                <t t-name="card">
+                    <main class="o_file_explorer_card">
+                        <div class="o_file_explorer_icon">
+                            <img t-att-src="record.icon_url.raw_value" alt="Icon" />
                         </div>
-                    </div>
+                        <div class="o_file_explorer_name">
+                            <field name="name" widget="dms_filename_truncate" />
+                        </div>
+                    </main>
                 </t>
             </xpath>
         </field>

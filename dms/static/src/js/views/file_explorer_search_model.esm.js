@@ -7,9 +7,9 @@ import {SearchModel} from "@web/search/search_model";
 
 export class FileExplorerSearchModel extends SearchModel {
     /**
-     * Filter the file list to the files contained in the selected directory and
-     * all of its descendants. Called by the File Explorer search panel when a
-     * folder is picked in the tree. Pass a falsy id to clear the filter.
+     * Make `directoryId` the current location. The file list then shows that
+     * folder's DIRECT files (OS-style); its direct subfolders are shown as tiles
+     * by the renderer. Pass a falsy id for the root (no loose files there).
      */
     selectDirectory(directoryId) {
         this.explorerDirectoryId = directoryId || false;
@@ -19,19 +19,16 @@ export class FileExplorerSearchModel extends SearchModel {
     /**
      * @override
      *
-     * AND in the recursive directory filter when a folder is selected. We use
-     * "child_of" (recursive) directly here rather than the search-panel
-     * category mechanism, which the dms module patches to a non-recursive "=".
+     * Restrict the file list to the current location's DIRECT files
+     * (directory_id = current). At the root (no selection) directory_id = false
+     * matches no files, since every file lives in a directory.
      */
     _getDomain(params = {}) {
         const base = super._getDomain({...params, raw: true});
-        let domain = base;
-        if (this.explorerDirectoryId) {
-            domain = Domain.and([
-                base,
-                new Domain([["directory_id", "child_of", this.explorerDirectoryId]]),
-            ]);
-        }
+        const domain = Domain.and([
+            base,
+            new Domain([["directory_id", "=", this.explorerDirectoryId || false]]),
+        ]);
         return params.raw ? domain : domain.toList(this.domainEvalContext);
     }
 }
