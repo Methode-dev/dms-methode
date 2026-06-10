@@ -36,7 +36,10 @@
                         <i class="fa fa-arrow-right" />
                     </button>
                 </div>
-                <ol class="breadcrumb mb-0 o_file_explorer_breadcrumb">
+                <ol
+                    t-if="!isExplorerSearching"
+                    class="breadcrumb mb-0 o_file_explorer_breadcrumb"
+                >
                     <li class="breadcrumb-item">
                         <a
                             href="#"
@@ -61,6 +64,10 @@
                         <t t-else="" t-esc="crumb.name" />
                     </li>
                 </ol>
+                <div t-else="" class="o_file_explorer_search_label text-muted">
+                    <i class="fa fa-search me-1" />
+                    Search results
+                </div>
             </div>
             <t t-foreach="explorerState.folders" t-as="folder" t-key="folder.id">
                 <div

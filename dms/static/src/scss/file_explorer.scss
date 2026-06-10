@@ -78,6 +78,11 @@
         white-space: nowrap;
         overflow-x: auto;
     }
+
+    .o_file_explorer_search_label {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
 }
 
 // File Explorer kanban: OS-file-explorer tile layout — a centred icon in an

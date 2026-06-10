@@ -20,17 +20,22 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
         this.notification = useService("notification");
         this.openContextMenu = useFileExplorerContextMenu();
         this.explorerState = useState({folders: [], breadcrumb: []});
-        this._lastDir = undefined;
+        this._lastKey = undefined;
         onWillStart(() => this._reloadLocation());
-        // The location lives on the (custom) search model; reload the subfolders
-        // and breadcrumb whenever it changes (the search model fires "update" on
-        // navigation).
+        // The location / search term live on the (custom) search model; reload
+        // the folders and breadcrumb whenever they change (the search model fires
+        // "update" on navigation and on search). The search itself is driven by
+        // the main control-panel search bar (see file_explorer_search_bar.esm).
         useBus(this.env.searchModel, "update", () => this._reloadLocation());
         onWillUnmount(() => {
             if (this._dragHideTimer) {
                 clearTimeout(this._dragHideTimer);
             }
         });
+    }
+
+    get isExplorerSearching() {
+        return this.env.searchModel.isExplorerSearching;
     }
 
     // ---- Drag & drop upload to the current location -------------------------
@@ -157,28 +162,55 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
     }
 
     async _reloadLocation() {
-        const dir = this.currentDirectoryId;
-        if (dir === this._lastDir) {
+        const sm = this.env.searchModel;
+        const dir = sm.explorerDirectoryId || false;
+        const term = sm.explorerSearchTerm || "";
+        const key = dir + "|" + term;
+        if (key === this._lastKey) {
             return;
         }
-        this._lastDir = dir;
-        // Direct subfolders of the current location (root directories when no
-        // folder is selected). Record rules already restrict this to folders
-        // the user may read.
+        this._lastKey = key;
+
+        if (term) {
+            // Search mode: matching folders anywhere in the current storage,
+            // flat. Record rules restrict this to folders the user may read.
+            const domain = [["name", "ilike", term]];
+            if (sm.explorerStorageId) {
+                domain.push(["storage_id", "=", sm.explorerStorageId]);
+            }
+            let folders = [];
+            try {
+                folders = await this.orm.searchRead(
+                    "dms.directory",
+                    domain,
+                    ["name", "icon_url", "permission_write"],
+                    {order: "name", limit: 200}
+                );
+            } catch {
+                folders = [];
+            }
+            if (this._lastKey === key) {
+                this.explorerState.folders = folders;
+                this.explorerState.breadcrumb = [];
+            }
+            return;
+        }
+
+        // Browse mode: direct subfolders + breadcrumb. Also (re)compute the
+        // current storage so a later search can be scoped to it.
         const folders = await this.orm.searchRead(
             "dms.directory",
             [["parent_id", "=", dir]],
             ["name", "icon_url", "permission_write"],
             {order: "name"}
         );
-        // Breadcrumb = the current folder and all its ancestors, root -> current.
         let breadcrumb = [];
         if (dir) {
             try {
                 const ancestors = await this.orm.searchRead(
                     "dms.directory",
                     [["id", "parent_of", dir]],
-                    ["name", "complete_name"],
+                    ["name", "complete_name", "storage_id"],
                     {}
                 );
                 ancestors.sort(
@@ -187,20 +219,25 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
                         (b.complete_name || "").split(" / ").length
                 );
                 breadcrumb = ancestors.map((a) => ({id: a.id, name: a.name}));
+                const current = ancestors.find((a) => a.id === dir);
+                sm.explorerStorageId =
+                    current && current.storage_id ? current.storage_id[0] : false;
             } catch {
                 breadcrumb = [];
             }
+        } else {
+            sm.explorerStorageId = false;
         }
         // Guard against an out-of-order async resolution overwriting a newer one.
-        if (this._lastDir === dir) {
+        if (this._lastKey === key) {
             this.explorerState.folders = folders;
             this.explorerState.breadcrumb = breadcrumb;
         }
     }
 
-    /** Force a refresh of the subfolders + breadcrumb (e.g. after a rename). */
+    /** Force a refresh of the folders + breadcrumb (e.g. after a rename). */
     async _refresh() {
-        this._lastDir = undefined;
+        this._lastKey = undefined;
         await this._reloadLocation();
     }
 
