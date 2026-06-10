@@ -217,6 +217,14 @@ class DmsSecurityMixin(models.AbstractModel):
             # You're SUPERUSER_ID
             return Domain.TRUE if positive else Domain.FALSE
 
+        # DMS Managers (Settings > Users > Access Rights > Documents > Manager)
+        # have full access to every directory/file regardless of the
+        # per-directory access groups — mirroring superuser. This guarantees a
+        # Manager can always read/create/write/unlink anywhere, including
+        # folders created without granting their access group.
+        if _self.env.user.has_group("dms.group_dms_manager"):
+            return Domain.TRUE if positive else Domain.FALSE
+
         result = Domain.OR(
             [
                 _self._get_domain_by_access_groups(operation),
