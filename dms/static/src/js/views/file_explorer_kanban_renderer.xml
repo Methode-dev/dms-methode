@@ -12,6 +12,13 @@
         t-inherit-mode="primary"
     >
         <xpath expr="//t[@t-foreach='getGroupsOrRecords()']" position="before">
+            <!-- Explorer chrome (sticky top bar + folder tiles) only in the
+                 normal, ungrouped grid. With Group By active the kanban switches
+                 to a horizontal, non-wrapping column layout where a full-width
+                 navbar would push the columns off-screen (blank page), so there
+                 we fall back to the standard grouped kanban. Filters / Favorites
+                 (without a group-by) keep the explorer layout. -->
+            <t t-if="!props.list.isGrouped">
             <!-- Sticky top bar: back / forward + a clickable folder breadcrumb.
                  It is a full-width row at the top of the (flex-wrap) grid so the
                  folders and files flow beneath it. -->
@@ -84,6 +91,7 @@
                         </div>
                     </main>
                 </div>
+            </t>
             </t>
         </xpath>
     </t>
