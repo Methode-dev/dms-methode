@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). -->
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.dms.pdf.merge</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="30" />
+        <field name="inherit_id" ref="dms.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='dms']" position="inside">
+                <block title="PDF Merge" name="pdf_merge_block">
+                    <setting
+                        string="Merge PDF on Quotations"
+                        help="Show the 'Merge PDF' button on the Sales Order / Quotation form."
+                    >
+                        <field name="pdf_merge_on_sale_order" />
+                    </setting>
+                    <setting
+                        string="Merge PDF on Tasks"
+                        help="Show the 'Merge PDF' button on the parent Task form."
+                    >
+                        <field name="pdf_merge_on_task" />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,123 @@
+<templates xml:space="preserve">
+    <t t-name="dms_pdf_merge.PdfMergeDialog" owl="1">
+        <Dialog size="'xl'" header="false" footer="false">
+            <div class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                <div>
+                    <h4 class="m-0">Merge &amp; Save PDF</h4>
+                    <small class="text-muted" t-if="state.recordName" t-esc="state.recordName"/>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-primary"
+                            t-on-click="() => this.selectAll()"
+                            t-att-disabled="state.isLoading or state.isMerging">
+                        Select All
+                    </button>
+                    <button type="button" class="btn btn-outline-primary"
+                            t-on-click="() => this.deselectAll()"
+                            t-att-disabled="state.isLoading or state.isMerging">
+                        Deselect All
+                    </button>
+                    <button type="button" class="btn btn-primary fs-7 d-flex align-items-center"
+                            t-on-click="() => this.triggerFileInput()"
+                            t-att-disabled="state.isLoading or state.isMerging">
+                        <i class="fa fa-plus me-2"/>
+                        Add File
+                        <input t-ref="fileInput" type="file" accept=".pdf" t-on-change="(ev) => this.onFileUpload(ev)"
+                               style="display: none;"/>
+                    </button>
+                    <a href="#" t-on-click="() => this.closeDialog()" class="ms-2">
+                        <i class="fa fa-close" style="font-size: 20px; color: #000000;"/>
+                    </a>
+                </div>
+            </div>
+
+            <div class="p-3" style="max-height: 70vh; overflow-y: auto;">
+                <div t-if="state.isLoading" class="text-center py-5">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                    <p class="mt-2">Loading documents...</p>
+                </div>
+
+                <div t-if="state.error" class="alert alert-danger">
+                    <i class="fa fa-exclamation-triangle me-2"/>
+                    <t t-esc="state.error"/>
+                </div>
+
+                <div t-if="!state.isLoading and !state.error and state.pageOrder.length === 0" class="text-center py-5">
+                    <i class="fa fa-file-pdf-o fa-3x text-muted mb-3"/>
+                    <p class="text-muted">No PDF documents found.</p>
+                    <p class="text-muted small">Click "Add File" to upload PDF files to merge.</p>
+                </div>
+
+                <div t-if="!state.isLoading and !state.error and state.pageOrder.length > 0" class="container-fluid">
+                    <div class="row gy-3">
+                        <t t-foreach="state.pageOrder" t-as="page" t-key="page_index">
+                            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12">
+                                <div t-att-class="'card h-100 ' + (state.selectedPages.has(page_index) ? 'border-primary border-2' : '')"
+                                     draggable="true"
+                                     t-on-dragstart="(ev) => this.handleDragStart(ev, page_index)"
+                                     t-on-dragover.prevent="(ev) => this.handleDragOver(ev, page_index)"
+                                     t-on-drop="(ev) => this.handleDrop(ev, page_index)"
+                                     t-on-click="() => this.togglePageSelection(page_index)"
+                                     style="cursor: pointer;">
+                                    <div class="card-header py-1 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <input type="checkbox" class="form-check-input"
+                                                   t-att-checked="state.selectedPages.has(page_index) ? 'checked' : undefined"
+                                                   t-on-click.stop="(ev) => this.onCheckboxClick(ev, page_index)"/>
+                                            <span class="fw-bold small">#<t t-esc="page_index + 1"/></span>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-link text-danger p-0"
+                                                t-on-click.stop="() => this.deletePage(page_index)"
+                                                title="Remove page">
+                                            <i class="fa fa-trash"/>
+                                        </button>
+                                    </div>
+                                    <div class="card-body p-1">
+                                        <div class="position-relative" style="height: 180px; overflow: hidden;">
+                                            <img t-att-src="page.preview_url" alt="Page Preview"
+                                                 class="w-100 h-100 shadow-sm"
+                                                 style="object-fit: contain;"
+                                                 onerror="this.src='/web/static/src/img/placeholder.png'"/>
+                                            <span t-att-class="'badge position-absolute top-0 start-0 m-1 ' + getPageBadgeClass(page)"
+                                                  style="font-size: 0.65rem;">
+                                                <t t-esc="getPageBadge(page)"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer py-1 px-2">
+                                        <small class="text-muted text-truncate d-block" t-att-title="page.name">
+                                            <t t-esc="page.name"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top px-3 py-2 bg-light d-flex justify-content-between align-items-center gap-3">
+                <small class="text-muted">
+                    <i class="fa fa-info-circle me-1"/>
+                    Drag and drop pages to reorder. Selected pages: <strong t-esc="state.selectedPages.size"/> / <t t-esc="state.pageOrder.length"/>
+                </small>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="input-group input-group-sm" style="width: 320px;">
+                        <span class="input-group-text">File name</span>
+                        <input type="text" class="form-control"
+                               t-model="state.filename"
+                               t-att-disabled="state.isLoading or state.isMerging"
+                               placeholder="merged.pdf"/>
+                    </div>
+                    <button type="button" class="btn btn-success fs-7 d-flex align-items-center"
+                            t-on-click="() => this.mergeAndSave()"
+                            t-att-disabled="state.isLoading or state.isMerging or state.selectedPages.size === 0 or !state.filename">
+                        <i class="fa fa-save me-2" t-if="!state.isMerging"/>
+                        <i class="fa fa-spinner fa-spin me-2" t-if="state.isMerging"/>
+                        Merge &amp; Save
+                    </button>
+                </div>
+            </div>
+        </Dialog>
+    </t>
+</templates>
