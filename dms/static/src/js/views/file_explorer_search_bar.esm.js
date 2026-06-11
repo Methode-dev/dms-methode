@@ -41,12 +41,18 @@ patch(SearchBar.prototype, {
         if (searchModel && searchModel.isFileExplorer) {
             // Live search instead of the autocomplete/facet flow.
             this.inputDropdownState.close();
-            const value = ev.target.value;
+            const value = ev.target.value.trim();
             if (this._fileExplorerSearchTimer) {
                 clearTimeout(this._fileExplorerSearchTimer);
+                this._fileExplorerSearchTimer = null;
+            }
+            if (!value) {
+                // Cleared: restore the current directory immediately (no delay).
+                searchModel.setSearchTerm("");
+                return;
             }
             this._fileExplorerSearchTimer = setTimeout(() => {
-                searchModel.setSearchTerm(value.trim());
+                searchModel.setSearchTerm(value);
             }, 250);
             return;
         }
