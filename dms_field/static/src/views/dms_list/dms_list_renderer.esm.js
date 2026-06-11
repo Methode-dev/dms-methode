@@ -206,39 +206,45 @@ export class DmsListRenderer extends Component {
         });
         this.$tree.on("loaded.jstree", () => {
             const tree = this.$tree.jstree(true);
-            // Open only the first two depths of folders by default; deeper
-            // folders stay collapsed (but visible). Storage nodes are
-            // containers, not folders, so they don't count toward the depth —
-            // keeping the behaviour consistent between the Documents app
-            // (storage -> folders) and the task view (folders only). Children
-            // load lazily, so we recurse from each open_node callback once the
-            // node's children are available.
-            const MAX_FOLDER_DEPTH = 2;
-            const isOpenable = (n) =>
-                n &&
-                n.data &&
-                (n.data.resModel === "dms.storage" ||
-                    n.data.resModel === "dms.directory");
-            const openChildren = (parentId, parentFolderDepth) => {
-                const parent = tree.get_node(parentId);
-                for (const childId of (parent && parent.children) || []) {
-                    const child = tree.get_node(childId);
-                    if (!isOpenable(child)) {
-                        continue;
+            if (this.props.openAllFolders) {
+                // Task / sub-task Documents tab: expand every folder so all
+                // documents are visible and a freshly uploaded file shows up
+                // without the user having to expand its folder.
+                tree.open_all();
+            } else {
+                // Elsewhere (Documents app / File Explorer): open only the first
+                // two depths of folders by default; deeper folders stay
+                // collapsed (but visible). Storage nodes are containers, not
+                // folders, so they don't count toward the depth. Children load
+                // lazily, so we recurse from each open_node callback once the
+                // node's children are available.
+                const MAX_FOLDER_DEPTH = 2;
+                const isOpenable = (n) =>
+                    n &&
+                    n.data &&
+                    (n.data.resModel === "dms.storage" ||
+                        n.data.resModel === "dms.directory");
+                const openChildren = (parentId, parentFolderDepth) => {
+                    const parent = tree.get_node(parentId);
+                    for (const childId of (parent && parent.children) || []) {
+                        const child = tree.get_node(childId);
+                        if (!isOpenable(child)) {
+                            continue;
+                        }
+                        const isStorage = child.data.resModel === "dms.storage";
+                        const childFolderDepth = isStorage
+                            ? parentFolderDepth
+                            : parentFolderDepth + 1;
+                        if (!isStorage && childFolderDepth > MAX_FOLDER_DEPTH) {
+                            continue;
+                        }
+                        tree.open_node(childId, () => {
+                            openChildren(childId, childFolderDepth);
+                        });
                     }
-                    const isStorage = child.data.resModel === "dms.storage";
-                    const childFolderDepth = isStorage
-                        ? parentFolderDepth
-                        : parentFolderDepth + 1;
-                    if (!isStorage && childFolderDepth > MAX_FOLDER_DEPTH) {
-                        continue;
-                    }
-                    tree.open_node(childId, () => {
-                        openChildren(childId, childFolderDepth);
-                    });
-                }
-            };
-            openChildren("#", 0);
+                };
+                openChildren("#", 0);
+            }
             // Auto-select the first directory so directory actions (e.g. the
             // Upload button) are usable without manually picking a folder.
             const selected = tree.get_selected(true);
@@ -836,8 +842,30 @@ export class DmsListRenderer extends Component {
         if (res === "no_attachments") {
             this.notification.add(_t("An error occurred during the upload"));
         } else {
-            this._refreshSelectedNode();
+            this._refreshDirectoryNode(directoryId);
         }
+    }
+    /**
+     * Refresh the folder a file was just uploaded into and open it, so the new
+     * document is visible immediately. Force-reloading the node's children means
+     * a folder that was empty (rendered as a childless leaf with no expand
+     * toggle) becomes a proper, openable folder showing the uploaded file.
+     */
+    _refreshDirectoryNode(directoryId) {
+        const tree = this.$tree && this.$tree.jstree(true);
+        if (!tree) {
+            return;
+        }
+        const nodeId = "directory_" + directoryId;
+        if (!tree.get_node(nodeId)) {
+            // Target not currently loaded in the tree: reload the whole tree.
+            tree.refresh();
+            return;
+        }
+        this.$tree.one("refresh_node.jstree", () => {
+            tree.open_node(nodeId);
+        });
+        tree.refresh_node(nodeId);
     }
     _refreshSelectedNode() {
         const selected_id = this.$tree.find(".jstree-clicked").attr("id");
