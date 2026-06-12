@@ -13,7 +13,6 @@
         "dms_field",
         "sale",
         "project",
-        "operations",
     ],
     "data": [
         "views/res_config_settings_views.xml",
