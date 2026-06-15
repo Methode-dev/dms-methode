@@ -213,12 +213,14 @@ export class DmsListRenderer extends Component {
                 tree.open_all();
             } else {
                 // Elsewhere (Documents app / File Explorer): open only the first
-                // two depths of folders by default; deeper folders stay
+                // depth of folders by default — i.e. expand each storage's root
+                // folder (e.g. "All Documents") so its sub-folders are listed,
+                // but leave those sub-folders collapsed. Deeper folders stay
                 // collapsed (but visible). Storage nodes are containers, not
                 // folders, so they don't count toward the depth. Children load
                 // lazily, so we recurse from each open_node callback once the
                 // node's children are available.
-                const MAX_FOLDER_DEPTH = 2;
+                const MAX_FOLDER_DEPTH = 1;
                 const isOpenable = (n) =>
                     n &&
                     n.data &&
