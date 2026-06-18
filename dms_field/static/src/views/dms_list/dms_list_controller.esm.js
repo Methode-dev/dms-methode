@@ -275,8 +275,11 @@ export function getDMSListControllerObject() {
                 this.resModel !== "dms.directory" &&
                 this.resModel !== "dms.storage"
             ) {
-                // We are assuming this is a record directory, so disabling actions
-                data.name = storage.name;
+                // This is the record's root directory (e.g. a task or ticket
+                // folder). Flag it as a "storage" root so its actions
+                // (rename / move / delete) stay disabled, but keep its own name
+                // instead of the storage name — the user wants to see the
+                // related record's folder, not the storage container.
                 data.storage = true;
             }
             var dt = {
