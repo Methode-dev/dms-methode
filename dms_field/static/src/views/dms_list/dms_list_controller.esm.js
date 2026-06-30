@@ -94,12 +94,15 @@ export function getDMSListControllerObject() {
                         }),
                     ],
                 ];
-            } else if (model === "project.task") {
-                // Operations task documents live in the task company's own
-                // storage (see dms.field.template.create_dms_directory).
-                // Restrict to non-attachment storages so the folder is always
-                // found (the res_id filter keeps results task-specific), and
-                // scope to the company when it is available on the record.
+            } else if (model === "project.task" || model === "sh.helpdesk.ticket") {
+                // Operations task and helpdesk ticket documents live in the
+                // record's own company storage (see
+                // dms.field.template.create_dms_directory and
+                // sh.helpdesk.ticket._dms_get_or_create_directory). These are
+                // multi-company, so resolve the storage by the record's company
+                // rather than via the template's single storage_id. Restrict to
+                // non-attachment storages so the folder is always found (the
+                // res_id filter keeps results record-specific).
                 autocompute_directory = true;
                 show_storage = false;
                 storage_domain = [["save_type", "!=", "attachment"]];
