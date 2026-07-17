@@ -112,18 +112,30 @@ export class DmsListRenderer extends Component {
             "search",
             "types",
             "contextmenu",
+            "checkbox",
         ];
         return {
             core: {
                 widget: this,
                 animation: 0,
-                multiple: false,
+                // Allow selecting several nodes (Ctrl / Shift click, and the
+                // checkboxes below). Single click still selects one.
+                multiple: true,
                 check_callback: this.checkCallback.bind(this),
                 themes: {
                     name: "proton",
                     responsive: true,
                 },
                 data: this.loadData.bind(this),
+            },
+            // Checkboxes for multi-selection. tie_selection keeps checkbox and
+            // selection in sync (one set); whole_node=false so clicking the row
+            // still selects (single), only the checkbox toggles multi;
+            // three_state=false so folders don't auto-check their children.
+            checkbox: {
+                three_state: false,
+                whole_node: false,
+                tie_selection: true,
             },
             contextmenu: {
                 items: this.loadContextMenu.bind(this),
@@ -247,23 +259,9 @@ export class DmsListRenderer extends Component {
                 };
                 openChildren("#", 0);
             }
-            // Auto-select the first directory so directory actions (e.g. the
-            // Upload button) are usable without manually picking a folder.
-            const selected = tree.get_selected(true);
-            const hasDirectory = selected.some(
-                (node) => node.data && node.data.resModel === "dms.directory"
-            );
-            if (hasDirectory) {
-                return;
-            }
-            const topNodeIds = tree.get_node("#").children || [];
-            for (const nodeId of topNodeIds) {
-                const node = tree.get_node(nodeId);
-                if (node && node.data && node.data.resModel === "dms.directory") {
-                    tree.select_node(nodeId);
-                    break;
-                }
-            }
+            // Nothing is auto-selected on load. The Upload button falls back to
+            // the first uploadable folder (see _getUploadTargetDirectoryId), so
+            // it stays usable without a manual selection.
         });
     }
 
@@ -602,6 +600,11 @@ export class DmsListRenderer extends Component {
     }
     checkSelect(node) {
         if (this.props.filesOnly && node.data.resModel !== "dms.file") {
+            return false;
+        }
+        // Only files are selectable outside the File Explorer: the checkbox /
+        // multi-select targets files, while folders stay navigation-only.
+        if (!this.props.explorer && node.data.resModel !== "dms.file") {
             return false;
         }
         return !(node.parent === "#" && node.data.resModel === "dms.storage");

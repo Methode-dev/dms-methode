@@ -130,6 +130,17 @@
                         font-size: 1rem;
                     }
 
+                    // Multi-select checkbox on the LEFT, with spacing so it does
+                    // not overlap the expand chevron or the file/folder icon.
+                    .jstree-checkbox {
+                        margin: 0 8px 0 4px;
+                    }
+                    // Folders are navigation-only here (only files are
+                    // selectable), so hide their checkboxes.
+                    .jstree-anchor.dms_folder_anchor .jstree-checkbox {
+                        display: none;
+                    }
+
                     // Folders: show the name in bold to distinguish from files.
                     .jstree-anchor.dms_folder_anchor {
                         font-weight: bold;
