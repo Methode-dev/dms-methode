@@ -114,6 +114,20 @@ export function getDMSListControllerObject() {
                     ];
                 }
                 directory_domain = [];
+            } else if (model === "dms.directory") {
+                // Tree rooted at the directories the action selected, showing
+                // their whole subtree and no storage node above them. Passing
+                // the subtree as the directory domain is what roots it there:
+                // search_read_parents returns the topmost folders of the domain,
+                // which are exactly the selected directories.
+                const directoryIds = this.model.root.resId
+                    ? [this.model.root.resId]
+                    : this.model.root.records.map((record) => record.resId);
+                show_storage = false;
+                // Any storage may hold them; the directory domain below is what
+                // narrows each storage's contribution to the wanted subtree.
+                storage_domain = [];
+                directory_domain = [["id", "child_of", directoryIds]];
             } else if (model === "dms.field.template") {
                 if (this.model.root.resId) {
                     storage_domain = [["id", "=", this.model.root.data.storage_id[0]]];
