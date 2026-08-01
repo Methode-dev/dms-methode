@@ -15,12 +15,22 @@
         -->
         <div t-att-class="props.className" t-ref="root">
             <Layout display="props.display" className="'flex-grow-1 overflow-auto'">
+                <!--
+                    `options` carries the per-usage configuration (preview
+                    navigation, open-all-folders, files-only); see
+                    dms_renderer_options.esm. It replaces the former
+                    openAllFolders="resModel === 'project.task'" here, which
+                    never fired: this is the full-view controller, where
+                    resModel is dms.storage / dms.directory. The task Documents
+                    tab goes through X2ManyField instead, and can now ask for it
+                    with options="{'open_all_folders': True}".
+                -->
                 <t
                     t-component="props.Renderer"
                     rendererActions="rendererActions"
                     explorer="props.explorer"
                     explorerSearchModel="props.explorerSearchModel"
-                    openAllFolders="resModel === 'project.task'"
+                    options="dmsRendererOptions"
                 />
             </Layout>
         </div>

@@ -9,6 +9,7 @@ import {
     useState,
 } from "@odoo/owl";
 import {loadBundle, loadCSS, loadJS} from "@web/core/assets";
+import {DMS_RENDERER_OPTION_DEFAULTS} from "./dms_renderer_options.esm";
 import {FormViewDialog} from "@web/views/view_dialogs/form_view_dialog";
 import {_t} from "@web/core/l10n/translation";
 import {download} from "@web/core/network/download";
@@ -102,6 +103,14 @@ export class DmsListRenderer extends Component {
             },
             () => [this.props.record]
         );
+    }
+    /**
+     * Per-usage configuration resolved by the controller mixin. Defaults are
+     * re-applied here so the renderer stays usable when embedded directly,
+     * without an `options` prop.
+     */
+    get options() {
+        return {...DMS_RENDERER_OPTION_DEFAULTS, ...(this.props.options || {})};
     }
     buildTreeConfig() {
         var plugins = [
@@ -218,13 +227,13 @@ export class DmsListRenderer extends Component {
         });
         this.$tree.on("loaded.jstree", () => {
             const tree = this.$tree.jstree(true);
-            if (this.props.openAllFolders) {
-                // Task / sub-task Documents tab: expand every folder so all
-                // documents are visible and a freshly uploaded file shows up
-                // without the user having to expand its folder.
+            if (this.options.openAllFolders) {
+                // Opt-in via options="{'open_all_folders': True}": expand every
+                // folder so all documents are visible and a freshly uploaded
+                // file shows up without the user having to expand its folder.
                 tree.open_all();
             } else {
-                // Elsewhere (Documents app / File Explorer): open only the first
+                // By default (Documents app / File Explorer): open only the first
                 // depth of folders by default — i.e. expand each storage's root
                 // folder (e.g. "All Documents") so its sub-folders are listed,
                 // but leave those sub-folders collapsed. Deeper folders stay
@@ -599,7 +608,7 @@ export class DmsListRenderer extends Component {
         return true;
     }
     checkSelect(node) {
-        if (this.props.filesOnly && node.data.resModel !== "dms.file") {
+        if (this.options.filesOnly && node.data.resModel !== "dms.file") {
             return false;
         }
         // Only files are selectable outside the File Explorer: the checkbox /
@@ -735,13 +744,87 @@ export class DmsListRenderer extends Component {
     get isSelectedFileViewable() {
         return this._isNodeViewable(this.nodeSelectedState);
     }
+    /**
+     * The files the viewer's prev/next arrows cycle through when `node` is
+     * previewed, in tree display order.
+     *
+     * The set follows what is actually on screen: a folder contributes its
+     * files only while it is expanded, so opening a nested folder extends the
+     * navigation into it, and a collapsed one (whose children aren't even
+     * loaded) stays out. Nodes filtered out by the search box are skipped for
+     * the same reason. See `previewNavigation` in dms_renderer_options.esm for
+     * the "folder" and "none" variants.
+     *
+     * @param {Object} node the jsTree node being previewed
+     * @returns {Object[]} file nodes, always including `node` itself
+     */
+    _getPreviewNavigationNodes(node) {
+        const mode = this.options.previewNavigation;
+        const tree = this.$tree && this.$tree.jstree(true);
+        if (mode === "none" || !tree) {
+            return [node];
+        }
+        // "tree" walks from the virtual root (every visible file, whichever
+        // branch); "folder" only from the previewed file's own folder.
+        const rootId = mode === "folder" ? node.parent || "#" : "#";
+        const files = [];
+        const visit = (nodeId, isRoot) => {
+            const current = tree.get_node(nodeId);
+            if (!current) {
+                return;
+            }
+            if (!isRoot) {
+                // jsTree's search plugin (show_only_matches) flags filtered-out
+                // nodes as hidden; nothing else sets it, so this is inert while
+                // the search box is empty.
+                if (current.state && current.state.hidden) {
+                    return;
+                }
+                if (current.data && current.data.resModel === "dms.file") {
+                    files.push(current);
+                    return;
+                }
+            }
+            // Descend into the scope root unconditionally (its children are the
+            // ones we are after) and elsewhere only into expanded nodes, whose
+            // children are the ones actually displayed. `children` is kept in
+            // display order by the sort plugin.
+            if (isRoot || (current.state && current.state.opened)) {
+                for (const childId of current.children || []) {
+                    visit(childId, false);
+                }
+            }
+        };
+        visit(rootId, true);
+        return files.length ? files : [node];
+    }
     onDMSPreviewFile(node) {
         // Only previewable types open in the in-page viewer; for the rest the
         // Open/Preview action is disabled in the UI and users download instead.
-        const file = this._buildViewerFile(node.data.data);
-        if (file.isViewable) {
-            this.fileViewer.open(file);
+        const files = [];
+        let current = null;
+        for (const fileNode of this._getPreviewNavigationNodes(node)) {
+            const file = this._buildViewerFile(fileNode.data.data);
+            if (fileNode.id === node.id) {
+                current = file;
+            }
+            files.push(file);
         }
+        if (!current) {
+            // The previewed node is not part of the navigable set (e.g. hidden
+            // by an active search): show it on its own.
+            current = this._buildViewerFile(node.data.data);
+            files.length = 0;
+            files.push(current);
+        }
+        if (!current.isViewable) {
+            return;
+        }
+        // Passing the sibling list is what makes the viewer render its
+        // prev/next arrows and bind the left/right keys. It drops non-viewable
+        // entries itself and locates the start index by identity — hence
+        // `current` being the very object already inside `files`.
+        this.fileViewer.open(current, files);
     }
     get showDragZone() {
         return (

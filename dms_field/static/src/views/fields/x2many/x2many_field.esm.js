@@ -17,6 +17,9 @@ patch(X2ManyField.prototype, {
             props.readonly = this.props.readonly;
             props.rendererActions = this.rendererActions;
             props.record = this.props.record;
+            // Per-usage configuration from the field tag's options="{...}"
+            // (and the dms_list arch root); see dms_renderer_options.esm.
+            props.options = this.dmsRendererOptions;
             return props;
         }
         return super.rendererProps;

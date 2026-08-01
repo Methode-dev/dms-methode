@@ -30,12 +30,12 @@ export class FileKanbanRecord extends KanbanRecord {
     }
 
     /**
-     * Open this record's file in the in-page file viewer (when the type is
-     * previewable). Extracted so subclasses (e.g. the File Explorer kanban)
-     * can reuse it.
+     * Build the file-viewer model for any dms.file record of this view.
+     * Extracted so subclasses can build one for records other than their own
+     * (e.g. the File Explorer kanban, which feeds the viewer the whole grid so
+     * its prev/next arrows can navigate).
      */
-    openPreview() {
-        const record = this.props.record;
+    buildViewerFile(record) {
         const fileExt = record.data.name.split(".").pop();
         let mimetype = record.data.mimetype;
 
@@ -45,12 +45,20 @@ export class FileKanbanRecord extends KanbanRecord {
             mimetype = "audio/mpeg";
         }
 
-        const file = Object.assign(new DmsFileModel(), {
+        return Object.assign(new DmsFileModel(), {
             id: record.data.id,
             name: record.data.name,
             mimetype: mimetype,
         });
-        this.fileViewer.open(file);
+    }
+
+    /**
+     * Open this record's file in the in-page file viewer (when the type is
+     * previewable). Extracted so subclasses (e.g. the File Explorer kanban)
+     * can reuse it.
+     */
+    openPreview() {
+        this.fileViewer.open(this.buildViewerFile(this.props.record));
     }
 
     /**

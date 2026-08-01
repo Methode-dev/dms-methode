@@ -5,6 +5,8 @@ import {Component, onRendered} from "@odoo/owl";
 import {Deferred} from "@web/core/utils/concurrency";
 import {Domain} from "@web/core/domain";
 import {Layout} from "@web/search/layout";
+import {evaluateExpr} from "@web/core/py_js/py";
+import {extractDmsRendererOptions} from "./dms_renderer_options.esm";
 import {extractFieldsFromArchInfo} from "@web/model/relational_model/utils";
 import {formatBinarySize} from "../../utils/format_binary_size.esm";
 import {mimetype2fa} from "../../utils/mimetype.esm";
@@ -57,6 +59,39 @@ export function getDMSListControllerObject() {
         },
         sanitizeDMSModel(model) {
             return model;
+        },
+        /**
+         * Per-usage renderer configuration (see dms_renderer_options.esm).
+         *
+         * Defined here rather than in either controller so both the full-view
+         * path and the `mode="dms_list"` field path resolve options identically:
+         * the `<dms_list>` arch root first, then the field tag's `options`
+         * (which Odoo already hands to X2ManyField as `crudOptions`).
+         */
+        get dmsRendererOptions() {
+            if (!this._dmsRendererOptions) {
+                this._dmsRendererOptions = extractDmsRendererOptions(
+                    this.dmsArchOptions(),
+                    this.props.crudOptions
+                );
+            }
+            return this._dmsRendererOptions;
+        },
+        dmsArchOptions() {
+            // `this.archInfo` is set by X2ManyField.setup (field path);
+            // `props.archInfo` by the view's props() (full-view path).
+            const root = this.archInfo?.xmlDoc || this.props.archInfo?.xmlDoc;
+            const raw = root?.getAttribute?.("options");
+            if (!raw) {
+                return {};
+            }
+            try {
+                return evaluateExpr(raw);
+            } catch {
+                // A malformed options attribute must not take the whole tree
+                // down; fall back to the defaults.
+                return {};
+            }
         },
         processProps() {
             const model = this.sanitizeDMSModel(this.resModel);
