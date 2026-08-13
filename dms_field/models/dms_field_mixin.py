@@ -3,6 +3,7 @@
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
 from odoo import api, fields, models
+from odoo.exceptions import AccessError
 from odoo.tools import config
 
 
@@ -33,8 +34,11 @@ class DMSFieldMixin(models.AbstractModel):
         to the directory, which is why this hack is done.
         """
         f_name = "dms_directory_ids"
-        if f_name not in vals and f_name in specification and not self[f_name]:
-            del specification[f_name]
+        if f_name not in vals and f_name in specification:
+            try:
+                self[f_name]
+            except AccessError:
+                del specification[f_name]
         res = super().web_save(vals, specification, next_id)
         return res
 
