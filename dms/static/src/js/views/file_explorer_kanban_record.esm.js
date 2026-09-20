@@ -1,7 +1,7 @@
 // /** ********************************************************************************
 //     File Explorer kanban record.
 //     OS-file-explorer interactions: double-click a file to preview it,
-//     right-click to open a context menu (Rename / Preview / Download).
+//     right-click to open a context menu (Rename / Preview / Download / Delete).
 //     Single click does nothing.
 //     License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 //  **********************************************************************************/
@@ -13,7 +13,7 @@ import {useFileExplorerContextMenu} from "./file_explorer_context_menu.esm";
 export class FileExplorerKanbanRecord extends FileKanbanRecord {
     setup() {
         super.setup();
-        this.openContextMenu = useFileExplorerContextMenu();
+        this.openContextMenu = useFileExplorerContextMenu().openContextMenu;
         // Bind the OS-explorer interactions on the card root element:
         //   - double-click -> preview (in-page viewer)
         //   - right-click  -> context menu (Rename / Preview / Download)
@@ -30,6 +30,7 @@ export class FileExplorerKanbanRecord extends FileKanbanRecord {
                         id: data.id,
                         name: data.name,
                         canRename: data.permission_write,
+                        canDelete: data.permission_unlink,
                         isFile: true,
                         onPreview: () => this.openPreview(),
                         onDownload: () => this.downloadFile(),

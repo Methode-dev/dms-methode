@@ -735,6 +735,31 @@ class DmsDirectory(models.Model):
             field_name=field_name, domain=domain, set_count=set_count, limit=limit
         )
 
+    def action_dms_create_child_directory(self, name=None):
+        """Create a subdirectory of ``self`` under a name that is free to use.
+
+        Backs the File Explorer's blank-area "Create folder" entry. The final
+        name is resolved here rather than client-side because ``_check_name``
+        rejects a collision with a sibling and the client cannot see every
+        sibling (record rules may hide some of them). ``unique_name`` is the
+        helper ``copy_data`` already uses, so a folder created here and a
+        duplicated one are numbered the same way: "New Folder", "New Folder(1)",
+        "New Folder(2)", ...
+
+        :param str name: base name to start from, defaults to "New Folder"
+        :return: the new directory's ``id`` and final ``name``
+        :rtype: dict
+        """
+        self.ensure_one()
+        names = self.sudo().child_directory_ids.mapped("name")
+        directory = self.create(
+            {
+                "name": unique_name(name or _("New Folder"), names),
+                "parent_id": self.id,
+            }
+        )
+        return {"id": directory.id, "name": directory.name}
+
     def action_dms_directories_all_directory(self):
         self.ensure_one()
         action = self.env["ir.actions.act_window"]._for_xml_id(

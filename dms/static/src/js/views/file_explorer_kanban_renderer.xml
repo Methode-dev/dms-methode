@@ -11,6 +11,14 @@
         t-inherit="dms.KanbanRenderer"
         t-inherit-mode="primary"
     >
+        <!-- Right-click on the grid's blank area (below / between the tiles,
+             and on the ghost records padding the last row): Create folder /
+             Generate documents. The renderer root fills the content area, and
+             the per-tile handlers stop propagation, so a tile's own menu wins
+             over this one. -->
+        <xpath expr="//div[hasclass('o_kanban_renderer')]" position="attributes">
+            <attribute name="t-on-contextmenu">onBackgroundContextMenu</attribute>
+        </xpath>
         <xpath expr="//t[@t-foreach='getGroupsOrRecords()']" position="before">
             <!-- Explorer chrome (sticky top bar + folder tiles) only in the
                  normal, ungrouped grid. With Group By active the kanban switches

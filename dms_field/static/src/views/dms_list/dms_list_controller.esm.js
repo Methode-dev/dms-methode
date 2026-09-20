@@ -93,6 +93,23 @@ export function getDMSListControllerObject() {
                 return {};
             }
         },
+        /**
+         * The res-ids the tree should be rooted at.
+         *
+         * ``model.root`` is a Record on a form and a list on a list view, and
+         * only the latter has ``records`` — so a record still being created
+         * (falsy resId on a *form* root) used to fall into the list branch and
+         * throw on ``records.map``. Every x2many field in the app renders
+         * through this patch, so that took down the whole form: creating a
+         * directory or a storage crashed on arrival.
+         */
+        rootResIds() {
+            const root = this.model.root;
+            if (root.resId) {
+                return [root.resId];
+            }
+            return (root.records || []).map((record) => record.resId).filter(Boolean);
+        },
         processProps() {
             const model = this.sanitizeDMSModel(this.resModel);
             var storage_domain = [];
@@ -100,19 +117,7 @@ export function getDMSListControllerObject() {
             var autocompute_directory = false;
             var show_storage = true;
             if (model === "dms.storage") {
-                if (this.model.root.resId) {
-                    storage_domain = [["id", "=", this.model.root.resId]];
-                } else {
-                    storage_domain = [
-                        [
-                            "id",
-                            "in",
-                            this.model.root.records.map((record) => {
-                                return record.resId;
-                            }),
-                        ],
-                    ];
-                }
+                storage_domain = [["id", "in", this.rootResIds()]];
                 directory_domain = [];
             } else if (model === "dms.directory") {
                 // Tree rooted at the directories the action selected, showing
@@ -120,9 +125,7 @@ export function getDMSListControllerObject() {
                 // the subtree as the directory domain is what roots it there:
                 // search_read_parents returns the topmost folders of the domain,
                 // which are exactly the selected directories.
-                const directoryIds = this.model.root.resId
-                    ? [this.model.root.resId]
-                    : this.model.root.records.map((record) => record.resId);
+                const directoryIds = this.rootResIds();
                 show_storage = false;
                 // Any storage may hold them; the directory domain below is what
                 // narrows each storage's contribution to the wanted subtree.
@@ -138,9 +141,9 @@ export function getDMSListControllerObject() {
                     [
                         "root_directory_id",
                         "in",
-                        this.model.root.data.dms_directory_ids.records.map((record) => {
-                            return record.resId;
-                        }),
+                        (this.model.root.data?.dms_directory_ids?.records || []).map(
+                            (record) => record.resId
+                        ),
                     ],
                 ];
             } else if (model === "project.task" || model === "sh.helpdesk.ticket") {

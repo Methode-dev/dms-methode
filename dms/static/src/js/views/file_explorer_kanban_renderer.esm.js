@@ -18,8 +18,13 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
         this.orm = useService("orm");
         this.http = useService("http");
         this.notification = useService("notification");
-        this.openContextMenu = useFileExplorerContextMenu();
-        this.explorerState = useState({folders: [], breadcrumb: []});
+        const contextMenu = useFileExplorerContextMenu();
+        this.openContextMenu = contextMenu.openContextMenu;
+        this.showContextMenu = contextMenu.showMenu;
+        // canCreate: may the user create a subfolder in the current folder?
+        // Read together with the breadcrumb so the blank-area "Create folder"
+        // entry can be disabled instead of failing server-side.
+        this.explorerState = useState({folders: [], breadcrumb: [], canCreate: false});
         this._lastKey = undefined;
         onWillStart(() => this._reloadLocation());
         // The location / search term live on the (custom) search model; reload
@@ -183,7 +188,7 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
                 folders = await this.orm.searchRead(
                     "dms.directory",
                     domain,
-                    ["name", "icon_url", "permission_write"],
+                    ["name", "icon_url", "permission_write", "permission_unlink"],
                     {order: "name", limit: 200}
                 );
             } catch {
@@ -192,6 +197,7 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
             if (this._lastKey === key) {
                 this.explorerState.folders = folders;
                 this.explorerState.breadcrumb = [];
+                this.explorerState.canCreate = false;
             }
             return;
         }
@@ -201,16 +207,17 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
         const folders = await this.orm.searchRead(
             "dms.directory",
             [["parent_id", "=", dir]],
-            ["name", "icon_url", "permission_write"],
+            ["name", "icon_url", "permission_write", "permission_unlink"],
             {order: "name"}
         );
         let breadcrumb = [];
+        let canCreate = false;
         if (dir) {
             try {
                 const ancestors = await this.orm.searchRead(
                     "dms.directory",
                     [["id", "parent_of", dir]],
-                    ["name", "complete_name", "storage_id"],
+                    ["name", "complete_name", "storage_id", "permission_create"],
                     {}
                 );
                 ancestors.sort(
@@ -222,6 +229,7 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
                 const current = ancestors.find((a) => a.id === dir);
                 sm.explorerStorageId =
                     current && current.storage_id ? current.storage_id[0] : false;
+                canCreate = Boolean(current && current.permission_create);
             } catch {
                 breadcrumb = [];
             }
@@ -232,6 +240,7 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
         if (this._lastKey === key) {
             this.explorerState.folders = folders;
             this.explorerState.breadcrumb = breadcrumb;
+            this.explorerState.canCreate = canCreate;
         }
     }
 
@@ -239,6 +248,20 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
     async _refresh() {
         this._lastKey = undefined;
         await this._reloadLocation();
+    }
+
+    /**
+     * Reload everything on screen: the folder tiles *and* the file records.
+     *
+     * The two halves of the grid come from different places — folders are read
+     * here, files come through the view's own list model — so showing work done
+     * elsewhere takes both. Public, because what adds files to the open folder
+     * is not always this component: a host module generating documents into it
+     * calls this when its dialog closes, and the files appear the way a created
+     * folder does.
+     */
+    async reloadExplorer() {
+        await Promise.all([this._refresh(), this.props.list.model.load()]);
     }
 
     /** Descend into a folder: make it the current location. */
@@ -259,13 +282,93 @@ export class FileExplorerKanbanRenderer extends FileKanbanRenderer {
         this.env.searchModel.goForward();
     }
 
+    // ---- Blank-area context menu --------------------------------------------
+
+    /**
+     * Right-click anywhere in the grid that is not a tile: below the files, in
+     * the gaps, or on one of the invisible ghost records the kanban pads the
+     * last row with.
+     *
+     * Bound on the renderer root, which fills the content area (`.o_renderer`
+     * is height:100% next to a search panel), so the empty space underneath the
+     * tiles is covered. The per-tile handlers call stopPropagation() before
+     * anything else, so a tile's own menu still wins — including when it comes
+     * out empty for lack of permission, which the `closest` guard below keeps
+     * from falling through to this menu.
+     */
+    onBackgroundContextMenu(ev) {
+        // Group By replaces the explorer chrome with the standard grouped
+        // kanban (see the template), where there is no current folder.
+        if (this.props.list.isGrouped) {
+            return;
+        }
+        if (
+            ev.target.closest(".o_kanban_record:not(.o_kanban_ghost)") ||
+            ev.target.closest(".o_file_explorer_navbar")
+        ) {
+            return;
+        }
+        this.showContextMenu(ev, this.backgroundContextMenuItems());
+    }
+
+    /**
+     * The blank-area menu, in jsTree's vakata format.
+     *
+     * Split out from the handler so a host module can patch just the items and
+     * inherit the hit-testing above — the seam `operations` uses to add its own
+     * entries, the way it patches DmsListRenderer.loadContextMenu for the tree.
+     */
+    backgroundContextMenuItems() {
+        // Search results are a flat view across folders, and at Home the tiles
+        // are root directories, which belong to a storage rather than a parent
+        // — neither has a folder to create into.
+        const canCreate = Boolean(
+            this.currentDirectoryId &&
+                !this.isExplorerSearching &&
+                this.explorerState.canCreate
+        );
+        return {
+            create_folder: {
+                separator_before: false,
+                separator_after: false,
+                icon: "fa fa-folder",
+                label: _t("Create folder"),
+                title: canCreate
+                    ? false
+                    : _t("Open a folder you can write into to create one here."),
+                _disabled: () => !canCreate,
+                action: () => this.createFolder(),
+            },
+        };
+    }
+
+    /**
+     * Create a subfolder of the current folder. The name ("New Folder", then
+     * "New Folder(1)", ...) is settled server-side, which is the only place
+     * that sees every sibling — record rules may hide some from the user.
+     */
+    async createFolder() {
+        const directoryId = this.currentDirectoryId;
+        if (!directoryId) {
+            return;
+        }
+        // Let an AccessError surface through the standard error dialog: the
+        // menu entry is already disabled without create permission, so getting
+        // here means something worth reading in full.
+        await this.orm.call("dms.directory", "action_dms_create_child_directory", [
+            [directoryId],
+        ]);
+        await this._refresh();
+    }
+
     onFolderContextMenu(ev, folder) {
-        // Folders are not downloadable: offer Rename only.
+        // Folders are not downloadable or previewable: Rename and Delete only.
         this.openContextMenu(ev, {
             model: "dms.directory",
             id: folder.id,
             name: folder.name,
             canRename: folder.permission_write,
+            canDelete: folder.permission_unlink,
             isFile: false,
             onRefresh: () => this._refresh(),
         });

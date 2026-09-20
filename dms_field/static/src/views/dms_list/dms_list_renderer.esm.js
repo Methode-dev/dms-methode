@@ -10,6 +10,7 @@ import {
 } from "@odoo/owl";
 import {loadBundle, loadCSS, loadJS} from "@web/core/assets";
 import {DMS_RENDERER_OPTION_DEFAULTS} from "./dms_renderer_options.esm";
+import {confirmDmsDelete} from "@dms/js/views/file_explorer_context_menu.esm";
 import {FormViewDialog} from "@web/views/view_dialogs/form_view_dialog";
 import {_t} from "@web/core/l10n/translation";
 import {download} from "@web/core/network/download";
@@ -390,6 +391,16 @@ export class DmsListRenderer extends Component {
                 if (node.data.resModel === "dms.file") {
                     menu = this.loadContextMenuFile(jstree, node, menu);
                 }
+                if (node.data.data.perm_unlink && !node.data.data.storage) {
+                    menu.delete = {
+                        // Set apart so it is not clicked on the way to Download.
+                        separator_before: true,
+                        separator_after: false,
+                        icon: "fa fa-trash-o",
+                        label: _t("Delete"),
+                        action: () => this.onExplorerDeleteNode(jstree, node),
+                    };
+                }
                 return menu;
             }
             if (node.data.resModel === "dms.directory") {
@@ -544,6 +555,37 @@ export class DmsListRenderer extends Component {
             },
         };
         return menu;
+    }
+
+    /**
+     * Delete a file or folder from the File Explorer's tree, after the same
+     * confirmation its grid asks for (confirmDmsDelete lives in dms, so the two
+     * surfaces cannot drift apart).
+     *
+     * Unlinks first and re-reads the parent afterwards, rather than going
+     * through jsTree's delete_node: a folder takes its whole subtree with it,
+     * and a refused unlink must leave the tree showing what the server still
+     * has instead of a node that has already vanished.
+     */
+    async onExplorerDeleteNode($jstree, node) {
+        const confirmed = await confirmDmsDelete(
+            {dialog: this.dialog, orm: this.orm},
+            {
+                model: node.data.resModel,
+                id: node.data.data.id,
+                name: node.data.data.name || node.text,
+            }
+        );
+        if (!confirmed) {
+            return;
+        }
+        await this.orm.unlink(node.data.resModel, [node.data.data.id]);
+        const parent = $jstree.get_node(node.parent);
+        if (parent && parent.id !== "#") {
+            $jstree.refresh_node(parent);
+        } else {
+            $jstree.refresh();
+        }
     }
 
     generateActionButton(node, action, $buttons) {
