@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_dms_certificate_list" model="ir.ui.view">
+        <field name="name">dms.certificate.list</field>
+        <field name="model">dms.certificate</field>
+        <field name="arch" type="xml">
+            <list string="Certified documents" sample="1">
+                <field name="reference" decoration-bf="1"/>
+                <field name="type_id"/>
+                <field name="holder_count" string="Listed"/>
+                <field name="movement_date"/>
+                <field name="valid_until"/>
+                <field name="verify_count" optional="show" string="Lookups"/>
+                <field name="last_verified_on" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="public_state" widget="badge"
+                       decoration-success="public_state == 'valid'"
+                       decoration-warning="public_state == 'expired'"
+                       decoration-danger="public_state == 'revoked'"
+                       decoration-muted="public_state == 'unpublished'"/>
+                <field name="state" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!--
+        The issuing screen. Settings on the left, the page they produce on the
+        right: the marking is the one thing chosen per document, and it is
+        chosen by looking at the result rather than at a description of it.
+        Everything else about the seal is house style and lives in Settings.
+    -->
+    <record id="view_dms_certificate_form" model="ir.ui.view">
+        <field name="name">dms.certificate.form</field>
+        <field name="model">dms.certificate</field>
+        <field name="arch" type="xml">
+            <form string="Certified document">
+                <header>
+                    <button name="action_certify" type="object"
+                            string="Certify and watermark" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_certify" type="object"
+                            string="Re-stamp document"
+                            invisible="state not in ('certified', 'delivered')"/>
+                    <button name="action_send_to_embassy" type="object"
+                            string="Send to embassy" class="btn-primary"
+                            invisible="state != 'certified'"/>
+                    <button name="action_download_sealed" type="object"
+                            string="Download stamped PDF"
+                            invisible="state == 'draft'"/>
+                    <button name="action_open_portal" type="object"
+                            string="Open as embassy"
+                            invisible="state == 'draft'"/>
+                    <button name="%(action_dms_certificate_revoke)d" type="action"
+                            string="Revoke certificate" class="btn-secondary"
+                            context="{'active_model': 'dms.certificate', 'active_id': id}"
+                            invisible="state not in ('certified', 'delivered')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,certified,delivered"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-search" disabled="1">
+                            <field name="verify_count" widget="statinfo" string="Lookups"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-users" disabled="1">
+                            <field name="holder_count" widget="statinfo" string="Listed"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="reference" readonly="1"/></h1>
+                        <field name="public_state" widget="badge"
+                               decoration-success="public_state == 'valid'"
+                               decoration-warning="public_state == 'expired'"
+                               decoration-danger="public_state == 'revoked'"
+                               decoration-muted="public_state == 'unpublished'"/>
+                    </div>
+
+                    <div class="row">
+                        <!-- ==================== settings ==================== -->
+                        <div class="col-lg-7">
+                            <group>
+                                <group string="Document">
+                                    <field name="type_id"/>
+                                    <field name="movement_date"/>
+                                    <field name="validity_days"/>
+                                    <field name="valid_until" readonly="1"/>
+                                    <field name="company_id"
+                                           groups="base.group_multi_company"/>
+                                </group>
+                                <group string="Marking">
+                                    <field name="seal_marking"/>
+                                    <field name="seal_text"
+                                           readonly="seal_marking != 'custom'"
+                                           placeholder="What the watermark says"/>
+                                </group>
+                            </group>
+
+                            <group string="How it opens">
+                                <group>
+                                    <field name="second_factor"/>
+                                    <field name="disclosure"/>
+                                </group>
+                                <group>
+                                    <field name="notify_on_lookup"/>
+                                </group>
+                            </group>
+                            <div class="text-muted small mb-3">
+                                The reference on its own never opens a document.
+                                The second check is always required and cannot be
+                                switched off; repeated failures lock the reference
+                                and raise a warning here.
+                            </div>
+
+                            <notebook>
+                                <page string="Listed people" name="holders">
+                                    <field name="holder_ids">
+                                        <list editable="bottom">
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="name"/>
+                                            <field name="first_name"/>
+                                            <field name="date_of_birth"/>
+                                            <field name="rank"/>
+                                            <!--
+                                                Not masked: this screen is
+                                                reachable only by internal
+                                                users, who are typing a number
+                                                they are reading off the
+                                                document in front of them, and
+                                                dots make that impossible to
+                                                proofread.
+                                            -->
+                                            <field name="passport_number"
+                                                   placeholder="Typed once, kept only as a hash"/>
+                                        </list>
+                                    </field>
+                                    <div class="text-muted small mt-2">
+                                        Any one of these people opens the document,
+                                        by giving whatever the second check asks for.
+                                        Passport numbers are hashed on save; a lookup
+                                        is always checked against the hash, never
+                                        against the number itself.
+                                    </div>
+                                </page>
+
+                                <page string="Issued certificate" name="issued"
+                                      invisible="state == 'draft'">
+                                    <group>
+                                        <group>
+                                            <field name="issued_on" readonly="1"/>
+                                            <field name="issuer_id" readonly="1"/>
+                                            <field name="verify_url"
+                                                   widget="CopyClipboardChar"/>
+                                        </group>
+                                        <group>
+                                            <field name="source_hash" readonly="1"
+                                                   widget="CopyClipboardChar"
+                                                   string="SHA-256 (printed)"/>
+                                            <field name="sealed_hash" readonly="1"
+                                                   string="SHA-256 (sealed file)"/>
+                                            <field name="last_verified_on" readonly="1"/>
+                                        </group>
+                                    </group>
+                                    <div class="text-muted small">
+                                        The printed fingerprint is the hash of the
+                                        document as produced: a file cannot carry its
+                                        own hash. Re-stamping changes the sealed file
+                                        and leaves the printed value alone, so copies
+                                        already sent keep verifying.
+                                    </div>
+                                </page>
+
+                                <page string="Verification log" name="lookups">
+                                    <field name="attempt_ids" readonly="1" nolabel="1">
+                                        <list>
+                                            <field name="create_date" string="When"/>
+                                            <field name="requester_label"/>
+                                            <field name="outcome" widget="badge"
+                                                   decoration-success="outcome == 'matched'"
+                                                   decoration-danger="outcome in ('locked', 'mismatch')"
+                                                   decoration-warning="outcome in ('no_match', 'throttled', 'captcha')"/>
+                                        </list>
+                                    </field>
+                                    <div class="text-muted small mt-2"
+                                         invisible="verify_count > 0">
+                                        No lookup yet. A row appears here the moment
+                                        someone types the reference.
+                                    </div>
+                                </page>
+
+                                <page string="Files" name="files" groups="base.group_no_one">
+                                    <group>
+                                        <field name="source_attachment_id"/>
+                                        <field name="sealed_attachment_id" readonly="1"/>
+                                    </group>
+                                </page>
+
+                                <page string="Source record" name="source"
+                                      invisible="not res_model">
+                                    <group>
+                                        <field name="res_model" readonly="1"/>
+                                        <field name="res_id" readonly="1"/>
+                                    </group>
+                                </page>
+                            </notebook>
+
+                            <group string="Revocation" invisible="state != 'revoked'">
+                                <field name="revoke_reason" readonly="1"/>
+                                <field name="revoked_on" readonly="1"/>
+                                <field name="revoked_uid" readonly="1"/>
+                            </group>
+                        </div>
+
+                        <!-- ==================== preview ==================== -->
+                        <div class="col-lg-5 o_certify_preview">
+                            <h3 class="mb-2">Stamped output</h3>
+
+                            <!--
+                                The document itself, rendered by pdf.js, rather
+                                than a picture of it: zoom, paging and fit are
+                                the viewer's, and the page stays sharp at any
+                                magnification.
+                            -->
+                            <field name="preview_pdf" widget="pdf_viewer"
+                                   nolabel="1" readonly="1"/>
+
+                            <div class="o_certify_preview_empty"
+                                 invisible="preview_pdf">
+                                No document to stamp yet. Point this certificate at
+                                the file it stands for and the page appears here.
+                            </div>
+
+                            <p class="text-muted small mt-2">
+                                Rendered from the document itself with the marking
+                                currently selected. What you see is what the QR
+                                resolves to.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!--
+                        Inside the sheet on purpose. Odoo's form compiler moves
+                        a chatter that sits outside it into the right-hand
+                        aside; left here, it stays at the foot of the page and
+                        the whole width of the sheet is free for the settings
+                        and the stamped page beside them.
+                    -->
+                    <chatter/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dms_certificate_search" model="ir.ui.view">
+        <field name="name">dms.certificate.search</field>
+        <field name="model">dms.certificate</field>
+        <field name="arch" type="xml">
+            <search string="Certified documents">
+                <field name="reference"/>
+                <field name="holder_ids" string="Listed person"/>
+                <filter name="filter_certified" string="Certified"
+                        domain="[('state', 'in', ('certified', 'delivered'))]"/>
+                <filter name="filter_revoked" string="Revoked"
+                        domain="[('state', '=', 'revoked')]"/>
+                <filter name="filter_expired" string="Expired"
+                        domain="[('valid_until', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <filter name="filter_never_checked" string="Never looked up"
+                        domain="[('verify_count', '=', 0)]"/>
+                <group>
+                    <filter name="group_type" string="Type"
+                            context="{'group_by': 'type_id'}"/>
+                    <filter name="group_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_movement" string="Movement date"
+                            context="{'group_by': 'movement_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dms_certificate" model="ir.actions.act_window">
+        <field name="name">Certified documents</field>
+        <field name="res_model">dms.certificate</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dms_certificate_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Certify a document so embassies can verify it</p>
+            <p>
+                A certified document carries a reference and a QR code. Anyone
+                holding it, plus the passport of someone listed on it, can
+                check its status from the public page without an account.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dms_certificate_user,dms.certificate.user,model_dms_certificate,group_certify_user,1,0,0,0
+access_dms_certificate_manager,dms.certificate.manager,model_dms_certificate,group_certify_manager,1,1,1,1
+access_dms_certificate_holder_user,dms.certificate.holder.user,model_dms_certificate_holder,group_certify_user,1,0,0,0
+access_dms_certificate_holder_manager,dms.certificate.holder.manager,model_dms_certificate_holder,group_certify_manager,1,1,1,1
+access_dms_certificate_attempt_user,dms.certificate.attempt.user,model_dms_certificate_attempt,group_certify_user,1,0,0,0
+access_dms_certificate_attempt_manager,dms.certificate.attempt.manager,model_dms_certificate_attempt,group_certify_manager,1,0,0,1
+access_dms_certificate_revoke_manager,dms.certificate.revoke.manager,model_dms_certificate_revoke,group_certify_manager,1,1,1,1
+access_dms_certificate_type_user,dms.certificate.type.user,model_dms_certificate_type,group_certify_user,1,0,0,0
+access_dms_certificate_type_manager,dms.certificate.type.manager,model_dms_certificate_type,group_certify_manager,1,1,1,1

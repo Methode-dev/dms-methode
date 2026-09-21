@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+        Odoo 19 restructured groups. res.groups.category_id is gone: a group now
+        points at a res.groups.privilege record, and the privilege is what
+        carries the ir.module.category link. Two records where 18.0 needed one.
+    -->
+
+    <record id="module_category_certify" model="ir.module.category">
+        <field name="name">Certification</field>
+        <field name="sequence">90</field>
+    </record>
+
+    <record id="privilege_certify" model="res.groups.privilege">
+        <field name="name">Document certification</field>
+        <field name="sequence">90</field>
+        <field name="category_id" ref="module_category_certify"/>
+    </record>
+
+    <record id="group_certify_user" model="res.groups">
+        <field name="name">Certification: Agent</field>
+        <field name="privilege_id" ref="privilege_certify"/>
+        <field name="comment">Can look up certificates in the back office.</field>
+    </record>
+
+    <record id="group_certify_manager" model="res.groups">
+        <field name="name">Certification: Registrar</field>
+        <field name="privilege_id" ref="privilege_certify"/>
+        <field name="implied_ids" eval="[Command.link(ref('group_certify_user'))]"/>
+        <field name="comment">Can publish and revoke certificates, and see passport hashes.</field>
+    </record>
+
+    <!-- res.users.groups_id was renamed to group_ids in Odoo 19. -->
+    <record id="base.user_admin" model="res.users">
+        <field name="group_ids" eval="[Command.link(ref('group_certify_manager'))]"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_certify_root"
+              name="Consular"
+              web_icon="dms_certify_portal,static/description/icon.png"
+              sequence="95"
+              groups="group_certify_user"/>
+
+    <menuitem id="menu_dms_certificates"
+              name="Verification entries"
+              parent="menu_certify_root"
+              action="action_dms_certificate"
+              sequence="10"/>
+
+    <menuitem id="menu_certify_configuration"
+              name="Configuration"
+              parent="menu_certify_root"
+              sequence="90"
+              groups="group_certify_manager"/>
+
+    <menuitem id="menu_certify_types"
+              name="Document types"
+              parent="menu_certify_configuration"
+              action="action_dms_certificate_type"
+              sequence="10"/>
+
+    <menuitem id="menu_certify_reporting"
+              name="Reporting"
+              parent="menu_certify_root"
+              sequence="80"/>
+
+    <menuitem id="menu_certify_attempts"
+              name="Verification attempts"
+              parent="menu_certify_reporting"
+              action="action_dms_certificate_attempt"
+              sequence="10"/>
+
+</odoo>

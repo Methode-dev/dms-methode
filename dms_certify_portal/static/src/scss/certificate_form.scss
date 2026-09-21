@@ -1,0 +1,28 @@
+// The issuing screen's preview panel.
+//
+// The page is the sealed PDF, rendered by pdf.js in the stock pdf_viewer
+// widget, so zoom, paging and fit all belong to the viewer. All this has to do
+// is give the iframe a usable height — left to itself it collapses, because
+// an iframe has no intrinsic size to grow to.
+.o_certify_preview {
+    .o_pdfview_iframe {
+        width: 100%;
+        // Not min(78vh, 900px): Sass evaluates min() itself when both
+        // arguments are literals, and refuses to compare vh with px — which
+        // fails the whole backend bundle, not just this rule.
+        height: 78vh;
+        min-height: 420px;
+        max-height: 900px;
+        border: 1px solid #DEE2E6;
+        border-radius: 4px;
+        background: #FFFFFF;
+    }
+
+    .o_certify_preview_empty {
+        border: 1px dashed #CED4DA;
+        border-radius: 4px;
+        padding: 2.5rem 1rem;
+        text-align: center;
+        color: #7C7F87;
+    }
+}

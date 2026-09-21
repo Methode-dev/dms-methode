@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_dms_certificate_attempt_list" model="ir.ui.view">
+        <field name="name">dms.certificate.attempt.list</field>
+        <field name="model">dms.certificate.attempt</field>
+        <field name="arch" type="xml">
+            <list string="Verification attempts" create="false" sample="1"
+                  decoration-danger="outcome == 'throttled'"
+                  decoration-muted="outcome == 'no_match'">
+                <field name="create_date" string="When"/>
+                <field name="ip_address"/>
+                <field name="reference_tried"/>
+                <field name="outcome" widget="badge"
+                       decoration-success="outcome == 'matched'"
+                       decoration-danger="outcome == 'throttled'"/>
+                <field name="document_id" optional="hide"/>
+                <field name="user_agent" optional="hide"/>
+                <field name="success" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dms_certificate_attempt_search" model="ir.ui.view">
+        <field name="name">dms.certificate.attempt.search</field>
+        <field name="model">dms.certificate.attempt</field>
+        <field name="arch" type="xml">
+            <search string="Verification attempts">
+                <field name="ip_address"/>
+                <field name="reference_tried"/>
+                <filter name="filter_failed" string="Failed"
+                        domain="[('success', '=', False)]"/>
+                <filter name="filter_throttled" string="Blocked"
+                        domain="[('outcome', '=', 'throttled')]"/>
+                <separator/>
+                <filter name="filter_today" string="Today"
+                        domain="[('create_date', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0,0,0)))]"/>
+                <group>
+                    <filter name="group_ip" string="IP address"
+                            context="{'group_by': 'ip_address'}"/>
+                    <filter name="group_outcome" string="Outcome"
+                            context="{'group_by': 'outcome'}"/>
+                    <filter name="group_day" string="Day"
+                            context="{'group_by': 'create_date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dms_certificate_attempt" model="ir.actions.act_window">
+        <field name="name">Verification attempts</field>
+        <field name="res_model">dms.certificate.attempt</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="view_dms_certificate_attempt_search"/>
+        <field name="context">{'search_default_group_ip': 1, 'search_default_filter_failed': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No attempts logged yet</p>
+            <p>
+                Group by IP address and look for one address producing many
+                failures, or successful lookups walking through sequential
+                references. An attacker slow enough to stay under the rate limit
+                still shows up as a pattern here.
+            </p>
+        </field>
+    </record>
+
+</odoo>

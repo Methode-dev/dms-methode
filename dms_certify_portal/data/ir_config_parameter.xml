@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!--
+            No ir.sequence for the reference. A counter in it would tell
+            anyone holding two documents how many were issued in between, and
+            would make the space walkable; the reference is random throughout.
+        -->
+
+        <!-- Throttling -->
+        <record id="param_max_failures" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.max_failures</field>
+            <field name="value">10</field>
+        </record>
+        <record id="param_window_minutes" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.window_minutes</field>
+            <field name="value">15</field>
+        </record>
+        <record id="param_max_reference_failures" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.max_reference_failures</field>
+            <field name="value">5</field>
+        </record>
+        <record id="param_reference_lock_minutes" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.reference_lock_minutes</field>
+            <field name="value">30</field>
+        </record>
+        <record id="param_session_minutes" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.session_minutes</field>
+            <field name="value">15</field>
+        </record>
+        <record id="param_retention_days" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.retention_days</field>
+            <field name="value">90</field>
+        </record>
+
+        <!-- What the portal does -->
+        <record id="param_hide_expired" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.hide_expired</field>
+            <field name="value">False</field>
+        </record>
+        <record id="param_allow_download" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.allow_download</field>
+            <field name="value">True</field>
+        </record>
+
+        <!-- Defaults for a new certificate -->
+        <record id="param_second_factor" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.second_factor</field>
+            <field name="value">ppt4</field>
+        </record>
+        <record id="param_disclosure" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.disclosure</field>
+            <field name="value">confirm</field>
+        </record>
+        <record id="param_validity_days" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.validity_days</field>
+            <field name="value">90</field>
+        </record>
+        <record id="param_reference_prefix" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.reference_prefix</field>
+            <field name="value">ICS</field>
+        </record>
+        <record id="param_notify_on_lookup" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.notify_on_lookup</field>
+            <field name="value">1</field>
+        </record>
+
+        <!-- House style of the seal -->
+        <record id="param_seal_opacity" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_opacity</field>
+            <field name="value">9</field>
+        </record>
+        <record id="param_seal_angle" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_angle</field>
+            <field name="value">-32</field>
+        </record>
+        <record id="param_seal_size" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_size</field>
+            <field name="value">24</field>
+        </record>
+        <record id="param_seal_mode" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_mode</field>
+            <field name="value">tile</field>
+        </record>
+        <record id="param_seal_color" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_color</field>
+            <field name="value">#10314F</field>
+        </record>
+        <record id="param_seal_guilloche" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_guilloche</field>
+            <field name="value">1</field>
+        </record>
+        <record id="param_seal_microtext" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_microtext</field>
+            <field name="value">1</field>
+        </record>
+        <record id="param_seal_qr_corner" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_qr_corner</field>
+            <field name="value">br</field>
+        </record>
+        <record id="param_seal_band" model="ir.config_parameter">
+            <field name="key">dms_certify_portal.seal_band</field>
+            <field name="value">auto</field>
+        </record>
+
+    </data>
+</odoo>

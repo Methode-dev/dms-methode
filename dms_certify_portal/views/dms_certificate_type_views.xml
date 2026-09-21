@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_dms_certificate_type_list" model="ir.ui.view">
+        <field name="name">dms.certificate.type.list</field>
+        <field name="model">dms.certificate.type</field>
+        <field name="arch" type="xml">
+            <list string="Document types" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="auto_stamp" string="Stamp on generation"/>
+                <field name="certificate_count" string="Documents" readonly="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dms_certificate_type_form" model="ir.ui.view">
+        <field name="name">dms.certificate.type.form</field>
+        <field name="model">dms.certificate.type</field>
+        <field name="arch" type="xml">
+            <form string="Document type">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Letter of Invitation"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code" placeholder="loi"/>
+                            <field name="sequence"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="auto_stamp"/>
+                            <field name="certificate_count" readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="text-muted small">
+                        The code is what a producing module refers to when it
+                        registers a document, so it cannot change once documents
+                        exist. The name can be renamed and translated freely — it
+                        is what the verification page shows.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_dms_certificate_type" model="ir.actions.act_window">
+        <field name="name">Document types</field>
+        <field name="res_model">dms.certificate.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Define the kinds of document you certify</p>
+            <p>
+                A producing module adds its own types here. Tick
+                <b>Stamp on generation</b> on the ones that should be registered
+                automatically the moment they are produced.
+            </p>
+        </field>
+    </record>
+
+</odoo>

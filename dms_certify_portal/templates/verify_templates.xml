@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ==================================================================
+         Standalone layout.
+
+         `web.frontend_layout` lives in the `web` module, so this portal
+         renders without the website builder installed: no theme, no snippets,
+         no editor, no first-run configurator. It brings `web.assets_frontend`
+         (Bootstrap and the base resets), which is all the styling this page
+         needs on top of verify.scss.
+
+         no_header / no_footer are the flags the portal and website layouts
+         honour. They do nothing here, and keep the page bare if someone later
+         installs `website` for unrelated reasons.
+         ================================================================== -->
+    <template id="portal_layout" name="Verification portal: layout">
+        <t t-call="web.frontend_layout">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <t t-set="head">
+                <t t-out="head or ''"/>
+                <meta name="robots" content="noindex, nofollow, noarchive, nosnippet"/>
+                <meta name="referrer" content="no-referrer"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <!--
+                    The three families the portal was designed in. Loaded from
+                    Google Fonts, which means a request leaves the visitor's
+                    machine before the page paints; verify.scss keeps a local
+                    stack behind each family so a network that blocks the CDN
+                    still renders the page, just not in these faces.
+                -->
+                <link rel="preconnect" href="https://fonts.googleapis.com"/>
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+                <link rel="stylesheet"
+                      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&amp;family=Spectral:wght@300;400;500;600&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap"/>
+            </t>
+
+            <div id="wrap" class="dc-portal">
+                <div class="tri" aria-hidden="true"><i/><i/><i/></div>
+
+                <header class="p-head">
+                    <div class="in">
+                        <svg class="p-crest" viewBox="0 0 38 44" aria-hidden="true">
+                            <path d="M19 1 36 7v18c0 9-8 15-17 18C10 40 2 34 2 25V7z"
+                                  fill="none" stroke="#9C7A3C" stroke-width="1.2"/>
+                            <path d="M19 12v18M12 22c0 5 3 8 7 8s7-3 7-8M13 16h12"
+                                  stroke="#D8BE86" stroke-width="1.5" fill="none"
+                                  stroke-linecap="round"/>
+                            <circle cx="19" cy="9.5" r="2.4" fill="none"
+                                    stroke="#D8BE86" stroke-width="1.4"/>
+                        </svg>
+                        <div class="org">
+                            <t t-out="company['name']"/>
+                            <small>Seafarer document verification</small>
+                        </div>
+                        <div class="tools">
+                            <span class="p-tls">● TLS</span>
+                            <div class="p-lang" role="group" aria-label="Language"
+                                 t-if="len(languages) &gt; 1">
+                                <t t-foreach="languages" t-as="language">
+                                    <a t-att-href="language['url']"
+                                       t-att-aria-pressed="'true' if language['active'] else 'false'"
+                                       t-att-class="'is-on' if language['active'] else ''">
+                                        <t t-out="language['short']"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <t t-out="0"/>
+
+                <footer class="p-foot">
+                    <div class="in">
+                        <div>
+                            <b><t t-out="company['name']"/></b>
+                            <t t-out="company['street']"/>
+                            <t t-if="company['zip']">, <t t-out="company['zip']"/></t>
+                            <t t-if="company['city']"> <t t-out="company['city']"/></t>
+                            <br/>Crew arrangements and visa assistance in France
+                            and the Schengen area
+                        </div>
+                        <div>
+                            <b>Operations desk</b>
+                            <t t-out="company['email']"/><br/>
+                            <t t-out="company['phone']"/>
+                        </div>
+                        <div>
+                            <b>Data</b>
+                            <span>
+                                A reference and a second check are both required.
+                                Nothing beyond the person you checked is displayed,
+                                and lookup records are erased after the retention
+                                period. Data controller: <t t-out="company['name']"/>.
+                            </span>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </t>
+    </template>
+
+    <!-- ==================================================================
+         The desk: headline, what we issue, and the two inputs.
+         Present on every page, so "check another document" is never more than
+         a scroll away.
+         ================================================================== -->
+    <template id="verify_hero" name="Verification portal: hero">
+        <div class="p-hero">
+            <div class="chart" aria-hidden="true"/>
+            <div class="in">
+                <div>
+                    <h1>Is the document at your counter really ours?</h1>
+                    <p class="lede">
+                        Type the reference printed under the QR code, then the
+                        passport of a person listed on the paper. Both have to
+                        come from the same document.
+                    </p>
+                    <div class="rule"/>
+                    <p class="facts">
+                        We issue the letters of invitation, boarding manifests and
+                        insurance certificates carried by seafarers joining ships
+                        calling in France. Every document we certify carries a
+                        unique reference and a digital seal.
+                        <b>A reference on its own opens nothing: a listed passport
+                        is needed too.</b>
+                    </p>
+                </div>
+
+                <div class="p-form">
+                    <div class="cap">
+                        <span aria-hidden="true">⚖</span>
+                        <span>Authenticity check</span>
+                    </div>
+                    <div class="bd">
+                        <form action="/verify" method="post" autocomplete="off"
+                              novalidate="novalidate"
+                              t-att-data-sitekey="recaptcha_site_key or ''"
+                              t-att-data-groups="','.join(str(g) for g in reference_groups)">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+
+                            <label for="dc_reference">Document reference</label>
+                            <div class="refbox">
+                                <input type="text" id="dc_reference" name="reference"
+                                       t-att-value="reference or ''"
+                                       t-att-placeholder="reference_sample"
+                                       spellcheck="false" autocapitalize="characters"
+                                       autocomplete="off" required="required"
+                                       autofocus="autofocus" maxlength="26"/>
+                            </div>
+                            <p class="help">
+                                Printed in bold beside the QR code, at the foot of
+                                the document.
+                            </p>
+
+                            <div class="row2">
+                                <div class="ppt">
+                                    <label for="dc_passport">
+                                        Passport of a person listed on the paper
+                                    </label>
+                                    <input type="text" id="dc_passport" name="passport"
+                                           placeholder="4567" maxlength="12"
+                                           spellcheck="false" autocapitalize="characters"
+                                           autocomplete="off" required="required"
+                                           aria-describedby="dc_passport_help"/>
+                                    <p class="help" id="dc_passport_help">
+                                        The last 4 characters are usually enough. If
+                                        the document carries no passport number, type
+                                        a listed date of birth instead (DDMMYYYY).
+                                    </p>
+                                </div>
+                            </div>
+
+                            <t t-if="recaptcha_site_key">
+                                <input type="hidden" name="recaptcha_token_response"
+                                       id="dc_recaptcha_token"/>
+                                <script t-attf-src="https://www.google.com/recaptcha/api.js?render=#{recaptcha_site_key}"/>
+                            </t>
+
+                            <button type="submit" class="p-go">Verify document</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- ==================================================================
+         What this check is worth. Below every page: an agent who has just been
+         refused is exactly the person who needs to read it.
+         ================================================================== -->
+    <template id="verify_info" name="Verification portal: explainer">
+        <div class="p-info">
+            <div>
+                <h2>What this check is worth</h2>
+                <p>
+                    The seal is not a picture pasted onto a PDF. The reference is
+                    issued by our own server and bound to the fingerprint of the
+                    file we produced. Changing a date, a name or a passport number
+                    breaks that link — the page you read here stays the original.
+                </p>
+                <ol class="steps">
+                    <li>
+                        <b>You type both details:</b> the reference under the QR
+                        code and a listed passport. Scanning the code fills in the
+                        first, never the second.
+                    </li>
+                    <li>
+                        <b>You compare</b> the document shown here with the paper in
+                        front of you. The two must match, line for line.
+                    </li>
+                    <li>
+                        <b>You report</b> any difference. The button under the result
+                        reaches our operations desk within seconds.
+                    </li>
+                </ol>
+            </div>
+            <aside class="sec">
+                <h3>On the paper you are holding</h3>
+                <dl>
+                    <dt>Diagonal watermark</dt>
+                    <dd>
+                        States the intended use — certified original, copy, or void.
+                        A copy presented as an original should stop you.
+                    </dd>
+                    <dt>Guilloche border</dt>
+                    <dd>
+                        An engraved line printed with the document. It moirés on a
+                        photocopy.
+                    </dd>
+                    <dt>Microtext line</dt>
+                    <dd>
+                        At the foot of the page, the reference repeated at 1 pt. To
+                        the naked eye, a grey rule.
+                    </dd>
+                    <dt>SHA-256 fingerprint</dt>
+                    <dd>
+                        Its first 12 characters are printed under the reference and
+                        repeated here.
+                    </dd>
+                    <dt>What we do not show</dt>
+                    <dd>
+                        By default we confirm that the person you checked is on the
+                        document, without showing the others listed on it. Full
+                        access is granted by the operations desk on request.
+                    </dd>
+                </dl>
+            </aside>
+        </div>
+    </template>
+
+    <!-- The seal stamped on an authentic verdict. -->
+    <template id="verify_seal" name="Verification portal: seal">
+        <svg class="v-seal" viewBox="0 0 120 120" role="img" aria-label="Verified">
+            <defs>
+                <path id="dc_ring" d="M60 60 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0"/>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="#FBF7EC" stroke="#9C7A3C" stroke-width="1.5"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#18753C" stroke-width="2.5"/>
+            <circle cx="60" cy="60" r="41" fill="none" stroke="#9C7A3C"
+                    stroke-width=".7" stroke-dasharray="1.5 4"/>
+            <text font-family="Spectral,Georgia,serif" font-size="8.4"
+                  fill="#18753C" letter-spacing="2.2">
+                <textPath href="#dc_ring" startOffset="7%">VERIFIED · <t t-out="company['name']"/></textPath>
+            </text>
+            <g stroke="#18753C" stroke-width="2.4" fill="none" stroke-linecap="round">
+                <path d="M60 44v30M50 62c0 8 4.5 13 10 13s10-5 10-13M53 50h14"/>
+                <circle cx="60" cy="39.5" r="4" stroke-width="2"/>
+            </g>
+            <path d="M40 88h40" stroke="#9C7A3C" stroke-width=".8"/>
+        </svg>
+    </template>
+
+    <!-- ==================================================================
+         The form page. Carries the refusal card when a lookup just failed:
+         a verdict, not a red line above an input.
+         ================================================================== -->
+    <template id="verify_form" name="Check a document">
+        <t t-call="dms_certify_portal.portal_layout">
+            <t t-set="title">Check a document</t>
+            <t t-call="dms_certify_portal.verify_hero"/>
+
+            <div class="p-res" id="result">
+                <t t-if="error_code">
+                    <!--
+                        The wording of a refusal lives here, with the rest of
+                        the portal's copy, and the controller passes only a
+                        reason code. Odoo's exporter does not walk Python source
+                        in this layout, so a sentence built in the controller
+                        would never reach the translation file.
+                    -->
+                    <div class="verdict unknown">
+                        <div class="v-top">
+                            <div>
+                                <h2 t-if="error_code == 'expired'">That result has expired</h2>
+                                <h2 t-elif="error_code == 'incomplete'">Both details are needed</h2>
+                                <h2 t-elif="error_code == 'captcha'">We could not confirm this came from a browser</h2>
+                                <h2 t-else="">Those two details do not open a document</h2>
+
+                                <p class="st" t-if="error_code == 'expired'">
+                                    A result stays readable only for a short
+                                    while after the lookup that produced it.
+                                    Enter the details again to see it.
+                                </p>
+                                <p class="st" t-elif="error_code == 'incomplete'">
+                                    Fill in the reference and the second check.
+                                    The reference on its own never opens a
+                                    document.
+                                </p>
+                                <p class="st" t-elif="error_code == 'captcha'">
+                                    Reload the page and try again. If it keeps
+                                    happening, call the operations desk and we
+                                    will check the document for you.
+                                </p>
+                                <p class="st" t-else="">
+                                    The reference and the second check have to
+                                    come from the same document. We will not say
+                                    which of the two failed. Check 0 against O
+                                    and 1 against I — our references never use
+                                    I, L, O or U — then try again.
+                                </p>
+                                <p class="st" t-if="attempts_left">
+                                    Attempts left on this reference:
+                                    <b><t t-out="attempts_left"/></b>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="v-band" t-if="reference">
+                            <span>Reference typed: <b><t t-out="reference"/></b></span>
+                        </div>
+                        <div class="v-cols">
+                            <div>
+                                <h3>What to do</h3>
+                                <p class="p-note">
+                                    If the paper carries no reference and no QR code,
+                                    it was not certified by us. Call the operations
+                                    desk before letting the seafarer travel.
+                                </p>
+                            </div>
+                            <div>
+                                <h3>Operations desk</h3>
+                                <dl class="kv">
+                                    <dt>Email</dt>
+                                    <dd class="m"><t t-out="company['email']"/></dd>
+                                    <dt>Address</dt>
+                                    <dd>
+                                        <t t-out="company['street']"/>,
+                                        <t t-out="company['zip']"/> <t t-out="company['city']"/>
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <div class="v-acts">
+                            <a href="/verify" class="p-btn solid">Try again</a>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <t t-call="dms_certify_portal.verify_info"/>
+        </t>
+    </template>
+
+    <!-- ==================================================================
+         The result.
+
+         `doc` is a plain dict built by DmsCertificate._get_public_values().
+         Never pass the recordset in here: a template that receives a record
+         can walk to related fields, and sooner or later someone will.
+         ================================================================== -->
+    <template id="verify_result" name="Verification result">
+        <t t-call="dms_certify_portal.portal_layout">
+            <t t-set="title">Verification result</t>
+            <t t-call="dms_certify_portal.verify_hero"/>
+
+            <div class="p-res" id="result">
+                <t t-set="state" t-value="doc['public_state']"/>
+                <div t-attf-class="verdict reveal #{'bad' if state == 'revoked' else 'warn' if state == 'expired' else ''}">
+
+                    <t t-if="notice == 'mismatch_reported'">
+                        <div class="v-flash" role="status">
+                            Thank you. The issuing desk has been told and will
+                            look at this document straight away.
+                        </div>
+                    </t>
+
+                    <!--
+                        Every sentence here is a whole text node, and every
+                        moving value sits in the band below it. Wrapping a date
+                        in <b> mid-sentence splits the string the translator
+                        gets into fragments that cannot be reordered, and French
+                        needs to reorder them.
+                    -->
+                    <div class="v-top">
+                        <div t-if="state == 'revoked'">
+                            <h2>Document revoked — do not accept</h2>
+                            <p class="st">
+                                This reference was issued by us and then cancelled.
+                                The paper in front of you is no longer valid, even if
+                                it looks intact.
+                            </p>
+                        </div>
+                        <div t-elif="state == 'expired'">
+                            <h2>Authentic, but out of date</h2>
+                            <p class="st">
+                                We did issue this document, and its validity has now
+                                ended. Ask the operations desk for a current one.
+                            </p>
+                        </div>
+                        <div t-else="">
+                            <h2>Document is authentic</h2>
+                            <p class="st">
+                                Issued by us and unchanged since. Compare the page
+                                below, line for line, with the paper presented to you.
+                            </p>
+                        </div>
+                        <t t-if="state not in ('revoked', 'expired')">
+                            <t t-call="dms_certify_portal.verify_seal"/>
+                        </t>
+                    </div>
+
+                    <div class="v-band">
+                        <t t-if="state == 'revoked'">
+                            <span t-if="doc['revoked_on']">
+                                Cancelled on
+                                <b><t t-out="doc['revoked_on']" t-options="{'widget': 'date'}"/></b>
+                            </span>
+                            <span t-if="doc['revoke_reason']">
+                                Reason: <b><t t-out="doc['revoke_reason']"/></b>
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <span>Verification no. <b><t t-out="doc['verify_count']"/></b></span>
+                            <span>Second check: <b>passed</b></span>
+                            <span t-if="doc['issued_on']">
+                                Issued
+                                <b><t t-out="doc['issued_on']" t-options="{'widget': 'date'}"/></b>
+                            </span>
+                            <span t-if="doc['valid_until']">
+                                Valid until
+                                <b><t t-out="doc['valid_until']" t-options="{'widget': 'date'}"/></b>
+                            </span>
+                            <span t-else="">Valid until revoked</span>
+                            <span>
+                                Issuer notified: <b><t t-out="'yes' if doc['issuer_notified'] else 'no'"/></b>
+                            </span>
+                        </t>
+                    </div>
+
+                    <div class="v-cols">
+                        <div>
+                            <t t-if="doc['confirm_only']">
+                                <h3>The person you checked</h3>
+                                <dl class="kv">
+                                    <dt>Match</dt>
+                                    <dd>
+                                        <b>confirmed</b> — 1 of the
+                                        <t t-out="doc['holder_count']"/> listed
+                                    </dd>
+                                    <dt>Name on the paper</dt>
+                                    <dd t-if="doc['matched']"><t t-out="doc['matched']['name']"/></dd>
+                                    <dt t-if="doc['matched'] and doc['matched']['rank']">Rank</dt>
+                                    <dd t-if="doc['matched'] and doc['matched']['rank']">
+                                        <t t-out="doc['matched']['rank']"/>
+                                    </dd>
+                                </dl>
+                                <div class="gate">
+                                    <b>The other people listed are not shown</b>
+                                    Confirming that the person in front of you is on
+                                    this document is enough to establish its
+                                    authenticity. The other lines stay redacted, here
+                                    and on the page itself.
+                                    <br/><br/>
+                                    Need the full list to process a visa? The
+                                    operations desk can open full disclosure on a
+                                    reasoned request.
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <h3>People listed on the document</h3>
+                                <table class="led">
+                                    <thead>
+                                        <tr>
+                                            <th>Surname</th>
+                                            <th>First name</th>
+                                            <th>Date of birth</th>
+                                            <th>Rank</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="doc['crew']" t-as="member">
+                                            <td><t t-out="member['surname']"/></td>
+                                            <td><t t-out="member['first_name'] or '—'"/></td>
+                                            <td class="m">
+                                                <t t-out="member['date_of_birth']"
+                                                   t-options="{'widget': 'date'}"/>
+                                            </td>
+                                            <td><t t-out="member['rank'] or '—'"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p class="p-note">
+                                    Full disclosure was switched on for this document
+                                    by the issuer. Your lookup is timestamped and
+                                    notified.
+                                </p>
+                            </t>
+
+                            <t t-if="doc['facts']">
+                                <h3 style="margin-top:22px">Voyage</h3>
+                                <dl class="kv">
+                                    <t t-foreach="doc['facts']" t-as="fact">
+                                        <dt><t t-out="fact.get('label')"/></dt>
+                                        <dd><t t-out="fact.get('value')"/></dd>
+                                    </t>
+                                </dl>
+                            </t>
+                            <dl class="kv" t-if="not doc['facts']">
+                                <dt>Document</dt>
+                                <dd><t t-out="doc['document_type']"/></dd>
+                            </dl>
+                        </div>
+
+                        <div>
+                            <h3>The document as issued</h3>
+                            <div class="docframe">
+                                <t t-if="doc['page_count']">
+                                    <!--
+                                        Each page links to itself at full
+                                        resolution. Fitted to the column the
+                                        page is right for comparing line by
+                                        line, but the stamp's QR comes out
+                                        around 40 pixels across, which no
+                                        reader will decode — opening the image
+                                        gives it the ~140 it needs.
+                                    -->
+                                    <t t-foreach="range(1, doc['page_count'] + 1)" t-as="page">
+                                        <a t-attf-href="/verify/#{token}/page/#{page}"
+                                           target="_blank" rel="noreferrer"
+                                           class="dc-page">
+                                            <img t-attf-src="/verify/#{token}/page/#{page}"
+                                                 t-attf-alt="Page #{page} of the certified document"
+                                                 loading="lazy"/>
+                                        </a>
+                                    </t>
+                                </t>
+                                <p t-else="" class="p-note">
+                                    The page cannot be shown here. Compare the
+                                    reference and the fingerprint below against the
+                                    paper, and call the operations desk if in doubt.
+                                </p>
+                            </div>
+                            <p class="p-note">
+                                Rendered from our register, watermark and guilloche
+                                included. Click a page to open it full size — at
+                                that size the QR code can be scanned from the
+                                screen. Report any difference from the paper
+                                presented.
+                                <t t-if="doc['confirm_only']">
+                                    The lines naming other people are redacted on
+                                    purpose.
+                                </t>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="v-foot">
+                        <div>
+                            <span class="lbl">Reference</span>
+                            <span class="mono big"><t t-out="doc['reference']"/></span>
+                        </div>
+                        <div>
+                            <span class="lbl">Issued by</span>
+                            <t t-out="doc['issuer']"/>, <t t-out="doc['company']"/><br/>
+                            <span class="mono" t-if="doc['issued_on']">
+                                issued <t t-out="doc['issued_on']" t-options="{'widget': 'datetime'}"/>
+                            </span>
+                        </div>
+                        <div>
+                            <span class="lbl">SHA-256 fingerprint of the issued file</span>
+                            <span class="mono"><t t-out="doc['source_hash']"/></span>
+                        </div>
+                    </div>
+
+                    <div class="v-acts">
+                        <button type="button" class="p-btn solid" id="dc_print">
+                            Print this result
+                        </button>
+                        <a t-if="doc['has_file'] and allow_download and state != 'revoked'"
+                           t-attf-href="/verify/#{token}/file" class="p-btn"
+                           rel="noreferrer">
+                            Download the sealed PDF
+                        </a>
+                        <form t-attf-action="/verify/#{token}/mismatch" method="post"
+                              class="spacer">
+                            <input type="hidden" name="csrf_token"
+                                   t-att-value="request.csrf_token()"/>
+                            <button type="submit" class="p-btn quiet">
+                                The paper does not match
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <p class="p-note dc-expiry">
+                    This result stays readable for <t t-out="expires_in"/> minutes,
+                    then closes on its own. Close the tab when you are done — this
+                    workstation may be shared.
+                </p>
+            </div>
+
+            <t t-call="dms_certify_portal.verify_info"/>
+        </t>
+    </template>
+
+    <!-- ==================================================================
+         Rate limited, or a reference someone is guessing at.
+         ================================================================== -->
+    <template id="verify_throttled" name="Verification: too many attempts">
+        <t t-call="dms_certify_portal.portal_layout">
+            <t t-set="title">Too many attempts</t>
+
+            <div class="p-res dc-standalone">
+                <div class="verdict bad">
+                    <div class="v-top">
+                        <div>
+                            <h2 t-if="locked_reference">Reference locked</h2>
+                            <h2 t-else="">Checks from here are paused</h2>
+                            <p class="st" t-if="locked_reference">
+                                Too many attempts have failed on this reference. It is
+                                locked for about <b><t t-out="window_minutes"/></b>
+                                minutes and our operations desk has been told. Call us
+                                if you need this document checked now.
+                            </p>
+                            <p class="st" t-else="">
+                                Too many lookups have failed from this connection.
+                                Checks resume in about
+                                <b><t t-out="window_minutes"/></b> minutes.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="v-cols">
+                        <div>
+                            <h3>Before you try again</h3>
+                            <p class="p-note">
+                                Confirm the reference character by character. The
+                                letters I, L, O and U are never used, so a one is a
+                                one and a zero is a zero.
+                            </p>
+                        </div>
+                        <div>
+                            <h3>Operations desk</h3>
+                            <dl class="kv">
+                                <dt>Email</dt>
+                                <dd class="m"><t t-out="company['email']"/></dd>
+                                <dt>Phone</dt>
+                                <dd><t t-out="company['phone']"/></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <t t-call="dms_certify_portal.verify_info"/>
+        </t>
+    </template>
+
+</odoo>

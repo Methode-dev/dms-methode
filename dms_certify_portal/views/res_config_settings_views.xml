@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.dms.certify.portal</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='integration']" position="before">
+                <block title="Document verification portal" name="dms_certify">
+
+                    <setting string="Rate limiting"
+                             help="Applied per IP address. Put a second limit in your reverse proxy: this one only catches what already reached Odoo.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_max_failures" class="col-lg-6 o_light_label"/>
+                                <field name="certify_max_failures"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_window_minutes" class="col-lg-6 o_light_label"/>
+                                <field name="certify_window_minutes"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting string="Reference lockout"
+                             help="Counted across every address. With a four-character second check, this is the limit that actually protects a document.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_max_reference_failures" class="col-lg-6 o_light_label"/>
+                                <field name="certify_max_reference_failures"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_reference_lock_minutes" class="col-lg-6 o_light_label"/>
+                                <field name="certify_reference_lock_minutes"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting string="Result lifetime"
+                             help="How long a result stays readable after a successful lookup.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_session_minutes" class="col-lg-6 o_light_label"/>
+                                <field name="certify_session_minutes"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting string="Log retention"
+                             help="Attempt logs hold IP addresses. Agree this figure with whoever signs off your processing record.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_retention_days" class="col-lg-6 o_light_label"/>
+                                <field name="certify_retention_days"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting id="certify_hide_expired_setting"
+                             help="When off, an expired document is reported as genuine but expired.">
+                        <field name="certify_hide_expired"/>
+                    </setting>
+
+                    <setting id="certify_allow_download_setting"
+                             help="Streamed through the verification gate, never through /web/content.">
+                        <field name="certify_allow_download"/>
+                    </setting>
+
+                    <setting string="Portal company"
+                             help="Whose name, address and contact details the public page carries. An embassy is looking at one organisation, whichever company issued the document they are checking.">
+                        <div class="content-group mt-2">
+                            <field name="certify_portal_company_id"
+                                   options="{'no_create': True}"
+                                   class="w-100"/>
+                        </div>
+                    </setting>
+
+                    <setting string="Public verification URL"
+                             help="Printed on every document and encoded in its QR code, so it stays in circulation for months. Leave empty to use this instance's own address.">
+                        <div class="content-group mt-2">
+                            <field name="certify_public_base_url"
+                                   placeholder="https://verify.example.com"
+                                   class="w-100"/>
+                        </div>
+                    </setting>
+
+                </block>
+
+                <block title="Certified documents: defaults" name="dms_certify_defaults">
+
+                    <setting string="Stamp on generation"
+                             help="Documents of these kinds are registered for verification as soon as a producing module generates them, as drafts. Sealing stays a separate, deliberate act.">
+                        <div class="content-group mt-2">
+                            <field name="certify_auto_stamp_type_ids"
+                                   widget="many2many_checkboxes"
+                                   nolabel="1"/>
+                        </div>
+                    </setting>
+
+                    <setting string="How a document opens"
+                             help="Set per document when it is issued; these are the values a new one starts with. The second check can never be switched off.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_second_factor" class="col-lg-6 o_light_label"/>
+                                <field name="certify_second_factor"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_disclosure" class="col-lg-6 o_light_label"/>
+                                <field name="certify_disclosure"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_validity_days" class="col-lg-6 o_light_label"/>
+                                <field name="certify_validity_days"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting string="Reference"
+                             help="References read PREFIX-YEAR-PORT-XXXX-XX and carry no counter, so two of them tell nobody how many were issued in between.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_reference_prefix" class="col-lg-6 o_light_label"/>
+                                <field name="certify_reference_prefix"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting id="certify_notify_setting"
+                             help="Off means only failures, lockouts and mismatch reports reach the desk.">
+                        <field name="certify_notify_on_lookup"/>
+                    </setting>
+
+                </block>
+
+                <block title="Certified documents: the seal" name="dms_certify_seal">
+
+                    <setting string="Watermark"
+                             help="The marking itself is chosen per document. This is the house style it is drawn in.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_seal_opacity" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_opacity"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_seal_size" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_size"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_seal_angle" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_angle"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_seal_mode" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_mode"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_seal_color" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_color"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting string="Stamp block"
+                             help="Where the QR code, the reference and the fingerprint are printed.">
+                        <div class="content-group mt-2">
+                            <div class="row">
+                                <label for="certify_seal_qr_corner" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_qr_corner"/>
+                            </div>
+                            <div class="row">
+                                <label for="certify_seal_band" class="col-lg-6 o_light_label"/>
+                                <field name="certify_seal_band"/>
+                            </div>
+                        </div>
+                    </setting>
+
+                    <setting id="certify_guilloche_setting"
+                             help="Engraved line pattern around the page. It moires on a photocopy.">
+                        <field name="certify_seal_guilloche"/>
+                    </setting>
+
+                    <setting id="certify_microtext_setting"
+                             help="Repeats the reference at 1 pt along the foot. Legible under a loupe, a grey smear once scanned.">
+                        <field name="certify_seal_microtext"/>
+                    </setting>
+
+                </block>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

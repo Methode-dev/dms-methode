@@ -1,0 +1,2174 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* dms_certify_portal
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0-20260228\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-21 13:06+0000\n"
+"PO-Revision-Date: 2026-09-21 13:06+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__validity_days__30
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_validity_days__30
+msgid "30 days after movement"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid "4567"
+msgstr "4567"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__validity_days__90
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_validity_days__90
+msgid "90 days after movement"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid "<b>Data</b>"
+msgstr "<b>Données</b>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid "<b>Operations desk</b>"
+msgstr "<b>Bureau des opérations</b>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"<b>The other people listed are not shown</b>\n"
+"                                    Confirming that the person in front of you is on\n"
+"                                    this document is enough to establish its\n"
+"                                    authenticity. The other lines stay redacted, here\n"
+"                                    and on the page itself.\n"
+"                                    <br/><br/>\n"
+"                                    Need the full list to process a visa? The\n"
+"                                    operations desk can open full disclosure on a\n"
+"                                    reasoned request."
+msgstr "<b>Les autres personnes inscrites ne sont pas affichées</b> Confirmer que la personne présente devant vous figure bien sur ce document suffit à en établir l’authenticité. Les autres lignes restent masquées, ici comme sur la page elle-même. <br/><br/> Besoin de la liste complète pour instruire un visa ? Le bureau des opérations peut ouvrir l’accès complet sur demande motivée."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"<b>You compare</b> the document shown here with the paper in\n"
+"                        front of you. The two must match, line for line."
+msgstr "<b>Vous comparez</b> le document affiché ici avec le papier posé devant vous. Les deux doivent être identiques, ligne pour ligne."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"<b>You report</b> any difference. The button under the result\n"
+"                        reaches our operations desk within seconds."
+msgstr "<b>Vous signalez</b> tout écart. Le bouton sous le résultat alerte notre bureau des opérations en quelques secondes."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"<b>You type both details:</b> the reference under the QR\n"
+"                        code and a listed passport. Scanning the code fills in the\n"
+"                        first, never the second."
+msgstr "<b>Vous saisissez les deux informations :</b> la référence sous le code QR et un passeport inscrit. Scanner le code remplit la première, jamais la seconde."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "<b>confirmed</b> — 1 of the"
+msgstr "<b>confirmée</b> — 1 des"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid ""
+"<br/>Crew arrangements and visa assistance in France\n"
+"                            and the Schengen area"
+msgstr "<br/>Organisation des équipages et assistance visa en France et dans l’espace Schengen"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid "<small>Seafarer document verification</small>"
+msgstr "<small>Vérification des documents d’équipage</small>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid ""
+"<span aria-hidden=\"true\">⚖</span>\n"
+"                        <span>Authenticity check</span>"
+msgstr "<span aria-hidden=\\\\"true\\\\">⚖</span> <span>Contrôle d’authenticité</span>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "<span class=\"lbl\">Issued by</span>"
+msgstr "<span class=\\\\"lbl\\\\">Émis par</span>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "<span class=\"lbl\">Reference</span>"
+msgstr "<span class=\\\\"lbl\\\\">Référence</span>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "<span class=\"lbl\">SHA-256 fingerprint of the issued file</span>"
+msgstr "<span class=\\\\"lbl\\\\">Empreinte SHA-256 du fichier émis</span>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid "<span class=\"p-tls\">● TLS</span>"
+msgstr "<span class=\\\\"p-tls\\\\">● TLS</span>"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "<span>Second check: <b>passed</b></span>"
+msgstr "<span>Second contrôle : <b>validé</b></span>"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__facts_json
+msgid ""
+"A JSON list of {label, value} the verification page prints under 'Voyage'. "
+"Written by the producing module so the vocabulary of a port call never has "
+"to live in this module."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.actions.act_window,help:dms_certify_portal.action_dms_certificate
+msgid ""
+"A certified document carries a reference and a QR code. Anyone\n"
+"                holding it, plus the passport of someone listed on it, can\n"
+"                check its status from the public page without an account."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.actions.act_window,help:dms_certify_portal.action_dms_certificate_type
+msgid ""
+"A producing module adds its own types here. Tick\n"
+"                <b>Stamp on generation</b> on the ones that should be registered\n"
+"                automatically the moment they are produced."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid ""
+"A reference and a second check are both required.\n"
+"                                Nothing beyond the person you checked is displayed,\n"
+"                                and lookup records are erased after the retention\n"
+"                                period. Data controller:"
+msgstr "La référence et le second contrôle sont tous deux exigés. Rien n’est affiché au-delà de la personne contrôlée, et les enregistrements de consultation sont effacés à l’issue de la durée de conservation. Responsable de traitement :"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid ""
+"A result stays readable only for a short\n"
+"                                    while after the lookup that produced it.\n"
+"                                    Enter the details again to see it."
+msgstr "Un constat ne reste consultable que peu de temps après le contrôle qui l’a produit. Saisissez à nouveau les informations pour le consulter."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__active
+msgid "Active"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Address"
+msgstr "Adresse"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_allow_download
+msgid "Allow downloading the sealed document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_band__scale
+msgid "Always"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"An engraved line printed with the document. It moirés on a\n"
+"                        photocopy."
+msgstr "Des lignes entrelacées imprimées avec le document. Elles moirent à la photocopie."
+
+#. module: dms_certify_portal
+#: model:ir.model.constraint,message:dms_certify_portal.constraint_dms_certificate_type_code_unique
+msgid "Another document type already uses this code."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid ""
+"Any one of these people opens the document,\n"
+"                                        by giving whatever the second check asks for.\n"
+"                                        Passport numbers are hashed on save; a lookup\n"
+"                                        is always checked against the hash, never\n"
+"                                        against the number itself."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Applied per IP address. Put a second limit in your reverse proxy: this one "
+"only catches what already reached Odoo."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_form
+msgid "Archived"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"At the foot of the page, the reference repeated at 1 pt. To\n"
+"                        the naked eye, a grey rule."
+msgstr "En pied de page, la référence répétée en corps 1. À l’œil nu, un filet gris."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Attempt logs hold IP addresses. Agree this figure with whoever signs off "
+"your processing record."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Attempts left on this reference:"
+msgstr "Tentatives restantes sur cette référence :"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Authentic, but out of date"
+msgstr "Document authentique, mais périmé"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Before you try again"
+msgstr "Avant de réessayer"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "Blocked"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate_attempt__outcome__throttled
+msgid "Blocked by rate limit"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate_attempt__outcome__locked
+msgid "Blocked, reference locked"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Both details are needed"
+msgstr "Les deux informations sont nécessaires"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_qr_corner__bl
+msgid "Bottom left"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_qr_corner__br
+msgid "Bottom right, next to the signature"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__boxes_source_hash
+msgid "Boxes Source Hash"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"By default we confirm that the person you checked is on the\n"
+"                        document, without showing the others listed on it. Full\n"
+"                        access is granted by the operations desk on request."
+msgstr "Par défaut, nous confirmons que la personne contrôlée figure bien sur le document, sans afficher les autres personnes inscrites. L’accès complet se demande au bureau des opérations."
+
+#. module: dms_certify_portal
+#: model:res.groups,comment:dms_certify_portal.group_certify_user
+msgid "Can look up certificates in the back office."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:res.groups,comment:dms_certify_portal.group_certify_manager
+msgid "Can publish and revoke certificates, and see passport hashes."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_revoke_form
+msgid "Cancel"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Cancelled on"
+msgstr "Annulé le"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__certificate_id
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__certificate_id
+msgid "Certificate"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__certificate_count
+msgid "Certificate Count"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.module.category,name:dms_certify_portal.module_category_certify
+msgid "Certification"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:res.groups,name:dms_certify_portal.group_certify_user
+msgid "Certification: Agent"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:res.groups,name:dms_certify_portal.group_certify_manager
+msgid "Certification: Registrar"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__state__certified
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Certified"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model,name:dms_certify_portal.model_dms_certificate_holder
+msgid "Certified Document Holder"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model,name:dms_certify_portal.model_dms_certificate_type
+msgid "Certified Document Type"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Certified document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.actions.act_window,name:dms_certify_portal.action_dms_certificate
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_list
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Certified documents"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Certified documents: defaults"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Certified documents: the seal"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__seal_marking__certified
+msgid "Certified original"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.actions.act_window,help:dms_certify_portal.action_dms_certificate
+msgid "Certify a document so embassies can verify it"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Certify and watermark"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Check a document"
+msgstr "Vérifier un document"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Checks from here are paused"
+msgstr "Les contrôles depuis cette connexion sont suspendus"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__code
+msgid "Code"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__company_id
+msgid "Company"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model,name:dms_certify_portal.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.ui.menu,name:dms_certify_portal.menu_certify_configuration
+msgid "Configuration"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid ""
+"Confirm the reference character by character. The\n"
+"                                letters I, L, O and U are never used, so a one is a\n"
+"                                one and a zero is a zero."
+msgstr "Vérifiez la référence caractère par caractère. Les lettres I, L, O et U ne sont jamais utilisées : un 1 est un 1 et un 0 est un 0."
+
+#. module: dms_certify_portal
+#: model:ir.ui.menu,name:dms_certify_portal.menu_certify_root
+msgid "Consular"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__seal_marking__copy
+msgid "Copy — not for boarding"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_max_reference_failures
+msgid ""
+"Counted across every address. This is the limit that actually protects a "
+"document when the second check is only four characters long."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Counted across every address. With a four-character second check, this is "
+"the limit that actually protects a document."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__create_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__create_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__create_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__create_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__create_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__create_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__create_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__create_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__seal_marking__custom
+msgid "Custom text"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__date_of_birth
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Date of birth"
+msgstr "Date de naissance"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__second_factor__dob
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_second_factor__dob
+msgid "Date of birth of a listed person"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "Day"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_disclosure
+msgid "Default disclosure"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_second_factor
+msgid "Default second check"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_validity_days
+msgid "Default validity"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.actions.act_window,help:dms_certify_portal.action_dms_certificate_type
+msgid "Define the kinds of document you certify"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__state__delivered
+msgid "Delivered"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "Diagonal watermark"
+msgstr "Filigrane diagonal"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__display_name
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__display_name
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__display_name
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__display_name
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__display_name
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__display_name_public
+msgid "Display Name Public"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__dob_hash
+msgid "Dob Hash"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Document"
+msgstr "Document"
+
+#. module: dms_certify_portal
+#: model:ir.model,name:dms_certify_portal.model_dms_certificate_attempt
+msgid "Document Verification Attempt"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:res.groups.privilege,name:dms_certify_portal.privilege_certify
+msgid "Document certification"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__source_hash
+msgid "Document fingerprint"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Document is authentic"
+msgstr "Document authentique"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid "Document reference"
+msgstr "Référence du document"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Document revoked — do not accept"
+msgstr "Document révoqué — ne pas accepter"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_form
+msgid "Document type"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.actions.act_window,name:dms_certify_portal.action_dms_certificate_type
+#: model:ir.ui.menu,name:dms_certify_portal.menu_certify_types
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_list
+msgid "Document types"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Document verification portal"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_list
+msgid "Documents"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Documents of these kinds are registered for verification as soon as a "
+"producing module generates them, as drafts. Sealing stays a separate, "
+"deliberate act."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_auto_stamp_type_ids
+msgid ""
+"Documents of these kinds are registered for verification the moment a "
+"producing module generates them, as drafts. Sealing stays a separate, "
+"deliberate act."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Download stamped PDF"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Download the sealed PDF"
+msgstr "Télécharger le PDF scellé"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__state__draft
+msgid "Draft"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Email"
+msgstr "Email"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Engraved line pattern around the page. It moires on a photocopy."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_seal_guilloche
+msgid "Engraved line pattern around the page. It moirés on a photocopy."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__public_state__expired
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Expired"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "Failed"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_max_failures
+msgid "Failed attempts allowed per address"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_max_reference_failures
+msgid "Failed attempts allowed per reference"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate_attempt__outcome__captcha
+msgid "Failed the captcha"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Files"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid ""
+"Fill in the reference and the second check.\n"
+"                                    The reference on its own never opens a\n"
+"                                    document."
+msgstr "Renseignez la référence et le second contrôle. La référence seule n’ouvre jamais un document."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__first_name
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "First name"
+msgstr "Prénom"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__seal_marking__embassy
+msgid "For embassy submission"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"Full disclosure was switched on for this document\n"
+"                                    by the issuer. Your lookup is timestamped and\n"
+"                                    notified."
+msgstr "L’affichage complet a été activé pour ce document par l’émetteur. Votre consultation est horodatée et notifiée."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__second_factor__pptfull
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_second_factor__pptfull
+msgid "Full passport number"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.actions.act_window,help:dms_certify_portal.action_dms_certificate_attempt
+msgid ""
+"Group by IP address and look for one address producing many\n"
+"                failures, or successful lookups walking through sequential\n"
+"                references. An attacker slow enough to stay under the rate limit\n"
+"                still shows up as a pattern here."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_guilloche
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "Guilloche border"
+msgstr "Fond guilloché"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_hide_expired
+msgid "Hide expired documents"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__holder_count
+msgid "Holder Count"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "How a document opens"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "How it opens"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "How long a result stays readable after a successful lookup."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_session_minutes
+msgid ""
+"How long a result stays readable after a successful lookup. Keep it short: "
+"embassy workstations are shared."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__id
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__id
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__id
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__id
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__id
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__ip_address
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "IP address"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid ""
+"If the paper carries no reference and no QR code,\n"
+"                                    it was not certified by us. Call the operations\n"
+"                                    desk before letting the seafarer travel."
+msgstr "Si le papier ne porte ni référence ni code QR, il n’a pas été certifié par nous. Appelez le bureau des opérations avant de laisser voyager le marin."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid "Is the document at your counter really ours?"
+msgstr "Un document présenté à votre guichet est-il bien le nôtre ?"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Issued"
+msgstr "Émis le"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__issuer_id
+msgid "Issued by"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"Issued by us and unchanged since. Compare the page\n"
+"                                below, line for line, with the paper presented to you."
+msgstr "Émis par nos soins et inchangé depuis. Comparez la page ci-dessous, ligne pour ligne, avec le papier présenté."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Issued certificate"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__issued_on
+msgid "Issued on"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Issuer notified:"
+msgstr "Émetteur prévenu :"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"Its first 12 characters are printed under the reference and\n"
+"                        repeated here."
+msgstr "Ses 12 premiers caractères sont imprimés sous la référence et repris ici."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_retention_days
+msgid "Keep attempt logs for (days)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.portal_layout
+msgid "Language"
+msgstr "Langue"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__second_factor__ppt4
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_second_factor__ppt4
+msgid "Last 4 characters of a listed passport"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__write_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__write_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__write_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__write_uid
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__write_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__write_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__write_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__write_date
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__last_verified_on
+msgid "Last lookup"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_form
+msgid "Letter of Invitation"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_list
+msgid "Listed"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__holder_ids
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Listed people"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Listed person"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Log retention"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__attempt_ids
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_list
+msgid "Lookups"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_band
+msgid "Make room for the stamp"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__seal_marking
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Marking"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__seal_text
+msgid "Marking text"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Match"
+msgstr "Correspondance"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__disclosure__confirm
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_disclosure__confirm
+msgid "Match confirmation, crew lines redacted"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__success
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate_attempt__outcome__matched
+msgid "Matched"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__document_id
+msgid "Matched document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "Microtext line"
+msgstr "Ligne microtexte"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_microtext
+msgid "Microtext line in the footer"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__movement_date
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Movement date"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__name
+msgid "Name"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Name on the paper"
+msgstr "Nom sur le papier"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Never looked up"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_band__overlay
+msgid "Never — stamp over the page"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.actions.act_window,help:dms_certify_portal.action_dms_certificate_attempt
+msgid "No attempts logged yet"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid ""
+"No document to stamp yet. Point this certificate at\n"
+"                                the file it stands for and the page appears here."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid ""
+"No lookup yet. A row appears here the moment\n"
+"                                        someone types the reference."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate_attempt__outcome__no_match
+msgid "No match"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__public_state__unpublished
+msgid "Not issued"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__notify_on_lookup
+msgid "Notify on every lookup"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_notify_on_lookup
+msgid "Notify the desk on every lookup"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Off means only failures, lockouts and mismatch reports reach the desk."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "On the paper you are holding"
+msgstr "Sur le papier que vous tenez"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_mode__single
+msgid "One diagonal band"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_band__auto
+msgid "Only when the corner is taken"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Open as embassy"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Operations desk"
+msgstr "Bureau des opérations"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__outcome
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "Outcome"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Page {{0}} of the certified document"
+msgstr "Page {{0}} du document certifié"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__passport_hash
+msgid "Passport Hash"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__passport_number
+msgid "Passport number"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid "Passport of a person listed on the paper"
+msgstr "Passeport d’une personne figurant sur le papier"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__passport4_hash
+msgid "Passport4 Hash"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__valid_until
+msgid ""
+"Past this date the portal reports the document as authentic but out of date,"
+" which is more useful to an embassy than silence."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "People listed on the document"
+msgstr "Personnes inscrites sur le document"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Phone"
+msgstr "Téléphone"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_portal_company_id
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Portal company"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__disclosure
+msgid "Portal shows"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__notify_on_lookup
+msgid ""
+"Post every verification back to the issuing desk, not only the failures."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Print this result"
+msgstr "Imprimer ce constat"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid ""
+"Printed in bold beside the QR code, at the foot of\n"
+"                                the document."
+msgstr "Imprimée en gras à côté du code QR, en bas du document."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_public_base_url
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Printed on every document and encoded in its QR code, so it stays in "
+"circulation for months. Leave empty to use this instance's own address."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__reference
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_revoke__reference
+msgid ""
+"Printed on the document beside the QR code. High-entropy on purpose: a "
+"guessable reference would leave the second check as the only secret."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_holder__passport_number
+msgid ""
+"Printed on the document. Stored so it can be checked and corrected; matching"
+" a lookup always goes through the hashes below, never through this."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__facts_json
+msgid "Public facts"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_public_base_url
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Public verification URL"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__rank
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Rank"
+msgstr "Fonction"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_window_minutes
+msgid "Rate limit window (minutes)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Rate limiting"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Re-stamp document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__reason
+msgid "Reason"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Reason:"
+msgstr "Motif :"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__redaction_boxes
+msgid "Redaction Boxes"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__reference
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_revoke__reference
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Reference"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__reference_key
+msgid "Reference Key"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Reference locked"
+msgstr "Référence bloquée"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Reference lockout"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_reference_lock_minutes
+msgid "Reference lockout (minutes)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_reference_prefix
+msgid "Reference prefix"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__reference_tried
+msgid "Reference tried"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Reference typed:"
+msgstr "Référence saisie :"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"References read PREFIX-YEAR-PORT-XXXX-XX and carry no counter, so two of "
+"them tell nobody how many were issued in between."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid ""
+"Reload the page and try again. If it keeps\n"
+"                                    happening, call the operations desk and we\n"
+"                                    will check the document for you."
+msgstr "Rechargez la page et réessayez. Si cela se reproduit, appelez le bureau des opérations et nous contrôlerons le document pour vous."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"Rendered from our register, watermark and guilloche\n"
+"                                included. Click a page to open it full size — at\n"
+"                                that size the QR code can be scanned from the\n"
+"                                screen. Report any difference from the paper\n"
+"                                presented."
+msgstr "Rendu depuis notre registre, filigrane et guilloché compris. Cliquez sur une page pour l’ouvrir en taille réelle — à cette taille, le code QR peut être scanné depuis l’écran. Signalez tout écart avec le papier présenté."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid ""
+"Rendered from the document itself with the marking\n"
+"                                currently selected. What you see is what the QR\n"
+"                                resolves to."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Repeats the reference at 1 pt along the foot. Legible under a loupe, a grey "
+"smear once scanned."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_seal_microtext
+msgid ""
+"Repeats the reference at 1 pt. Legible under a loupe, a grey smear once "
+"scanned."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate_attempt__outcome__mismatch
+msgid "Reported as not matching the paper"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.ui.menu,name:dms_certify_portal.menu_certify_reporting
+msgid "Reporting"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__requester_label
+msgid "Requester"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Result lifetime"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_session_minutes
+msgid "Result page lifetime (minutes)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Revocation"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__revoke_reason
+msgid "Revocation reason"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_revoke_form
+msgid "Revoke"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model,name:dms_certify_portal.model_dms_certificate_revoke
+msgid "Revoke a certified document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Revoke certificate"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.actions.act_window,name:dms_certify_portal.action_dms_certificate_revoke
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_revoke_form
+msgid "Revoke document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__public_state__revoked
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__state__revoked
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Revoked"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__revoked_uid
+msgid "Revoked by"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__revoked_on
+msgid "Revoked on"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_revoke_form
+msgid "Revoking"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "SHA-256 (printed)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "SHA-256 (sealed file)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "SHA-256 fingerprint"
+msgstr "Empreinte SHA-256"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__source_hash
+msgid ""
+"SHA-256 of the document as produced, before the seal was applied — a file "
+"cannot carry its own hash. This is the value printed on the page."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__sealed_hash
+msgid "SHA-256 of the sealed file the portal serves."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__sealed_attachment_id
+msgid "Sealed document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__sealed_hash
+msgid "Sealed file fingerprint"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_seal_band
+msgid ""
+"Sealing cannot reflow a page. When the stamp's corner is already occupied, "
+"the page can be shrunk slightly to free a strip for it; 'Only when the "
+"corner is taken' keeps most documents at their exact size and protects the "
+"rest."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__second_factor
+msgid "Second check"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Send to embassy"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__sequence
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__sequence
+msgid "Sequence"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Set per document when it is issued; these are the values a new one starts "
+"with. The second check can never be switched off."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__public_state
+msgid "Shown as"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_revoke_form
+msgid "Shown to the embassy on the refusal notice"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_revoke__reason
+msgid "Shown to whoever checks this document from now on."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__source_attachment_id
+msgid "Source document"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__res_model
+msgid "Source model"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__res_id
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Source record"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__type_code
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_type__code
+msgid ""
+"Stable identifier a producing module refers to. The label above can be "
+"renamed and translated freely; this cannot."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Stamp block"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_type__auto_stamp
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_auto_stamp_type_ids
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_list
+msgid "Stamp on generation"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_qr_corner
+msgid "Stamp position"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__preview_pdf
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Stamped output"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"States the intended use — certified original, copy, or void.\n"
+"                        A copy presented as an original should stop you."
+msgstr "Porte la mention d’usage — original certifié, copie ou annulé. Une copie présentée comme un original doit vous arrêter."
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__state
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Status"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Streamed through the verification gate, never through /web/content."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__verify_count
+msgid "Successful lookups"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_holder__name
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Surname"
+msgstr "Nom"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"Thank you. The issuing desk has been told and will\n"
+"                            look at this document straight away."
+msgstr "Merci. Le bureau émetteur a été prévenu et examinera ce document sans délai."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "That result has expired"
+msgstr "Ce constat a expiré"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_form
+msgid ""
+"The code is what a producing module refers to when it\n"
+"                        registers a document, so it cannot change once documents\n"
+"                        exist. The name can be renamed and translated freely — it\n"
+"                        is what the verification page shows."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__movement_date
+msgid "The date the document is about. Validity is counted from here."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "The document as issued"
+msgstr "Le document tel qu’émis"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_holder__boxes_source_hash
+msgid ""
+"The document the boxes were measured against. If the document changes and "
+"this does not, the boxes are stale and must not be trusted."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__source_attachment_id
+msgid ""
+"The document to seal. A producing module normally overrides "
+"_certify_source() and points this at its own storage instead."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__disclosure__full
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_disclosure__full
+msgid "The full page as issued"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid ""
+"The last 4 characters are usually enough. If\n"
+"                                        the document carries no passport number, type\n"
+"                                        a listed date of birth instead (DDMMYYYY)."
+msgstr "Les 4 derniers caractères suffisent généralement. Si le document ne porte aucun numéro de passeport, saisissez une date de naissance inscrite (JJMMAAAA)."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"The lines naming other people are redacted on\n"
+"                                    purpose."
+msgstr "Les lignes nommant les autres personnes sont volontairement masquées."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"The marking itself is chosen per document. This is the house style it is "
+"drawn in."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"The page cannot be shown here. Compare the\n"
+"                                    reference and the fingerprint below against the\n"
+"                                    paper, and call the operations desk if in doubt."
+msgstr "La page ne peut pas être affichée ici. Comparez la référence et l’empreinte ci-dessous avec le papier, et appelez le bureau des opérations en cas de doute."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "The paper does not match"
+msgstr "Le papier ne correspond pas"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "The person you checked"
+msgstr "La personne que vous contrôlez"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid ""
+"The printed fingerprint is the hash of the\n"
+"                                        document as produced: a file cannot carry its\n"
+"                                        own hash. Re-stamping changes the sealed file\n"
+"                                        and leaves the printed value alone, so copies\n"
+"                                        already sent keep verifying."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__second_factor
+msgid ""
+"The reference alone never opens a document. This is what is asked for "
+"alongside it, and it cannot be switched off."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid ""
+"The reference and the second check have to\n"
+"                                    come from the same document. We will not say\n"
+"                                    which of the two failed. Check 0 against O\n"
+"                                    and 1 against I — our references never use\n"
+"                                    I, L, O or U — then try again."
+msgstr "La référence et le second contrôle doivent provenir du même document. Nous ne dirons pas lequel des deux ne correspond pas. Vérifiez les caractères 0 et O, 1 et I — nos références n’utilisent ni I, ni L, ni O, ni U — puis réessayez."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid ""
+"The reference on its own never opens a document.\n"
+"                                The second check is always required and cannot be\n"
+"                                switched off; repeated failures lock the reference\n"
+"                                and raise a warning here."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__reference_key
+msgid ""
+"The reference with its separators stripped. What a lookup matches on, so "
+"spacing and dashes never decide the outcome."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid ""
+"The seal is not a picture pasted onto a PDF. The reference is\n"
+"                    issued by our own server and bound to the fingerprint of the\n"
+"                    file we produced. Changing a date, a name or a passport number\n"
+"                    breaks that link — the page you read here stays the original."
+msgstr "Le sceau n’est pas une image collée sur un PDF. La référence est émise par notre propre serveur et liée à l’empreinte du fichier que nous avons produit. Modifier une date, un nom ou un numéro de passeport casse ce lien — la page que vous consultez ici reste l’originale."
+
+#. module: dms_certify_portal
+#: model:ir.model.constraint,message:dms_certify_portal.constraint_dms_certificate_reference_unique
+msgid "This certificate reference already exists."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"This reference was issued by us and then cancelled.\n"
+"                                The paper in front of you is no longer valid, even if\n"
+"                                it looks intact."
+msgstr "Cette référence a bien été émise par nous, puis annulée. Le papier présenté n’est plus valable, même s’il paraît intact."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "This result stays readable for"
+msgstr "Ce constat reste consultable pendant"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Those two details do not open a document"
+msgstr "Ces deux informations ne correspondent à aucun document"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_seal_mode__tile
+msgid "Tiled across the page"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "Today"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "Too many attempts"
+msgstr "Trop de tentatives"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid ""
+"Too many attempts have failed on this reference. It is\n"
+"                                locked for about"
+msgstr "Trop de tentatives ont échoué sur cette référence. Elle est bloquée pendant environ"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid ""
+"Too many lookups have failed from this connection.\n"
+"                                Checks resume in about"
+msgstr "Trop de contrôles ont échoué depuis cette connexion. Ils reprennent dans environ"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "Try again"
+msgstr "Réessayer"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__type_id
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_search
+msgid "Type"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__type_code
+msgid "Type code"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid ""
+"Type the reference printed under the QR code, then the\n"
+"                        passport of a person listed on the paper. Both have to\n"
+"                        come from the same document."
+msgstr "Saisissez la référence imprimée sous le code QR, puis le passeport d’une personne figurant sur le papier. Les deux doivent provenir du même document."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Typed once, kept only as a hash"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__validity_days__0
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__res_config_settings__certify_validity_days__0
+msgid "Until revoked"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate_attempt__user_agent
+msgid "User agent"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_seal
+msgid "VERIFIED ·"
+msgstr "VÉRIFIÉ ·"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__public_state__valid
+msgid "Valid"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__validity_days
+msgid "Valid for"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__valid_until
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Valid until"
+msgstr "Valable jusqu’au"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Valid until revoked"
+msgstr "Valable jusqu’à révocation"
+
+#. module: dms_certify_portal
+#: model:ir.model,name:dms_certify_portal.model_dms_certificate
+msgid "Verifiable Certificate"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_dms_certificate__verify_url
+msgid "Verification URL"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.actions.act_window,name:dms_certify_portal.action_dms_certificate_attempt
+#: model:ir.ui.menu,name:dms_certify_portal.menu_certify_attempts
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_list
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_search
+msgid "Verification attempts"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.ui.menu,name:dms_certify_portal.menu_dms_certificates
+msgid "Verification entries"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "Verification log"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Verification no."
+msgstr "Vérification n°"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Verification result"
+msgstr "Résultat de vérification"
+
+#. module: dms_certify_portal
+#: model:ir.actions.server,name:dms_certify_portal.cron_gc_verify_attempts_ir_actions_server
+msgid "Verification: purge old attempt logs"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_seal
+msgid "Verified"
+msgstr "Vérifié"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid "Verify document"
+msgstr "Vérifier le document"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields.selection,name:dms_certify_portal.selection__dms_certificate__seal_marking__void
+msgid "Void / cancelled"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "Voyage"
+msgstr "Voyage"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Watermark"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_angle
+msgid "Watermark angle"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_mode
+msgid "Watermark coverage"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_color
+msgid "Watermark ink"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_opacity
+msgid "Watermark opacity (%)"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,field_description:dms_certify_portal.field_res_config_settings__certify_seal_size
+msgid "Watermark size"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "We could not confirm this came from a browser"
+msgstr "Nous n’avons pas pu confirmer que la demande venait d’un navigateur"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"We did issue this document, and its validity has now\n"
+"                                ended. Ask the operations desk for a current one."
+msgstr "Nous avons bien émis ce document, et sa validité est désormais expirée. Demandez une pièce à jour au bureau des opérations."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_hero
+msgid ""
+"We issue the letters of invitation, boarding manifests and\n"
+"                        insurance certificates carried by seafarers joining ships\n"
+"                        calling in France. Every document we certify carries a\n"
+"                        unique reference and a digital seal.\n"
+"                        <b>A reference on its own opens nothing: a listed passport\n"
+"                        is needed too.</b>"
+msgstr "Nous établissons les lettres d’invitation, manifestes d’embarquement et attestations d’assurance des marins rejoignant les navires en escale en France. Chaque document que nous certifions porte une référence unique et un sceau numérique. <b>Une référence seule n’ouvre rien : il faut aussi un passeport inscrit.</b>"
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_attempt__requester_label
+msgid "What the desk is shown about who looked the document up."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__seal_text
+msgid ""
+"What the diagonal watermark says. Follows the marking unless you type your "
+"own."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate__public_state
+msgid "What the public page reports for this entry."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "What the watermark says"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "What this check is worth"
+msgstr "Ce que vaut ce contrôle"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_form
+msgid "What to do"
+msgstr "Que faire"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_info
+msgid "What we do not show"
+msgstr "Ce que nous n’affichons pas"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_attempt_list
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_form
+msgid "When"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_dms_certificate_type__auto_stamp
+msgid ""
+"When a producing module generates a document of this kind, register it for "
+"verification straight away, as a draft. It still has to be sealed by hand."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "When off, an expired document is reported as genuine but expired."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_hide_expired
+msgid ""
+"When off, an expired document is reported as genuine but out of date. When "
+"on it reads as 'no match', which shrinks the searchable set but can make an "
+"agent reject a real holder."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "Where the QR code, the reference and the fingerprint are printed."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid ""
+"Whose name, address and contact details the public page carries. An embassy "
+"is looking at one organisation, whichever company issued the document they "
+"are checking."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model:ir.model.fields,help:dms_certify_portal.field_res_config_settings__certify_portal_company_id
+msgid ""
+"Whose name, address and contact details the public page carries. An embassy "
+"is looking at one organisation, whichever company issued the document they "
+"are checking. Leave empty to use the company the request resolves to."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.res_config_settings_view_form
+msgid "https://verify.example.com"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_revoke_form
+msgid ""
+"is permanent. Anyone checking it from now on is told not to\n"
+"                    accept it, and the stored copy is re-stamped VOID."
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "issued"
+msgstr "émis le"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid "listed"
+msgstr "inscrites"
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.view_dms_certificate_type_form
+msgid "loi"
+msgstr ""
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid ""
+"minutes and our operations desk has been told. Call us\n"
+"                                if you need this document checked now."
+msgstr "minutes et notre bureau des opérations en a été informé. Appelez-nous si vous avez besoin d’un contrôle immédiat de ce document."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_result
+msgid ""
+"minutes,\n"
+"                    then closes on its own. Close the tab when you are done — this\n"
+"                    workstation may be shared."
+msgstr "minutes, puis se ferme de lui-même. Fermez l’onglet lorsque vous avez terminé — ce poste peut être partagé."
+
+#. module: dms_certify_portal
+#: model_terms:ir.ui.view,arch_db:dms_certify_portal.verify_throttled
+msgid "minutes."
+msgstr "minutes."
