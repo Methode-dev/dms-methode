@@ -9,11 +9,17 @@ import {download} from "@web/core/network/download";
 import {FileKanbanRecord} from "./file_kanban_record.esm";
 import {useEffect} from "@odoo/owl";
 import {useFileExplorerContextMenu} from "./file_explorer_context_menu.esm";
+import {useService} from "@web/core/utils/hooks";
 
 export class FileExplorerKanbanRecord extends FileKanbanRecord {
     setup() {
         super.setup();
-        this.openContextMenu = useFileExplorerContextMenu().openContextMenu;
+        const contextMenu = useFileExplorerContextMenu();
+        this.contextMenuItems = contextMenu.contextMenuItems;
+        this.showContextMenu = contextMenu.showMenu;
+        // A host module's entry usually calls a method on the record; give it
+        // the ORM rather than making every patch reach for the service itself.
+        this.orm = useService("orm");
         // Bind the OS-explorer interactions on the card root element:
         //   - double-click -> preview (in-page viewer)
         //   - right-click  -> context menu (Rename / Preview / Download)
@@ -24,18 +30,7 @@ export class FileExplorerKanbanRecord extends FileKanbanRecord {
                 }
                 const onDblClick = () => this.openPreview();
                 const onContextMenu = (ev) => {
-                    const data = this.props.record.data;
-                    this.openContextMenu(ev, {
-                        model: "dms.file",
-                        id: data.id,
-                        name: data.name,
-                        canRename: data.permission_write,
-                        canDelete: data.permission_unlink,
-                        isFile: true,
-                        onPreview: () => this.openPreview(),
-                        onDownload: () => this.downloadFile(),
-                        onRefresh: () => this.props.record.model.load(),
-                    });
+                    this.showContextMenu(ev, this.fileContextMenuItems());
                 };
                 el.addEventListener("dblclick", onDblClick);
                 el.addEventListener("contextmenu", onContextMenu);
@@ -46,6 +41,29 @@ export class FileExplorerKanbanRecord extends FileKanbanRecord {
             },
             () => [this.rootRef.el]
         );
+    }
+
+    /**
+     * This tile's right-click menu, in jsTree's vakata format.
+     *
+     * Split out from the handler so a host module can patch just the items and
+     * inherit the wiring — the per-file counterpart of the renderer's
+     * `backgroundContextMenuItems`, and the seam `operations_certify` uses to
+     * offer a document's stamp.
+     */
+    fileContextMenuItems() {
+        const data = this.props.record.data;
+        return this.contextMenuItems({
+            model: "dms.file",
+            id: data.id,
+            name: data.name,
+            canRename: data.permission_write,
+            canDelete: data.permission_unlink,
+            isFile: true,
+            onPreview: () => this.openPreview(),
+            onDownload: () => this.downloadFile(),
+            onRefresh: () => this.props.record.model.load(),
+        });
     }
 
     /**

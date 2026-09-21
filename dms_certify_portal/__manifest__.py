@@ -63,10 +63,16 @@ for the integration API and ``tools/seal.py`` for the stamping itself.
     'assets': {
         'web.assets_backend': [
             'dms_certify_portal/static/src/scss/certificate_form.scss',
+            'dms_certify_portal/static/src/js/certificate_chatter.js',
+            'dms_certify_portal/static/src/js/certificate_chatter.xml',
+            'dms_certify_portal/static/src/js/form_renderer_patch.js',
         ],
         'web.assets_frontend': [
             'dms_certify_portal/static/src/scss/verify.scss',
             'dms_certify_portal/static/src/js/verify.js',
+        ],
+        'web.assets_tests': [
+            'dms_certify_portal/static/tests/tours/certificate_chatter_tour.js',
         ],
     },
 

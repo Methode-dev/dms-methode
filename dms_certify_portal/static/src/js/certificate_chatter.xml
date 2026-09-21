@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- The standard chatter, minus every way of posting into the thread. The
+         two topbar buttons and the composer block they toggle are the only
+         removals; the Activity button, the search, the attachment box, the
+         followers and the message list are the stock ones. -->
+    <t t-name="dms_certify_portal.CertificateChatter" t-inherit="mail.Chatter" t-inherit-mode="primary">
+        <xpath expr="//button[hasclass('o-mail-Chatter-sendMessage')]" position="replace"/>
+        <xpath expr="//button[hasclass('o-mail-Chatter-logNote')]" position="replace"/>
+        <!-- The "To:" recipients row and the Composer itself. -->
+        <xpath expr="//t[@t-if='state.composerType']" position="replace"/>
+    </t>
+
+</templates>

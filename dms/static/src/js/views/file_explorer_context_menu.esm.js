@@ -151,11 +151,14 @@ export async function confirmDmsDelete({dialog, orm}, target) {
 }
 
 /**
- * Hook returning `{openContextMenu, showMenu}`.
+ * Hook returning `{openContextMenu, contextMenuItems, showMenu}`.
  *
  * - `openContextMenu(ev, config)` builds and shows the menu of a single
  *   file/folder. config: {model, id, name, canRename, canDelete, isFile,
  *   onRefresh, onPreview, onDownload}
+ * - `contextMenuItems(config)` returns that menu without showing it, so a
+ *   component can add entries before handing it to `showMenu` — the seam a
+ *   host module patches (see FileExplorerKanbanRecord.fileContextMenuItems).
  * - `showMenu(ev, items)` shows a ready-made vakata item dict. Use it for menus
  *   that are not about one record, e.g. the grid's blank-area menu.
  */
@@ -212,7 +215,7 @@ export function useFileExplorerContextMenu() {
         }
     };
 
-    const openContextMenu = async (ev, config) => {
+    const contextMenuItems = (config) => {
         const items = {};
         if (config.canRename) {
             items.rename = {
@@ -246,8 +249,11 @@ export function useFileExplorerContextMenu() {
                 action: () => remove(config),
             };
         }
-        await showMenu(ev, items);
+        return items;
     };
 
-    return {openContextMenu, showMenu};
+    const openContextMenu = async (ev, config) =>
+        showMenu(ev, contextMenuItems(config));
+
+    return {openContextMenu, contextMenuItems, showMenu};
 }

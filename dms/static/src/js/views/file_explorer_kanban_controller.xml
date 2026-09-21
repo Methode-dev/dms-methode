@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+    <!-- The explorer's control-panel buttons. Inherits the DMS kanban buttons
+         (whose Upload/Scan pair is gated on create=1 and so never shows here)
+         and renders whatever explorerTopbarButtons() returns. -->
+    <t
+        t-name="dms.FileExplorerKanbanButtons"
+        t-inherit="dms.KanbanButtons"
+        t-inherit-mode="primary"
+    >
+        <xpath expr="." position="inside">
+            <button
+                t-foreach="explorerTopbarButtons()"
+                t-as="explorerButton"
+                t-key="explorerButton.id"
+                type="button"
+                t-attf-class="btn mx-1 {{ explorerButton.className or 'btn-primary' }}"
+                t-att-title="explorerButton.title"
+                t-att-disabled="explorerButton.disabled"
+                t-on-click.prevent.stop="() => explorerButton.action()"
+            >
+                <i t-if="explorerButton.icon" t-attf-class="{{ explorerButton.icon }} me-1" />
+                <t t-esc="explorerButton.label" />
+            </button>
+        </xpath>
+    </t>
+
+</templates>

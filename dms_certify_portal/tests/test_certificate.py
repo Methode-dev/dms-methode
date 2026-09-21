@@ -17,6 +17,8 @@ from PIL import Image
 from lxml import etree
 
 from odoo.exceptions import AccessError, UserError
+from odoo.tools.misc import file_path
+from odoo.tools.template_inheritance import apply_inheritance_specs
 
 from odoo.addons.dms_certify_portal.tools import seal as sealing
 from odoo.tests.common import TransactionCase, tagged
@@ -844,3 +846,52 @@ class TestAssets(TransactionCase):
         self.assertTrue(
             self._compile('web.assets_frontend'),
             "verify.scss is in this bundle.")
+
+
+@tagged('post_install', '-at_install')
+class TestChatterTemplate(TransactionCase):
+    """The certificate chatter is a log, not a conversation.
+
+    ``CertificateChatter`` inherits ``mail.Chatter`` in primary mode and cuts
+    the two composer buttons out of it. That inheritance is applied *in the
+    browser* — the server ships both templates untouched and never evaluates
+    the xpaths — so an expression that matches nothing fails at runtime with
+    the form blank, and no Python suite would notice. These run the same
+    xpaths through Odoo's own inheritance machinery instead.
+    """
+
+    def _chatter(self):
+        """``mail.Chatter`` with our xpaths applied, as the browser would."""
+        parent = etree.parse(
+            file_path('mail/static/src/chatter/web/chatter.xml')
+        ).getroot().find(".//t[@t-name='mail.Chatter']")
+        spec = etree.parse(
+            file_path('dms_certify_portal/static/src/js/certificate_chatter.xml')
+        ).getroot().find(".//t[@t-name='dms_certify_portal.CertificateChatter']")
+        self.assertIsNotNone(parent, "mail.Chatter moved or was renamed.")
+        self.assertIsNotNone(spec, "our template moved or was renamed.")
+        # The children, not the node: the browser applies the operations a
+        # t-inherit carries, not the t-inherit element itself. Raises if an
+        # xpath locates nothing, which is the point of the test.
+        return etree.tostring(
+            apply_inheritance_specs(parent, list(spec)), encoding='unicode')
+
+    def test_nothing_can_be_posted_from_the_certificate_chatter(self):
+        chatter = self._chatter()
+        for gone in ('o-mail-Chatter-sendMessage', 'o-mail-Chatter-logNote',
+                     '<Composer', 'RecipientsInput'):
+            self.assertNotIn(
+                gone, chatter,
+                "%s still reachable: the thread is a record of what happened, "
+                "not somewhere to write." % gone)
+
+    def test_everything_else_stays_the_standard_chatter(self):
+        chatter = self._chatter()
+        for kept in ('mail.ActivityList',        # planned activities
+                     'o-mail-Chatter-activity',  # and the button to add one
+                     'o-mail-Followers',
+                     'o-mail-Chatter-fileUploader',
+                     '<Thread'):
+            self.assertIn(
+                kept, chatter,
+                "%s was removed: only the composer should be." % kept)
