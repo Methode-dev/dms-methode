@@ -849,6 +849,50 @@ class TestAssets(TransactionCase):
 
 
 @tagged('post_install', '-at_install')
+class TestListedPeopleLock(TransactionCase):
+    """A producing module can say the listed people are the document's.
+
+    The lock is not enforced in Python — holder_ids stays writable, because the
+    module that produced the entry rewrites it wholesale every time the
+    document is regenerated. What it does is take the add and remove controls
+    off the form, and that lives entirely in the arch: a pair of domains the
+    web client evaluates against the certificate. Delete them and nothing
+    breaks, nothing logs, and the list quietly becomes editable again.
+    """
+
+    def _arch(self):
+        return etree.fromstring(self.env['dms.certificate'].get_view(
+            self.env.ref('dms_certify_portal.view_dms_certificate_form').id,
+            'form')['arch'])
+
+    def test_the_list_is_unlocked_until_a_producer_says_otherwise(self):
+        certificate = self.env['dms.certificate'].create({
+            'type_id': self.env['dms.certificate.type'].create(
+                {'name': 'Hand stamped', 'code': 'test_lock'}).id,
+        })
+        self.assertFalse(
+            certificate.holders_locked,
+            "dms_certify_portal produces no documents, so it locks nothing.")
+
+    def test_the_form_asks_the_record_whether_rows_may_be_added(self):
+        field = self._arch().xpath("//field[@name='holder_ids']")
+        self.assertTrue(field, "The holders list moved or was renamed.")
+        options = field[0].get('options') or ''
+        for action in ('create', 'delete'):
+            self.assertIn(
+                "'%s': [('holders_locked', '=', False)]" % action, options,
+                "Without this domain the web client falls back to the list "
+                "tag's static attributes and the lock does nothing.")
+
+    def test_the_flag_is_on_the_form_for_those_domains_to_read(self):
+        """evalContext only carries the fields the arch declares: a domain over
+        a field the form never mentions evaluates against nothing."""
+        self.assertTrue(
+            self._arch().xpath("//field[@name='holders_locked']"),
+            "holders_locked has to be in the view, even invisibly.")
+
+
+@tagged('post_install', '-at_install')
 class TestChatterTemplate(TransactionCase):
     """The certificate chatter is a log, not a conversation.
 

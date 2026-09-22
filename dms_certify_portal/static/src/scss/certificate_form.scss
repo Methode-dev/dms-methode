@@ -1,3 +1,21 @@
+// The stamped page, beside the sheet rather than inside it.
+//
+// At XXL the form view is laid out as a flex row (o_xxl_form_view, set by
+// FormController.className on screen size alone) and the sheet's background
+// already claims `flex: 2 1`; this claims what is left, so neither the fields
+// nor the page are capped by the sheet's max width. Below XXL the form is a
+// column and this simply follows underneath at full width — the same way an
+// aside chatter behaves, and what the old col-lg-5 did under `lg`.
+.o_certify_preview_aside {
+    padding: 1rem;
+
+    .o_form_view.o_xxl_form_view & {
+        flex: 1 1 0;
+        min-width: 26rem;
+        overflow: auto;
+    }
+}
+
 // The issuing screen's preview panel.
 //
 // The page is the sealed PDF, rendered by pdf.js in the stock pdf_viewer

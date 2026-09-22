@@ -61,3 +61,22 @@ class TestCertificateChatterTour(HttpCase):
             'dms_certify_portal_chatter_tour',
             login='certify_chatter_tour',
         )
+
+    def _layout_tour(self, name, size):
+        """Run *name* against the certificate form at *size*.
+
+        Read when the browser starts, which is inside start_tour, so a test can
+        choose its own viewport — and this pair has to, because which side of
+        the sheet the page lands on is decided by the screen: FormController
+        adds o_xxl_form_view, and with it the flex row, only at SIZES.XXL.
+        """
+        self.browser_size = size
+        self.start_tour(
+            '/odoo/dms.certificate/%d' % self.certificate.id, name,
+            login='certify_chatter_tour')
+
+    def test_the_stamped_page_sits_beside_the_sheet(self):
+        self._layout_tour('dms_certify_portal_preview_aside_tour', '1920x1080')
+
+    def test_the_stamped_page_stacks_under_a_narrow_screen(self):
+        self._layout_tour('dms_certify_portal_preview_below_tour', '1366x768')

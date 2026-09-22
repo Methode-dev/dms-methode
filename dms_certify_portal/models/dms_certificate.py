@@ -183,6 +183,13 @@ class DmsCertificate(models.Model):
         'dms.certificate.type', string="Type", required=True, index=True,
         ondelete='restrict')
     type_code = fields.Char(related='type_id.code', string="Type code", store=True)
+    holders_locked = fields.Boolean(
+        string="Listed people fixed", default=False, copy=False, readonly=True,
+        help="Set by the module that produced the document when it read the "
+             "listed people off the document itself. The list is then the "
+             "document's, not the operator's, and rows cannot be added or "
+             "removed here — the portal would otherwise answer for people the "
+             "page does not name, or refuse people it does.")
     facts_json = fields.Text(
         string="Public facts", default='[]',
         help="A JSON list of {label, value} the verification page prints under "

@@ -77,177 +77,204 @@
                                decoration-muted="public_state == 'unpublished'"/>
                     </div>
 
-                    <div class="row">
-                        <!-- ==================== settings ==================== -->
-                        <div class="col-lg-7">
-                            <group>
-                                <group string="Document">
-                                    <field name="type_id"/>
-                                    <field name="movement_date"/>
-                                    <field name="validity_days"/>
-                                    <field name="valid_until" readonly="1"/>
-                                    <field name="company_id"
-                                           groups="base.group_multi_company"/>
-                                </group>
-                                <group string="Marking">
-                                    <field name="seal_marking"/>
-                                    <field name="seal_text"
-                                           readonly="seal_marking != 'custom'"
-                                           placeholder="What the watermark says"/>
-                                </group>
-                            </group>
+                    <group>
+                        <group string="Document">
+                            <field name="type_id"/>
+                            <field name="movement_date"/>
+                            <field name="validity_days"/>
+                            <field name="valid_until" readonly="1"/>
+                            <field name="company_id"
+                                   groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Marking">
+                            <field name="seal_marking"/>
+                            <field name="seal_text"
+                                   readonly="seal_marking != 'custom'"
+                                   placeholder="What the watermark says"/>
+                        </group>
+                    </group>
 
-                            <group string="How it opens">
-                                <group>
-                                    <field name="second_factor"/>
-                                    <field name="disclosure"/>
-                                </group>
-                                <group>
-                                    <field name="notify_on_lookup"/>
-                                </group>
-                            </group>
-                            <div class="text-muted small mb-3">
-                                The reference on its own never opens a document.
-                                The second check is always required and cannot be
-                                switched off; repeated failures lock the reference
-                                and raise a warning here.
-                            </div>
-
-                            <notebook>
-                                <page string="Listed people" name="holders">
-                                    <field name="holder_ids">
-                                        <list editable="bottom">
-                                            <field name="sequence" widget="handle"/>
-                                            <field name="name"/>
-                                            <field name="first_name"/>
-                                            <field name="date_of_birth"/>
-                                            <field name="rank"/>
-                                            <!--
-                                                Not masked: this screen is
-                                                reachable only by internal
-                                                users, who are typing a number
-                                                they are reading off the
-                                                document in front of them, and
-                                                dots make that impossible to
-                                                proofread.
-                                            -->
-                                            <field name="passport_number"
-                                                   placeholder="Typed once, kept only as a hash"/>
-                                        </list>
-                                    </field>
-                                    <div class="text-muted small mt-2">
-                                        Any one of these people opens the document,
-                                        by giving whatever the second check asks for.
-                                        Passport numbers are hashed on save; a lookup
-                                        is always checked against the hash, never
-                                        against the number itself.
-                                    </div>
-                                </page>
-
-                                <page string="Issued certificate" name="issued"
-                                      invisible="state == 'draft'">
-                                    <group>
-                                        <group>
-                                            <field name="issued_on" readonly="1"/>
-                                            <field name="issuer_id" readonly="1"/>
-                                            <field name="verify_url"
-                                                   widget="CopyClipboardChar"/>
-                                        </group>
-                                        <group>
-                                            <field name="source_hash" readonly="1"
-                                                   widget="CopyClipboardChar"
-                                                   string="SHA-256 (printed)"/>
-                                            <field name="sealed_hash" readonly="1"
-                                                   string="SHA-256 (sealed file)"/>
-                                            <field name="last_verified_on" readonly="1"/>
-                                        </group>
-                                    </group>
-                                    <div class="text-muted small">
-                                        The printed fingerprint is the hash of the
-                                        document as produced: a file cannot carry its
-                                        own hash. Re-stamping changes the sealed file
-                                        and leaves the printed value alone, so copies
-                                        already sent keep verifying.
-                                    </div>
-                                </page>
-
-                                <page string="Verification log" name="lookups">
-                                    <field name="attempt_ids" readonly="1" nolabel="1">
-                                        <list>
-                                            <field name="create_date" string="When"/>
-                                            <field name="requester_label"/>
-                                            <field name="outcome" widget="badge"
-                                                   decoration-success="outcome == 'matched'"
-                                                   decoration-danger="outcome in ('locked', 'mismatch')"
-                                                   decoration-warning="outcome in ('no_match', 'throttled', 'captcha')"/>
-                                        </list>
-                                    </field>
-                                    <div class="text-muted small mt-2"
-                                         invisible="verify_count > 0">
-                                        No lookup yet. A row appears here the moment
-                                        someone types the reference.
-                                    </div>
-                                </page>
-
-                                <page string="Files" name="files" groups="base.group_no_one">
-                                    <group>
-                                        <field name="source_attachment_id"/>
-                                        <field name="sealed_attachment_id" readonly="1"/>
-                                    </group>
-                                </page>
-
-                                <page string="Source record" name="source"
-                                      invisible="not res_model">
-                                    <group>
-                                        <field name="res_model" readonly="1"/>
-                                        <field name="res_id" readonly="1"/>
-                                    </group>
-                                </page>
-                            </notebook>
-
-                            <group string="Revocation" invisible="state != 'revoked'">
-                                <field name="revoke_reason" readonly="1"/>
-                                <field name="revoked_on" readonly="1"/>
-                                <field name="revoked_uid" readonly="1"/>
-                            </group>
-                        </div>
-
-                        <!-- ==================== preview ==================== -->
-                        <div class="col-lg-5 o_certify_preview">
-                            <h3 class="mb-2">Stamped output</h3>
-
-                            <!--
-                                The document itself, rendered by pdf.js, rather
-                                than a picture of it: zoom, paging and fit are
-                                the viewer's, and the page stays sharp at any
-                                magnification.
-                            -->
-                            <field name="preview_pdf" widget="pdf_viewer"
-                                   nolabel="1" readonly="1"/>
-
-                            <div class="o_certify_preview_empty"
-                                 invisible="preview_pdf">
-                                No document to stamp yet. Point this certificate at
-                                the file it stands for and the page appears here.
-                            </div>
-
-                            <p class="text-muted small mt-2">
-                                Rendered from the document itself with the marking
-                                currently selected. What you see is what the QR
-                                resolves to.
-                            </p>
-                        </div>
+                    <group string="How it opens">
+                        <group>
+                            <field name="second_factor"/>
+                            <field name="disclosure"/>
+                        </group>
+                        <group>
+                            <field name="notify_on_lookup"/>
+                        </group>
+                    </group>
+                    <div class="text-muted small mb-3">
+                        The reference on its own never opens a document.
+                        The second check is always required and cannot be
+                        switched off; repeated failures lock the reference
+                        and raise a warning here.
                     </div>
+
+                    <notebook>
+                        <page string="Listed people" name="holders">
+                            <!--
+                                Rows can be added and removed only
+                                while the list is the operator's. Once
+                                a producing module has read it off the
+                                document, it is the document's: the
+                                options below are domains the web
+                                client evaluates against this record
+                                (see useActiveActions), which is how an
+                                x2many gets conditional create/delete —
+                                the list tag's own attributes are
+                                static.
+                            -->
+                            <field name="holders_locked" invisible="1"/>
+                            <field name="holder_ids" options="{
+                                    'create': [('holders_locked', '=', False)],
+                                    'delete': [('holders_locked', '=', False)]}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="first_name"/>
+                                    <field name="date_of_birth"/>
+                                    <field name="rank"/>
+                                    <!--
+                                        Not masked: this screen is
+                                        reachable only by internal
+                                        users, who are typing a number
+                                        they are reading off the
+                                        document in front of them, and
+                                        dots make that impossible to
+                                        proofread.
+                                    -->
+                                    <field name="passport_number"
+                                           placeholder="Typed once, kept only as a hash"/>
+                                </list>
+                            </field>
+                            <div class="text-muted small mt-2"
+                                 invisible="not holders_locked">
+                                These are the people the document itself
+                                names, read from it when it was produced.
+                                Adding or removing one here would make the
+                                portal answer for a page that says something
+                                else, so the list is fixed — regenerate the
+                                document to change who is on it.
+                            </div>
+                            <div class="text-muted small mt-2">
+                                Any one of these people opens the document,
+                                by giving whatever the second check asks for.
+                                Passport numbers are hashed on save; a lookup
+                                is always checked against the hash, never
+                                against the number itself.
+                            </div>
+                        </page>
+
+                        <page string="Issued certificate" name="issued"
+                              invisible="state == 'draft'">
+                            <group>
+                                <group>
+                                    <field name="issued_on" readonly="1"/>
+                                    <field name="issuer_id" readonly="1"/>
+                                    <field name="verify_url"
+                                           widget="CopyClipboardChar"/>
+                                </group>
+                                <group>
+                                    <field name="source_hash" readonly="1"
+                                           widget="CopyClipboardChar"
+                                           string="SHA-256 (printed)"/>
+                                    <field name="sealed_hash" readonly="1"
+                                           string="SHA-256 (sealed file)"/>
+                                    <field name="last_verified_on" readonly="1"/>
+                                </group>
+                            </group>
+                            <div class="text-muted small">
+                                The printed fingerprint is the hash of the
+                                document as produced: a file cannot carry its
+                                own hash. Re-stamping changes the sealed file
+                                and leaves the printed value alone, so copies
+                                already sent keep verifying.
+                            </div>
+                        </page>
+
+                        <page string="Verification log" name="lookups">
+                            <field name="attempt_ids" readonly="1" nolabel="1">
+                                <list>
+                                    <field name="create_date" string="When"/>
+                                    <field name="requester_label"/>
+                                    <field name="outcome" widget="badge"
+                                           decoration-success="outcome == 'matched'"
+                                           decoration-danger="outcome in ('locked', 'mismatch')"
+                                           decoration-warning="outcome in ('no_match', 'throttled', 'captcha')"/>
+                                </list>
+                            </field>
+                            <div class="text-muted small mt-2"
+                                 invisible="verify_count > 0">
+                                No lookup yet. A row appears here the moment
+                                someone types the reference.
+                            </div>
+                        </page>
+
+                        <page string="Files" name="files" groups="base.group_no_one">
+                            <group>
+                                <field name="source_attachment_id"/>
+                                <field name="sealed_attachment_id" readonly="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Source record" name="source"
+                              invisible="not res_model">
+                            <group>
+                                <field name="res_model" readonly="1"/>
+                                <field name="res_id" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+
+                    <group string="Revocation" invisible="state != 'revoked'">
+                        <field name="revoke_reason" readonly="1"/>
+                        <field name="revoked_on" readonly="1"/>
+                        <field name="revoked_uid" readonly="1"/>
+                    </group>
 
                     <!--
                         Inside the sheet on purpose. Odoo's form compiler moves
                         a chatter that sits outside it into the right-hand
-                        aside; left here, it stays at the foot of the page and
-                        the whole width of the sheet is free for the settings
-                        and the stamped page beside them.
+                        aside, which is where the stamped page goes; left here,
+                        it stays at the foot of the settings and the two do not
+                        compete for the same side of the screen.
                     -->
                     <chatter/>
                 </sheet>
+
+                <!--
+                    Outside the sheet on purpose, as a sibling of its background.
+                    At XXL the form view is already laid out as a flex row
+                    (o_xxl_form_view in form_controller.js), so this lands to the
+                    right of the sheet — the slot an aside chatter would take if
+                    ours were not pinned to the foot of the sheet — and neither
+                    the page nor the fields are capped by the sheet's width any
+                    more. Below XXL the form is a column and this stacks
+                    underneath, exactly as an aside chatter does.
+                -->
+                <div class="o_certify_preview o_certify_preview_aside">
+                    <h3 class="mb-2">Stamped output</h3>
+
+                    <!--
+                        The document itself, rendered by pdf.js, rather than a
+                        picture of it: zoom, paging and fit are the viewer's,
+                        and the page stays sharp at any magnification.
+                    -->
+                    <field name="preview_pdf" widget="pdf_viewer"
+                           nolabel="1" readonly="1"/>
+
+                    <div class="o_certify_preview_empty"
+                         invisible="preview_pdf">
+                        No document to stamp yet. Point this certificate at
+                        the file it stands for and the page appears here.
+                    </div>
+
+                    <p class="text-muted small mt-2">
+                        Rendered from the document itself with the marking
+                        currently selected. What you see is what the QR
+                        resolves to.
+                    </p>
+                </div>
             </form>
         </field>
     </record>

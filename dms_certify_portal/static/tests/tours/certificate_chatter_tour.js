@@ -52,3 +52,62 @@ registry.category("web_tour.tours").add("dms_certify_portal_chatter_tour", {
         },
     ],
 });
+
+/* Where the stamped page sits.
+ *
+ * It is a sibling of the sheet's background, not a column inside the sheet, so
+ * at XXL the form view's own flex row puts it to the right and neither side is
+ * capped by the sheet's max width. Below XXL the form is a column and it
+ * follows underneath. Both are geometry — the arch and the stylesheet each look
+ * right on their own, and only the rendered box says which side of the sheet
+ * the panel ended up on. */
+function boxes(anchor) {
+    const form = anchor.closest(".o_form_view");
+    const sheet = form.querySelector(".o_form_sheet_bg").getBoundingClientRect();
+    return {sheet, panel: anchor.getBoundingClientRect()};
+}
+
+registry.category("web_tour.tours").add("dms_certify_portal_preview_aside_tour", {
+    test: true,
+    steps: () => [
+        {
+            content: "on a wide screen the page sits beside the sheet",
+            trigger: ".o_form_view .o_certify_preview_aside",
+            run() {
+                const {sheet, panel} = boxes(this.anchor);
+                if (panel.left < sheet.right - 1) {
+                    throw new Error(
+                        `The page should start where the sheet ends: sheet ` +
+                        `ends at ${Math.round(sheet.right)}, panel starts at ` +
+                        `${Math.round(panel.left)}.`
+                    );
+                }
+                if (panel.width < 380) {
+                    throw new Error(
+                        `Only ${Math.round(panel.width)}px for the page; the ` +
+                        `point of moving it out of the sheet was the room.`
+                    );
+                }
+            },
+        },
+    ],
+});
+
+registry.category("web_tour.tours").add("dms_certify_portal_preview_below_tour", {
+    test: true,
+    steps: () => [
+        {
+            content: "on a narrower screen it stacks underneath instead",
+            trigger: ".o_form_view .o_certify_preview_aside",
+            run() {
+                const {sheet, panel} = boxes(this.anchor);
+                if (panel.top < sheet.bottom - 1) {
+                    throw new Error(
+                        `Squeezed beside the sheet on a ${window.innerWidth}px ` +
+                        `screen instead of stacking under it.`
+                    );
+                }
+            },
+        },
+    ],
+});
