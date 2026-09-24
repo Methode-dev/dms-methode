@@ -19,6 +19,10 @@ SESSION_ERROR = 'dms_certify_error'
 SESSION_NOTICE = 'dms_certify_notice'
 SESSION_REFERENCE = 'dms_certify_reference'
 SESSION_LANG = 'dms_certify_lang'
+# Public URLs on check.<host>. Routes below are declared under /_check; the
+# ir.http hook maps '/x' on the check host to '/_check/x'. Never emit /_check.
+FORM_URL = '/'
+RESULT_URL = '/r/%s'
 
 NO_STORE = [
     ('Cache-Control', 'no-store, no-cache, must-revalidate, private'),
@@ -71,7 +75,7 @@ class DmsCertifyPortalController(http.Controller):
     def _install_language(self, wanted=None):
         """Resolve a two-letter choice against the languages actually installed.
 
-        There is no ``http_routing`` here, so no ``/fr/verify`` prefix: the
+        There is no ``http_routing`` here, so no ``/fr/`` prefix: the
         choice rides a query parameter and then sticks to the session. Falling
         back to whatever is installed matters — forcing ``fr_FR`` on a database
         that has not loaded it renders the source strings and looks broken.
@@ -104,7 +108,7 @@ class DmsCertifyPortalController(http.Controller):
                 'code': lang.code,
                 'short': short.upper(),
                 'active': lang.code == current,
-                'url': '/verify?lang=%s' % short,
+                'url': '%s?lang=%s' % (FORM_URL, short),
             })
         return options
 
@@ -238,7 +242,7 @@ class DmsCertifyPortalController(http.Controller):
         if reference:
             # Give back the reference so only the second check is retyped.
             request.session[SESSION_REFERENCE] = self._format_reference(reference)
-        return request.redirect('/verify')
+        return request.redirect(FORM_URL)
 
     # ------------------------------------------------------------------
     # Session
@@ -294,14 +298,14 @@ class DmsCertifyPortalController(http.Controller):
     # ------------------------------------------------------------------
     # The form
     # ------------------------------------------------------------------
-    @http.route('/verify', type='http', auth='public',
+    @http.route('/_check', type='http', auth='public',
                 methods=['GET'], readonly=True)
     def verify_form(self, lang=None, **kw):
         code = self._use_language(lang)
         return self._render('dms_certify_portal.verify_form',
                             self._form_values(code))
 
-    @http.route('/verify/d/<string:reference>', type='http', auth='public',
+    @http.route('/_check/d/<string:reference>', type='http', auth='public',
                 methods=['GET'], readonly=True)
     def verify_form_prefilled(self, reference, lang=None, **kw):
         """Landing page for the QR code printed on the document.
@@ -323,7 +327,7 @@ class DmsCertifyPortalController(http.Controller):
     # ------------------------------------------------------------------
     # The submission
     # ------------------------------------------------------------------
-    @http.route('/verify', type='http', auth='public',
+    @http.route('/_check', type='http', auth='public',
                 methods=['POST'], csrf=True, readonly=False)
     def verify_submit(self, reference=None, passport=None, **kw):
         code = self._use_language(kw.get('lang'))
@@ -381,12 +385,12 @@ class DmsCertifyPortalController(http.Controller):
         request.session[SESSION_HOLDER] = holder.id
         request.session[SESSION_EXPIRY] = time.time() + self._param(
             'session_minutes', 15) * 60
-        return request.redirect('/verify/%s' % token)
+        return request.redirect(RESULT_URL % token)
 
     # ------------------------------------------------------------------
     # The result
     # ------------------------------------------------------------------
-    @http.route('/verify/<string:token>', type='http', auth='public',
+    @http.route('/_check/r/<string:token>', type='http', auth='public',
                 methods=['GET'], readonly=True)
     def verify_result(self, token, lang=None, **kw):
         code = self._use_language(lang)
@@ -404,7 +408,7 @@ class DmsCertifyPortalController(http.Controller):
             expires_in=self._param('session_minutes', 15),
         ))
 
-    @http.route('/verify/<string:token>/page/<int:page>', type='http',
+    @http.route('/_check/r/<string:token>/page/<int:page>', type='http',
                 auth='public', methods=['GET'], readonly=True)
     def verify_page_image(self, token, page, **kw):
         """One page of the document, rasterised.
@@ -426,7 +430,7 @@ class DmsCertifyPortalController(http.Controller):
             ('Content-Length', len(image)),
         ] + NO_STORE)
 
-    @http.route('/verify/<string:token>/file', type='http', auth='public',
+    @http.route('/_check/r/<string:token>/file', type='http', auth='public',
                 methods=['GET'], readonly=True)
     def verify_download(self, token, **kw):
         """Stream the sealed file through our own gate.
@@ -450,7 +454,7 @@ class DmsCertifyPortalController(http.Controller):
             ('Content-Length', len(raw)),
         ] + NO_STORE)
 
-    @http.route('/verify/<string:token>/mismatch', type='http', auth='public',
+    @http.route('/_check/r/<string:token>/mismatch', type='http', auth='public',
                 methods=['POST'], csrf=True, readonly=False)
     def verify_mismatch(self, token, **kw):
         """"The paper does not match."
@@ -463,11 +467,11 @@ class DmsCertifyPortalController(http.Controller):
         self._use_language()
         doc, _holder = self._session_document(token)
         if not doc:
-            return request.redirect('/verify')
+            return request.redirect(FORM_URL)
         request.env['dms.certificate.attempt'].sudo().log(
             doc.reference_key, self._client_ip(),
             request.httprequest.user_agent.string if request.httprequest.user_agent else '',
             outcome='mismatch', document=doc)
         doc._notify_verification('mismatch')
         request.session[SESSION_NOTICE] = 'mismatch_reported'
-        return request.redirect('/verify/%s' % token)
+        return request.redirect(FORM_URL)

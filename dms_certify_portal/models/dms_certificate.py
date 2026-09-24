@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from urllib.parse import urlsplit, urlunsplit
 import base64
 import hmac
 import json
@@ -294,7 +295,7 @@ class DmsCertificate(models.Model):
     def _compute_verify_url(self):
         base = self._public_base_url()
         for record in self:
-            record.verify_url = '%s/verify/d/%s' % (base, record.reference)
+            record.verify_url = '%s/d/%s' % (base, record.reference)
 
     @api.model
     def _public_base_url(self):
@@ -303,10 +304,19 @@ class DmsCertificate(models.Model):
         Its own parameter rather than ``web.base.url``: the address an embassy
         types is printed on paper that stays in circulation for months, so it
         has to be able to differ from wherever this Odoo happens to answer.
+
+        Without the parameter, the portal's own host is derived from
+        ``web.base.url``: erp.domain -> check.erp.domain, localhost ->
+        check.localhost. The portal does not exist on the bare host.
         """
         icp = self.env['ir.config_parameter'].sudo()
-        base = icp.get_param('dms_certify_portal.public_base_url') \
-            or icp.get_param('web.base.url', '')
+        base = (icp.get_param('dms_certify_portal.public_base_url') or '').strip()
+        if not base:
+            parts = urlsplit(icp.get_param('web.base.url', '') or 'http://localhost')
+            netloc = parts.netloc
+            if not netloc.lower().startswith('check.'):
+                netloc = 'check.' + netloc
+            base = urlunsplit((parts.scheme, netloc, '', '', ''))
         return base.rstrip('/')
 
     # ------------------------------------------------------------------

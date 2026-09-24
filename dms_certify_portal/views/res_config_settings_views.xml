@@ -80,7 +80,7 @@
                              help="Printed on every document and encoded in its QR code, so it stays in circulation for months. Leave empty to use this instance's own address.">
                         <div class="content-group mt-2">
                             <field name="certify_public_base_url"
-                                   placeholder="https://verify.example.com"
+                                   placeholder="https://check.example.com"
                                    class="w-100"/>
                         </div>
                     </setting>

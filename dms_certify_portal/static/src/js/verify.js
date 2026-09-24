@@ -9,7 +9,7 @@
     "use strict";
 
     document.addEventListener("DOMContentLoaded", function () {
-        var form = document.querySelector(".dc-portal form[action='/verify']");
+        var form = document.querySelector(".dc-portal form.dc-lookup-form");
         if (form) {
             maskReference(form);
             wireCaptcha(form);

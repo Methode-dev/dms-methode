@@ -10,8 +10,10 @@
     padding: 1rem;
 
     .o_form_view.o_xxl_form_view & {
-        flex: 1 1 0;
-        min-width: 26rem;
+        // Two fifths of the form, fixed: neither growing into the space the
+        // fields need nor shrinking to whatever is left over. The sheet's
+        // background keeps its own `flex: 2 1` and takes the other three.
+        flex: 0 0 40%;
         overflow: auto;
     }
 }

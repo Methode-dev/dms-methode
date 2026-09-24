@@ -36,7 +36,7 @@ for the integration API and ``tools/seal.py`` for the stamping itself.
     #
     # `google_recaptcha` is a soft dependency: install it separately and the
     # controller picks it up on its own (see _captcha_ok in controllers/main.py).
-    'depends': ['base_setup', 'web', 'mail'],
+    'depends': ['base_setup', 'web', 'mail', 'dms_certify_host'],
 
     # PyMuPDF does the sealing (watermark, guilloche, microtext, QR block) and
     # the redaction of the crew lines; qrcode draws the square. Both already

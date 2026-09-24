@@ -502,11 +502,11 @@ class TestCertificate(TransactionCase):
 
     def test_the_verify_url_uses_the_public_base_url(self):
         self.env['ir.config_parameter'].sudo().set_param(
-            'dms_certify_portal.public_base_url', 'https://verify.example.com/')
+            'dms_certify_portal.public_base_url', 'https://check.example.com/')
         certificate = self._issue()
         self.assertEqual(
             certificate.verify_url,
-            'https://verify.example.com/verify/d/%s' % certificate.reference)
+            'https://check.example.com/d/%s' % certificate.reference)
         self.assertTrue(re.match(r'^https://', certificate.verify_url))
 
 

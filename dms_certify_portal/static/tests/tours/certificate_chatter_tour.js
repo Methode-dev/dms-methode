@@ -62,9 +62,12 @@ registry.category("web_tour.tours").add("dms_certify_portal_chatter_tour", {
  * right on their own, and only the rendered box says which side of the sheet
  * the panel ended up on. */
 function boxes(anchor) {
-    const form = anchor.closest(".o_form_view");
-    const sheet = form.querySelector(".o_form_sheet_bg").getBoundingClientRect();
-    return {sheet, panel: anchor.getBoundingClientRect()};
+    const formEl = anchor.closest(".o_form_view");
+    return {
+        form: formEl.getBoundingClientRect(),
+        sheet: formEl.querySelector(".o_form_sheet_bg").getBoundingClientRect(),
+        panel: anchor.getBoundingClientRect(),
+    };
 }
 
 registry.category("web_tour.tours").add("dms_certify_portal_preview_aside_tour", {
@@ -74,7 +77,7 @@ registry.category("web_tour.tours").add("dms_certify_portal_preview_aside_tour",
             content: "on a wide screen the page sits beside the sheet",
             trigger: ".o_form_view .o_certify_preview_aside",
             run() {
-                const {sheet, panel} = boxes(this.anchor);
+                const {form, sheet, panel} = boxes(this.anchor);
                 if (panel.left < sheet.right - 1) {
                     throw new Error(
                         `The page should start where the sheet ends: sheet ` +
@@ -82,10 +85,12 @@ registry.category("web_tour.tours").add("dms_certify_portal_preview_aside_tour",
                         `${Math.round(panel.left)}.`
                     );
                 }
-                if (panel.width < 380) {
+                const share = panel.width / form.width;
+                if (Math.abs(share - 2 / 5) > 0.01) {
                     throw new Error(
-                        `Only ${Math.round(panel.width)}px for the page; the ` +
-                        `point of moving it out of the sheet was the room.`
+                        `The page should hold two fifths of the form: form is ` +
+                        `${Math.round(form.width)}px, panel is ` +
+                        `${Math.round(panel.width)}px (${(share * 100).toFixed(1)}%).`
                     );
                 }
             },

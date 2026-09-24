@@ -4,3 +4,4 @@ from . import dms_certificate_holder
 from . import dms_certificate
 from . import dms_certificate_attempt
 from . import res_config_settings
+from . import ir_http

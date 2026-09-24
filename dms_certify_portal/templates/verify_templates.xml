@@ -135,7 +135,8 @@
                         <span>Authenticity check</span>
                     </div>
                     <div class="bd">
-                        <form action="/verify" method="post" autocomplete="off"
+                        <form action="/" method="post" autocomplete="off"
+                              class="dc-lookup-form"
                               novalidate="novalidate"
                               t-att-data-sitekey="recaptcha_site_key or ''"
                               t-att-data-groups="','.join(str(g) for g in reference_groups)">
@@ -354,7 +355,7 @@
                             </div>
                         </div>
                         <div class="v-acts">
-                            <a href="/verify" class="p-btn solid">Try again</a>
+                            <a href="/" class="p-btn solid">Try again</a>
                         </div>
                     </div>
                 </t>
@@ -538,10 +539,10 @@
                                         gives it the ~140 it needs.
                                     -->
                                     <t t-foreach="range(1, doc['page_count'] + 1)" t-as="page">
-                                        <a t-attf-href="/verify/#{token}/page/#{page}"
+                                        <a t-attf-href="/r/#{token}/page/#{page}"
                                            target="_blank" rel="noreferrer"
                                            class="dc-page">
-                                            <img t-attf-src="/verify/#{token}/page/#{page}"
+                                            <img t-attf-src="/r/#{token}/page/#{page}"
                                                  t-attf-alt="Page #{page} of the certified document"
                                                  loading="lazy"/>
                                         </a>
@@ -590,11 +591,11 @@
                             Print this result
                         </button>
                         <a t-if="doc['has_file'] and allow_download and state != 'revoked'"
-                           t-attf-href="/verify/#{token}/file" class="p-btn"
+                           t-attf-href="/r/#{token}/file" class="p-btn"
                            rel="noreferrer">
                             Download the sealed PDF
                         </a>
-                        <form t-attf-action="/verify/#{token}/mismatch" method="post"
+                        <form t-attf-action="/r/#{token}/mismatch" method="post"
                               class="spacer">
                             <input type="hidden" name="csrf_token"
                                    t-att-value="request.csrf_token()"/>
