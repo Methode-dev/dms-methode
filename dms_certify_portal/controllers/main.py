@@ -474,4 +474,4 @@ class DmsCertifyPortalController(http.Controller):
             outcome='mismatch', document=doc)
         doc._notify_verification('mismatch')
         request.session[SESSION_NOTICE] = 'mismatch_reported'
-        return request.redirect(FORM_URL)
+        return request.redirect(RESULT_URL % token)
