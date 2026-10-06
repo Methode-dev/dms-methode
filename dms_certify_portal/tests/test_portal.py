@@ -14,10 +14,12 @@ the portal is reachable on its host.
 
 import base64
 import re
+from datetime import timedelta
 from urllib.parse import urlsplit
 
 import pymupdf
 
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .test_certificate import CREW, build_pdf
@@ -105,6 +107,16 @@ class TestVerifyPortal(HttpCase):
             'passport': passport,
         })
         return response
+
+    def _token(self, response):
+        """The token out of a submitted response's URL.
+
+        The redirect now lands on ``#result`` (so the agent is not left to
+        scroll for the verdict) — a fragment, never sent to the server and
+        meaningless to split on, so it is stripped before taking the last
+        path segment.
+        """
+        return response.url.split('#', 1)[0].rstrip('/').split('/')[-1]
 
     # ------------------------------------------------------------------
     # The form
@@ -218,7 +230,11 @@ class TestVerifyPortal(HttpCase):
         self.assertIn('Crew change before departure', response.text)
 
     def test_an_expired_document_reads_as_out_of_date(self):
-        certificate = self._issue(movement_date='2024-01-10', validity_days='30')
+        # Backdating the issuance, not the movement: validity runs from when
+        # the document was sealed.
+        certificate = self._issue(validity_days='30')
+        certificate.issued_on = fields.Datetime.now() - timedelta(days=400)
+        self.env.flush_all()
         response = self._submit(certificate.reference, '4567')
         self.assertIn('out of date', response.text)
         self.assertNotIn('do not open a document', response.text)
@@ -226,7 +242,7 @@ class TestVerifyPortal(HttpCase):
     def test_the_page_is_shown_as_an_image_not_a_pdf(self):
         certificate = self._issue()
         response = self._submit(certificate.reference, '4567')
-        token = response.url.rstrip('/').split('/')[-1]
+        token = self._token(response)
         self.assertIn('/r/%s/page/1' % token, response.text)
         image = self.url_open('/r/%s/page/1' % token)
         self.assertEqual(image.status_code, 200)
@@ -258,7 +274,7 @@ class TestVerifyPortal(HttpCase):
         the file cannot be whole while the screen was redacted."""
         certificate = self._issue(disclosure='confirm')
         response = self._submit(certificate.reference, '4567')
-        token = response.url.rstrip('/').split('/')[-1]
+        token = self._token(response)
 
         downloaded = self.url_open('/r/%s/file' % token)
         self.assertEqual(downloaded.status_code, 200)
@@ -300,7 +316,7 @@ class TestVerifyPortal(HttpCase):
             'dms_certify_portal.allow_download', 'False')
         certificate = self._issue()
         response = self._submit(certificate.reference, '4567')
-        token = response.url.rstrip('/').split('/')[-1]
+        token = self._token(response)
         self.assertEqual(self.url_open('/r/%s/file' % token).status_code, 404)
         self.assertNotIn('Download the sealed PDF', response.text)
 
@@ -310,7 +326,7 @@ class TestVerifyPortal(HttpCase):
     def test_reporting_a_mismatch_reaches_the_desk(self):
         certificate = self._issue()
         response = self._submit(certificate.reference, '4567')
-        token = response.url.rstrip('/').split('/')[-1]
+        token = self._token(response)
         reported = self.url_open('/r/%s/mismatch' % token, data={
             'csrf_token': self._csrf(response.text),
         })

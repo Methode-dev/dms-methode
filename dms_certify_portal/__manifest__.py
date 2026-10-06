@@ -25,7 +25,7 @@ for the integration API and ``tools/seal.py`` for the stamping itself.
     'author': "Méthode",
     'website': "https://methode.dev/",
     'category': 'Website',
-    'version': '19.0.5.0.0',
+    'version': '19.0.6.0.0',
     'license': 'LGPL-3',
 
     # Deliberately NOT depending on `website`. This portal is a plain public

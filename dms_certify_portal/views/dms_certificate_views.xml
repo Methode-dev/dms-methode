@@ -91,6 +91,9 @@
                             <field name="seal_text"
                                    readonly="seal_marking != 'custom'"
                                    placeholder="What the watermark says"/>
+                            <field name="stamp_position"/>
+                            <field name="marked_pages" readonly="1"
+                                   invisible="not marked_pages"/>
                         </group>
                     </group>
 
@@ -170,7 +173,12 @@
                             <group>
                                 <group>
                                     <field name="issued_on" readonly="1"/>
-                                    <field name="issuer_id" readonly="1"/>
+                                    <!-- The label carries the account id; the
+                                         raw field stays for anything xpathing
+                                         at it, and for the public page, which
+                                         reads the name alone. -->
+                                    <field name="issuer_id" invisible="1"/>
+                                    <field name="issuer_label" readonly="1"/>
                                     <field name="verify_url"
                                            widget="CopyClipboardChar"/>
                                 </group>

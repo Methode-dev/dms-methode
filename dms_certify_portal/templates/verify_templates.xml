@@ -168,9 +168,11 @@
                                            autocomplete="off" required="required"
                                            aria-describedby="dc_passport_help"/>
                                     <p class="help" id="dc_passport_help">
-                                        The last 4 characters are usually enough. If
-                                        the document carries no passport number, type
-                                        a listed date of birth instead (DDMMYYYY).
+                                        Some documents ask for the whole number,
+                                        others for just the last 4 characters — type
+                                        what the passport in hand shows. If the
+                                        document carries no passport number, type a
+                                        listed date of birth instead (DDMMYYYY).
                                     </p>
                                 </div>
                             </div>
