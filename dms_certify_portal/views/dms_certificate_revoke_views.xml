@@ -9,7 +9,7 @@
                 <div class="alert alert-warning" role="alert">
                     Revoking <field name="reference" readonly="1" class="oe_inline"/>
                     is permanent. Anyone checking it from now on is told not to
-                    accept it, and the stored copy is re-stamped VOID.
+                    accept it, and given the reason below.
                 </div>
                 <group>
                     <field name="certificate_id" invisible="1"/>

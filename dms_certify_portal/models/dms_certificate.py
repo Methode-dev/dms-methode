@@ -26,6 +26,7 @@ REFERENCE_GROUPS = (4, 2)
 
 SEAL_MARKINGS = {
     'certified': 'CERTIFIED ORIGINAL',
+    'confidential': 'CONFIDENTIAL',
     'embassy': 'FOR EMBASSY SUBMISSION',
     'copy': 'COPY — NOT FOR BOARDING',
     'void': 'VOID',
@@ -122,10 +123,12 @@ class DmsCertificate(models.Model):
     # -- validity -----------------------------------------------------------
     movement_date = fields.Date(
         string="Movement date",
-        help="The date the document is about. Validity is counted from here.")
+        help="The date the document is about. Printed on the public page as "
+             "part of the voyage; validity is counted from issuance, not from "
+             "here.")
     validity_days = fields.Selection(
-        [('30', "30 days after movement"),
-         ('90', "90 days after movement"),
+        [('30', "30 days after issuance"),
+         ('90', "90 days after issuance"),
          ('0', "Until revoked")],
         string="Valid for", required=True,
         default=lambda self: self._default_param('validity_days', '90'))
@@ -137,11 +140,30 @@ class DmsCertificate(models.Model):
     # -- the seal -----------------------------------------------------------
     seal_marking = fields.Selection(
         [('certified', "Certified original"),
+         ('confidential', "Confidential"),
          ('embassy', "For embassy submission"),
          ('copy', "Copy — not for boarding"),
          ('void', "Void / cancelled"),
          ('custom', "Custom text")],
         string="Marking", required=True, default='certified', tracking=True)
+    stamp_position = fields.Selection(
+        [('br', "Bottom right"),
+         ('bl', "Bottom left"),
+         ('tr', "Top right"),
+         ('tl', "Top left")],
+        string="Stamp position", required=True,
+        default=lambda self: self._default_param('seal_qr_corner', 'br'),
+        help="Which corner carries the QR code and the reference. Bottom right "
+             "by default, next to where a signature usually sits. Defaults "
+             "from the house style in Settings and can be overridden per "
+             "document.")
+    marked_pages = fields.Char(
+        string="Marked pages", copy=False,
+        help="Which pages of the file carry the watermark, as a 1-based "
+             "inclusive range — \"2-3\". Empty means every page, which is what "
+             "a file holding one document wants. Set by the producing module "
+             "when several documents share a file and only one of them is the "
+             "certified one.")
     seal_text = fields.Char(
         string="Marking text", compute='_compute_seal_text',
         store=True, readonly=False,
@@ -200,6 +222,11 @@ class DmsCertificate(models.Model):
     issuer_id = fields.Many2one(
         'res.users', string="Issued by", copy=False, readonly=True,
         default=lambda self: self.env.user)
+    issuer_label = fields.Char(
+        string="Issued by", compute='_compute_issuer_label',
+        help="The issuer as the back office prints them, account id included, "
+             "so two people with the same name can be told apart when a "
+             "document is queried months later.")
     issued_on = fields.Datetime(string="Issued on", copy=False, readonly=True)
     company_id = fields.Many2one(
         'res.company', string="Company", required=True, index=True,
@@ -257,17 +284,41 @@ class DmsCertificate(models.Model):
         for record in self:
             record.reference_key = self._normalize_reference(record.reference)
 
+    @api.depends('issuer_id')
+    def _compute_issuer_label(self):
+        """Back office only.
+
+        Deliberately **not** in ``_get_public_values()``: an embassy is told who
+        issued a document, not what their account id is. The whitelist is what
+        keeps that true — adding this field there would be the whole leak.
+        """
+        for record in self:
+            user = record.issuer_id
+            record.issuer_label = (
+                '%s (uid %s)' % (user.name, user.id) if user else '')
+
     @api.depends('holder_ids')
     def _compute_holder_count(self):
         for record in self:
             record.holder_count = len(record.holder_ids)
 
-    @api.depends('movement_date', 'validity_days')
+    @api.depends('issued_on', 'validity_days')
     def _compute_valid_until(self):
+        """Counted from **issuance**, not from the movement.
+
+        The document is what expires, and it starts existing when it is sealed:
+        a letter produced three weeks before the call would otherwise arrive
+        with three weeks of its life already spent, and one produced after a
+        delay could be born expired.
+
+        A draft has no issuance date and therefore no expiry, which is right —
+        the portal will not speak about a draft at all.
+        """
         for record in self:
             days = int(record.validity_days or 0)
-            if days and record.movement_date:
-                record.valid_until = record.movement_date + timedelta(days=days)
+            if days and record.issued_on:
+                record.valid_until = (
+                    fields.Date.to_date(record.issued_on) + timedelta(days=days))
             else:
                 record.valid_until = False
 
@@ -534,9 +585,41 @@ class DmsCertificate(models.Model):
             watermark_color=param('seal_color', '#10314F'),
             guilloche=param('seal_guilloche', '1') == '1',
             microtext=param('seal_microtext', '1') == '1',
-            qr_corner=param('seal_qr_corner', 'br'),
+            # Per document, falling back to the house style through the field's
+            # own default rather than reading the parameter twice.
+            qr_corner=self.stamp_position or param('seal_qr_corner', 'br'),
             band=param('seal_band', 'auto'),
+            watermark_pages=self._marked_page_indices(),
         )
+
+    def _marked_page_indices(self):
+        """``marked_pages`` as 0-based page indices, or None for every page.
+
+        Parsed rather than stored as two integers because it is written by a
+        producing module that knows the document's extent, and "all of it" has
+        to stay expressible as nothing at all — a file holding one document
+        should need no value here, and every caller that predates the field
+        keeps working.
+        """
+        self.ensure_one()
+        spec = (self.marked_pages or '').strip()
+        if not spec:
+            return None
+        try:
+            first, _sep, last = spec.partition('-')
+            start = int(first)
+            end = int(last) if last else start
+        except ValueError:
+            _logger.warning(
+                "dms_certify_portal: %s has an unreadable marked_pages %r; "
+                "marking every page", self.reference, self.marked_pages)
+            return None
+        if start < 1 or end < start:
+            _logger.warning(
+                "dms_certify_portal: %s has an impossible marked_pages %r; "
+                "marking every page", self.reference, self.marked_pages)
+            return None
+        return frozenset(range(start - 1, end))
 
     # -- storage seams ------------------------------------------------------
     def _certify_source(self):
@@ -579,7 +662,8 @@ class DmsCertificate(models.Model):
     # ------------------------------------------------------------------
     # Preview
     # ------------------------------------------------------------------
-    @api.depends('seal_marking', 'seal_text', 'source_attachment_id', 'state')
+    @api.depends('seal_marking', 'seal_text', 'source_attachment_id', 'state',
+                 'stamp_position', 'marked_pages')
     def _compute_preview_pdf(self):
         """Stamp the source as it stands.
 
@@ -736,16 +820,14 @@ class DmsCertificate(models.Model):
     def action_revoke(self, reason=None):
         """Withdraw the document. Irreversible on purpose.
 
-        The stored copies are re-stamped VOID first. The paper already in
-        someone's hand cannot change, but the page the portal shows beside the
-        refusal should not look like a document in good standing.
+        A pure state change, not a re-stamp: the portal already refuses to
+        show the sealed page or offer it for download once state is
+        'revoked' (see verify_templates.xml), so there is no public copy left
+        for a VOID watermark to protect. The paper already in someone's hand
+        cannot change either way — what changes is what a lookup says now.
         """
         reason = reason or self.env.context.get('revoke_reason') \
             or _("No reason recorded.")
-        for record in self:
-            if record.state in ('certified', 'delivered') and record.sealed_attachment_id:
-                record.seal_marking = 'void'
-                record._apply_seal()
         self.write({
             'state': 'revoked',
             'revoke_reason': reason,
@@ -915,12 +997,13 @@ class DmsCertificate(models.Model):
     # ------------------------------------------------------------------
     # Guards
     # ------------------------------------------------------------------
-    @api.constrains('movement_date', 'valid_until')
-    def _check_dates(self):
-        for record in self:
-            if (record.movement_date and record.valid_until
-                    and record.valid_until < record.movement_date):
-                raise ValidationError(_("A document cannot expire before its movement date."))
+    # There was a constraint here refusing a document that expired before its
+    # movement date. It was written when validity ran *from* the movement, where
+    # that could only mean a mistyped date. Counting from issuance makes it an
+    # ordinary situation — a letter sealed in March for a call in September,
+    # valid 90 days, expires before the vessel arrives — and that is a real
+    # thing for an operator to see, not something to refuse at save time. The
+    # portal already reports it, as "authentic but out of date".
 
     @api.constrains('seal_marking', 'seal_text')
     def _check_seal_text(self):

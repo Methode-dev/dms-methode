@@ -62,6 +62,13 @@ MICROTEXT_FROM_BOTTOM = 9.0
 # grey invites the reader to wonder whether the page simply printed badly.
 REDACTION_FILL = (0.0, 0.0, 0.0)
 
+# Where the seal block sits. Four corners rather than two: a document whose
+# head is free and whose foot is not has nowhere to put the block otherwise
+# except by shrinking the page.
+SEAL_CORNERS = ('br', 'bl', 'tr', 'tl')
+SEAL_CORNERS_TOP = ('tr', 'tl')
+SEAL_CORNERS_LEFT = ('bl', 'tl')
+
 BAND_MODES = (
     # Look at where the document's content actually ends on its last page: if
     # the seal's corner is clear, stamp it on at full size; if something is
@@ -137,6 +144,7 @@ class SealSpec:
         watermark_text='', watermark_opacity=9, watermark_angle=-32,
         watermark_size=24, watermark_mode='tile', watermark_color='#10314F',
         guilloche=True, microtext=True, qr_corner='br', band='auto',
+        watermark_pages=None,
     ):
         self.reference = reference or ''
         self.verify_url = verify_url or ''
@@ -150,8 +158,15 @@ class SealSpec:
         self.watermark_color = watermark_color
         self.guilloche = bool(guilloche)
         self.microtext = bool(microtext)
-        self.qr_corner = 'bl' if qr_corner == 'bl' else 'br'
+        self.qr_corner = qr_corner if qr_corner in SEAL_CORNERS else 'br'
         self.band = band if band in BAND_MODES else 'auto'
+        # Which pages carry the marking. None means every page, which is what
+        # a single-document seal wants and what every caller got before this
+        # existed. A range matters when one file holds several documents and
+        # only one of them is the certified one: a manifeste filed together
+        # with its covering letter must not come out claiming to be the letter.
+        self.watermark_pages = (
+            None if watermark_pages is None else frozenset(watermark_pages))
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +213,11 @@ def _draw_guilloche(page, color):
             shape.draw_polyline(points)
             shape.finish(color=color, width=0.35, stroke_opacity=0.22, fill=None,
                          closePath=False)
-    shape.commit(overlay=False)
+    # On top of the source page, not under it: a renderer is free to paint an
+    # opaque background of its own (WeasyPrint does, wkhtmltopdf's output
+    # happened not to), and content painted under that is invisible no matter
+    # how it got there. The guilloche stays legible either way.
+    shape.commit(overlay=True)
 
 
 def _draw_watermark(page, spec):
@@ -206,6 +225,9 @@ def _draw_watermark(page, spec):
 
     Every glyph is rotated about the same pivot — the page centre — so the
     whole grid turns as one piece instead of each tile spinning in place.
+
+    Painted on top of the page (see _draw_guilloche for why), which at this
+    opacity reads as a wash rather than something obscuring the text under it.
     """
     text = spec.watermark_text.strip()
     if not text or not spec.watermark_opacity:
@@ -222,7 +244,7 @@ def _draw_watermark(page, spec):
         page.insert_text(
             pymupdf.Point(centre.x - width / 2, centre.y + size * 0.35), text,
             fontname='hebo', fontsize=size, color=colour,
-            fill_opacity=opacity, morph=(centre, matrix), overlay=False,
+            fill_opacity=opacity, morph=(centre, matrix), overlay=True,
         )
         return
 
@@ -244,7 +266,7 @@ def _draw_watermark(page, spec):
             page.insert_text(
                 pymupdf.Point(x, y), text, fontname='hebo', fontsize=size,
                 color=colour, fill_opacity=opacity,
-                morph=(centre, matrix), overlay=False,
+                morph=(centre, matrix), overlay=True,
             )
 
 
@@ -275,13 +297,28 @@ def _seal_rect(page_rect, corner, band_top=None):
     total_w = SEAL_QR_SIDE + SEAL_QR_GAP + SEAL_TEXT_W
     if band_top is not None:
         top = band_top + (SEAL_BAND_H - SEAL_QR_SIDE) / 2
+    elif corner in SEAL_CORNERS_TOP:
+        top = FRAME_INNER + 6
     else:
         top = page_rect.height - FRAME_INNER - 6 - SEAL_QR_SIDE
-    if corner == 'bl':
+    if corner in SEAL_CORNERS_LEFT:
         left = FRAME_INNER + 8
     else:
         left = page_rect.width - FRAME_INNER - 8 - total_w
     return pymupdf.Rect(left, top, left + total_w, top + SEAL_QR_SIDE)
+
+
+def _band_geometry(page_rect, corner):
+    """Where the content goes, and where the reserved strip starts.
+
+    The strip is taken off the head of the page for a top corner and off the
+    foot for a bottom one, so "make room for the stamp" means the same thing
+    whichever corner was chosen.
+    """
+    if corner in SEAL_CORNERS_TOP:
+        return pymupdf.Rect(0, SEAL_BAND_H, page_rect.width, page_rect.height), 0.0
+    band_top = page_rect.height - SEAL_BAND_H
+    return pymupdf.Rect(0, 0, page_rect.width, band_top), band_top
 
 
 def _corner_is_free(page, corner):
@@ -328,8 +365,16 @@ def _draw_seal_block(page, spec, band_top=None):
     ink = (0.06, 0.19, 0.31)
     text_x = left + SEAL_QR_SIDE + SEAL_QR_GAP
     cursor = top + 5.4
+
+    # Flagged, not just printed: this is the line an embassy agent is meant to
+    # act on, so it gets a highlight the rest of the block doesn't.
+    shape = page.new_shape()
+    shape.draw_rect(pymupdf.Rect(
+        text_x - 1.0, cursor - 4.4, text_x + SEAL_TEXT_W, cursor + 1.6))
+    shape.finish(color=None, fill=(1.0, 0.84, 0.0))
+    shape.commit(overlay=True)
     page.insert_text(pymupdf.Point(text_x, cursor),
-                     'SCAN OR TYPE THE REFERENCE TO VERIFY',
+                     'TO BE CHECKED BY THE EMBASSY:',
                      fontname='hebo', fontsize=5.4, color=ink)
     cursor += 7.4
     # Printed without the scheme, the way the design does it: the QR carries
@@ -362,9 +407,10 @@ def _needs_band(src_page, spec):
 def seal(pdf_bytes, spec):
     """Return *pdf_bytes* stamped according to *spec*.
 
-    The watermark, guilloche and microtext go on every page; the seal block is
-    printed once, on the last page, which is where a reader looks for a
-    signature.
+    The guilloche and microtext go on every page; the seal block is printed
+    once, on the last page, which is where a reader looks for a signature. The
+    watermark goes on every page too unless *spec* names a subset — see
+    ``SealSpec.watermark_pages``.
     """
     source = pymupdf.open(stream=pdf_bytes, filetype='pdf')
     try:
@@ -377,8 +423,7 @@ def seal(pdf_bytes, spec):
                 page = out.new_page(width=src_rect.width, height=src_rect.height)
                 band_top = None
                 if index == last and _needs_band(src_page, spec):
-                    band_top = src_rect.height - SEAL_BAND_H
-                    target = pymupdf.Rect(0, 0, src_rect.width, band_top)
+                    target, band_top = _band_geometry(src_rect, spec.qr_corner)
                 else:
                     target = pymupdf.Rect(0, 0, src_rect.width, src_rect.height)
                 # show_pdf_page embeds the source as a form XObject: vectors
@@ -387,7 +432,8 @@ def seal(pdf_bytes, spec):
 
                 if spec.guilloche:
                     _draw_guilloche(page, rgb(spec.watermark_color))
-                _draw_watermark(page, spec)
+                if spec.watermark_pages is None or index in spec.watermark_pages:
+                    _draw_watermark(page, spec)
                 _draw_microtext(page, spec)
                 if index == last:
                     _draw_seal_block(page, spec, band_top)

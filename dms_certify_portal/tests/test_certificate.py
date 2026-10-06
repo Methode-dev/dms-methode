@@ -11,11 +11,13 @@ import base64
 import hashlib
 import io
 import re
+from datetime import timedelta
 
 import pymupdf
 from PIL import Image
 from lxml import etree
 
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tools.misc import file_path
 from odoo.tools.template_inheritance import apply_inheritance_specs
@@ -44,6 +46,26 @@ def build_pdf():
             member['passport_number'])
         page.insert_text((60, y), line, fontsize=9)
         y += 20
+    raw = document.tobytes()
+    document.close()
+    return raw
+
+
+def build_pdf_with_opaque_background():
+    """A one-page stand-in that paints its own page white before anything else.
+
+    A renderer is free to do this — WeasyPrint's report layout does, painting
+    the CSS background across the full page; wkhtmltopdf's output on the same
+    reports happened never to. Nothing a post-process draws *under* that fill
+    is visible, regardless of how it got there, which is what
+    ``test_the_watermark_and_guilloche_survive_an_opaque_background`` pins.
+    """
+    document = pymupdf.open()
+    page = document.new_page(width=595.28, height=841.89)
+    shape = page.new_shape()
+    shape.draw_rect(page.rect)
+    shape.finish(color=None, fill=(1, 1, 1))
+    shape.commit(overlay=False)
     raw = document.tobytes()
     document.close()
     return raw
@@ -80,6 +102,17 @@ class TestCertificate(TransactionCase):
             redaction_secrets={index: [member['passport_number']]
                                for index, member in enumerate(CREW)},
         )
+
+    def _expired(self, days=400, **overrides):
+        """An issued document whose validity window has closed.
+
+        Backdating the **issuance** rather than the movement date, because that
+        is what validity is counted from. Assigning ``issued_on`` recomputes
+        ``valid_until``, which is the whole point of the dependency.
+        """
+        certificate = self._issue(validity_days='30', **overrides)
+        certificate.issued_on = fields.Datetime.now() - timedelta(days=days)
+        return certificate
 
     # ------------------------------------------------------------------
     # The reference
@@ -122,6 +155,53 @@ class TestCertificate(TransactionCase):
             self.attachment.raw, self.raw,
             "The document the operator produced is never written to.")
         self.assertNotEqual(certificate.sealed_attachment_id.raw, self.raw)
+
+    def test_the_watermark_and_guilloche_survive_an_opaque_background(self):
+        """Painted on top of the source page, not under it.
+
+        Caught for real when the operation reports moved from wkhtmltopdf to
+        WeasyPrint: WeasyPrint paints the page's CSS background across the
+        whole box, wkhtmltopdf's output on the same templates never did. The
+        watermark and guilloche were drawn underneath the source page
+        (``overlay=False``), which is invisible once anything opaque covers
+        it — regardless of which renderer produced it, or whether it does so
+        on purpose. ``get_text()`` would still find the watermark string in
+        this case: it reads the content stream, not what a viewer shows, so a
+        text-presence assertion alone would not have caught this.
+        """
+        raw = build_pdf_with_opaque_background()
+        spec = sealing.SealSpec(
+            reference='ICS-2026-TST-0000-00',
+            verify_url='https://check.example/r/token',
+            source_hash='0' * 64,
+            watermark_text='FOR EMBASSY SUBMISSION',
+            watermark_opacity=40,  # louder than production, so the test
+                                   # chases real ink, not anti-aliasing noise
+        )
+        sealed = sealing.seal(raw, spec)
+        document = pymupdf.open(stream=sealed, filetype='pdf')
+        page = document[0]
+
+        def ink(clip):
+            image = Image.open(io.BytesIO(
+                page.get_pixmap(dpi=150, clip=clip).tobytes('png')))
+            return sum(1 for pixel in image.getdata()
+                      if any(channel < 250 for channel in pixel[:3]))
+
+        watermark_area = pymupdf.Rect(40, 300, page.rect.width - 40, 500)
+        guilloche_line = pymupdf.Rect(
+            0, sealing.FRAME_OUTER - 1, page.rect.width, sealing.FRAME_OUTER + 1)
+        watermark_ink = ink(watermark_area)
+        guilloche_ink = ink(guilloche_line)
+        document.close()
+
+        self.assertGreater(
+            watermark_ink, 200,
+            "No watermark ink over the opaque background — it is being "
+            "painted under the page instead of on top of it.")
+        self.assertGreater(
+            guilloche_ink, 5,
+            "No guilloche ink over the opaque background — same cause.")
 
     def test_printed_fingerprint_is_of_the_document_before_sealing(self):
         """A file cannot contain its own hash, so the value printed on the page
@@ -477,9 +557,29 @@ class TestCertificate(TransactionCase):
     # ------------------------------------------------------------------
     # Validity
     # ------------------------------------------------------------------
-    def test_validity_counts_from_the_movement_date(self):
+    def test_validity_counts_from_issuance(self):
+        """Not from the movement date, which is what this counted from until
+        the certified-documents SRS settled it the other way.
+
+        The document is what expires, and it starts existing when it is sealed:
+        a letter produced three weeks before the call would otherwise arrive
+        with three weeks of its life already spent.
+        """
         certificate = self._issue(validity_days='90')
-        self.assertEqual(str(certificate.valid_until), '2026-12-02')
+        self.assertEqual(
+            certificate.valid_until,
+            fields.Date.to_date(certificate.issued_on) + timedelta(days=90))
+
+    def test_a_draft_has_no_expiry_to_count(self):
+        """Nothing has been issued, so there is no clock to start. The portal
+        will not speak about a draft either way."""
+        certificate = self.Certificate.create({
+            'type_id': self.doc_type.id,
+            'source_attachment_id': self.attachment.id,
+            'validity_days': '90',
+        })
+        self.assertEqual(certificate.state, 'draft')
+        self.assertFalse(certificate.valid_until)
 
     def test_until_revoked_leaves_no_expiry(self):
         certificate = self._issue(validity_days='0')
@@ -487,7 +587,7 @@ class TestCertificate(TransactionCase):
         self.assertEqual(certificate.public_state, 'valid')
 
     def test_an_out_of_date_document_reads_as_expired_not_missing(self):
-        certificate = self._issue(movement_date='2024-01-10', validity_days='30')
+        certificate = self._expired()
         self.assertEqual(certificate.public_state, 'expired')
         found, _holder = self.Certificate._match(certificate.reference, '4567')
         self.assertEqual(
@@ -654,18 +754,18 @@ class TestCertificateDesk(TransactionCase):
     # ------------------------------------------------------------------
     # Revocation
     # ------------------------------------------------------------------
-    def test_revoking_restamps_the_stored_copy_as_void(self):
+    def test_revoking_does_not_touch_the_sealed_bytes(self):
+        """The portal already refuses to show or serve a revoked document's
+        page (see verify_templates.xml's state gates), so there is nothing
+        left for a re-stamp to protect. Revoke changes the state, not the
+        file."""
         certificate = self._certified()
+        before = certificate.sealed_attachment_id.raw
+        marking_before = certificate.seal_marking
         certificate.action_revoke(reason='Crew change before departure')
-        self.assertEqual(certificate.seal_marking, 'void')
-        document = pymupdf.open(
-            stream=certificate.sealed_attachment_id.raw, filetype='pdf')
-        text = document[0].get_text()
-        document.close()
-        self.assertIn('VOID', text)
-        self.assertIn(
-            certificate.reference, text,
-            "It is still the same document, and still identifies itself.")
+        self.assertEqual(certificate.sealed_attachment_id.raw, before)
+        self.assertEqual(certificate.seal_marking, marking_before)
+        self.assertEqual(certificate.state, 'revoked')
 
     def test_revoking_keeps_the_printed_fingerprint(self):
         """The paper in someone's hand cannot change, so the value printed on

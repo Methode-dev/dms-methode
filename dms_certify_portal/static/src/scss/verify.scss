@@ -10,6 +10,16 @@
 // Cormorant and Spectral — rather than a fallback to the browser default.
 // ============================================================================
 
+// The verdict renders *below* the lookup form and the redirect carries a
+// `#result` fragment, so without this the browser snaps to it and an agent
+// cannot see that the answer came from under the form they just filled in.
+// Scoped with :has() because this stylesheet is in the frontend bundle and
+// must not reach any other page Odoo serves; wrapped in the motion query so
+// anyone who asked their system for less animation keeps the jump.
+@media (prefers-reduced-motion: no-preference) {
+    html:has(.dc-portal) { scroll-behavior: smooth; }
+}
+
 .dc-portal {
     --ink: #0A1B2A;
     --marine: #10314F;

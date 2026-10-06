@@ -242,7 +242,11 @@ class DmsCertifyPortalController(http.Controller):
         if reference:
             # Give back the reference so only the second check is retyped.
             request.session[SESSION_REFERENCE] = self._format_reference(reference)
-        return request.redirect(FORM_URL)
+        # #result: the verdict renders below the lookup form on this same
+        # page, and a plain redirect lands the browser back at the top of it
+        # — the fragment is what makes it jump straight to the refusal
+        # instead of leaving the agent to scroll down and find it themselves.
+        return request.redirect(FORM_URL + '#result')
 
     # ------------------------------------------------------------------
     # Session
@@ -385,7 +389,9 @@ class DmsCertifyPortalController(http.Controller):
         request.session[SESSION_HOLDER] = holder.id
         request.session[SESSION_EXPIRY] = time.time() + self._param(
             'session_minutes', 15) * 60
-        return request.redirect(RESULT_URL % token)
+        # #result: see _fail's comment — same page shape, same reason to jump
+        # straight to it instead of leaving the agent to scroll for it.
+        return request.redirect((RESULT_URL % token) + '#result')
 
     # ------------------------------------------------------------------
     # The result
@@ -474,4 +480,4 @@ class DmsCertifyPortalController(http.Controller):
             outcome='mismatch', document=doc)
         doc._notify_verification('mismatch')
         request.session[SESSION_NOTICE] = 'mismatch_reported'
-        return request.redirect(RESULT_URL % token)
+        return request.redirect((RESULT_URL % token) + '#result')
