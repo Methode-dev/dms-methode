@@ -1,4 +1,9 @@
-CHECK_PREFIX = "check."
+import os
+
+# Read once at import: the value has to be known before any database exists,
+# so it comes from the process environment, never from ir.config_parameter.
+# An empty value falls back to the default rather than matching every host.
+CHECK_PREFIX = (os.environ.get("DMS_CHECK_HOST_PREFIX") or "check.").strip().lower()
 
 
 def parent_of_check_host(host):

@@ -2,7 +2,7 @@ import logging
 
 from odoo import http
 
-from .hosts import parent_of_check_host
+from .hosts import CHECK_PREFIX, parent_of_check_host
 
 _logger = logging.getLogger(__name__)
 
@@ -26,4 +26,6 @@ def post_load():
 
     db_filter._dms_check_host = True
     http.db_filter = db_filter
-    _logger.info("dms_certify_host: check.* hosts use their parent host's database")
+    _logger.info(
+        "dms_certify_host: %s* hosts use their parent host's database", CHECK_PREFIX
+    )

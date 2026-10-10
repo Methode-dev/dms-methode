@@ -4,6 +4,7 @@ import base64
 import hmac
 import json
 import logging
+import os
 import re
 import secrets
 from datetime import timedelta
@@ -12,6 +13,8 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+
+from odoo.addons.dms_certify_host.hosts import CHECK_PREFIX
 
 from ..tools import seal as sealing
 
@@ -357,16 +360,25 @@ class DmsCertificate(models.Model):
         has to be able to differ from wherever this Odoo happens to answer.
 
         Without the parameter, the portal's own host is derived from
-        ``web.base.url``: erp.domain -> check.erp.domain, localhost ->
-        check.localhost. The portal does not exist on the bare host.
+        ``web.base.url`` by prepending ``CHECK_PREFIX`` (env
+        ``DMS_CHECK_HOST_PREFIX``, default ``check.``): erp.domain ->
+        check.erp.domain, localhost -> check.localhost. The portal does not
+        exist on the bare host.
+
+        The ``DMS_CHECK_PUBLIC_BASE_URL`` environment variable beats both. It
+        is for a server whose database is a restored copy of another's
+        (preprod): the parameter travels with the backup and would print the
+        source server's address.
         """
         icp = self.env['ir.config_parameter'].sudo()
-        base = (icp.get_param('dms_certify_portal.public_base_url') or '').strip()
+        base = (os.environ.get('DMS_CHECK_PUBLIC_BASE_URL') or '').strip()
+        if not base:
+            base = (icp.get_param('dms_certify_portal.public_base_url') or '').strip()
         if not base:
             parts = urlsplit(icp.get_param('web.base.url', '') or 'http://localhost')
             netloc = parts.netloc
-            if not netloc.lower().startswith('check.'):
-                netloc = 'check.' + netloc
+            if not netloc.lower().startswith(CHECK_PREFIX):
+                netloc = CHECK_PREFIX + netloc
             base = urlunsplit((parts.scheme, netloc, '', '', ''))
         return base.rstrip('/')
 

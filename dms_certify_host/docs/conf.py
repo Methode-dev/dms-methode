@@ -56,7 +56,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # plain `pip install -r requirements.txt` venv, with no Odoo and no database.
 #
 # This addon has no external dependencies of its own, so `odoo` is the only
-# mock. `hosts.py` is pure Python with no imports at all, which is why it is the
+# mock. `hosts.py` is pure Python importing only `os`, which is why it is the
 # one module here autodoc can read for real.
 # --------------------------------------------------------------------------
 autodoc_mock_imports = ["odoo"]

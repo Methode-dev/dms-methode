@@ -204,6 +204,13 @@ Confirm what will actually be printed, rather than trusting the Settings page:
    >>> env["dms.certificate"]._public_base_url()
    'https://check.erp.example'
 
+On a server whose database is restored from another one — a preprod refreshed
+from production — the parameter arrives with the backup and would print the
+*source* server's address. Set the ``DMS_CHECK_PUBLIC_BASE_URL`` environment
+variable on the Odoo process there (for example
+``https://check-preprod.example``): it takes precedence over the parameter and
+survives every restore. Restart Odoo after changing it.
+
 Then set :guilabel:`Portal company`, which is whose name, address, email and
 phone the public page carries — including on the refusal pages, which tell an
 agent to call the operations desk. Empty means whatever company a public request

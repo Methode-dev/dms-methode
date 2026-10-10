@@ -12,21 +12,26 @@ Behaviour that is confusing but *correct* is in
    :local:
    :depth: 1
 
-One prefix, hard-coded
-----------------------
+One prefix, per process
+-----------------------
 
-``CHECK_PREFIX = "check."`` is a module-level constant in :doc:`reference/hosts`
-with no setting, no ``ir.config_parameter`` and no environment variable behind
-it. ``verify.`` or ``certificat.`` means editing the source.
+``CHECK_PREFIX`` in :doc:`reference/hosts` is read once, at import, from the
+``DMS_CHECK_HOST_PREFIX`` environment variable (default ``check.``). There is
+no ``ir.config_parameter`` behind it: the value has to be known before any
+database exists, so it cannot live in a database. Changing it means restarting
+Odoo.
 
-That is a deliberate floor rather than an oversight: the value has to be known
-before any database exists, so it cannot live in a database, and a configuration
-option would be a second place for the DNS name, the TLS certificate, the proxy
-block and the code to disagree with each other. One constant in one file is the
-smallest number of places that can be wrong.
+The environment variable is one more place for the DNS name, the TLS
+certificate, the proxy block and the code to disagree. Set it alongside the
+nginx ``server_name`` and the certificate, never on its own.
 
-If you do need a second prefix, the honest change is a list and a loop in
-``parent_of_check_host`` — not a per-database setting.
+When the portal host is not *prefix + parent host* (for example
+``check-preprod.example.com`` next to ``preprod.example.com``), also set
+``dms_certify_portal.public_base_url``, otherwise printed URLs are derived as
+``CHECK_PREFIX + web.base.url``.
+
+If you do need a second prefix in the same process, the honest change is a
+list and a loop in ``parent_of_check_host``, not a per-database setting.
 
 No isolation, only resolution
 -----------------------------

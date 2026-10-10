@@ -348,6 +348,6 @@ See also
   path to understanding what you are changing.
 * :doc:`../installation` — ``server_wide_modules``, and why an Apps-list install
   is not a substitute for it.
-* :doc:`../limits` — the untested surface, the hard-coded prefix, and the
+* :doc:`../limits` — the untested surface, the env-configured prefix, and the
   deployments on which none of this does anything.
 * :doc:`../changelog` — where a behaviour change has to end up.

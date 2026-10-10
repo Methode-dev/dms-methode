@@ -333,9 +333,9 @@ What you get back
 
 .. important::
 
-   ``verify_url`` is built from
-   ``dms_certify_portal.public_base_url``, or derived from ``web.base.url`` with
-   ``check.`` prefixed when that parameter is empty. **It goes on paper.** Set it
+   ``verify_url`` is built from the ``DMS_CHECK_PUBLIC_BASE_URL`` environment
+   variable, else ``dms_certify_portal.public_base_url``, else derived from
+   ``web.base.url`` with the check prefix (``check.`` by default) prepended. **It goes on paper.** Set it
    before you issue anything in anger — a document already in an embassy's file
    cannot be re-pointed. See :ref:`deployment-check-host`.
 

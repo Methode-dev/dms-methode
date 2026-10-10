@@ -3,8 +3,8 @@ hosts
 
 Source: :ghsrc:`hosts.py`
 
-One constant and two functions, in twenty lines, with **no imports at all** at
-module level. That is the module's defining property rather than an accident of
+One constant and two functions, with **no imports beyond the standard library**
+at module level. That is the module's defining property rather than an accident of
 its size: it is what lets ``autodoc`` read the real source below instead of a
 hand-written copy of it, what lets ``parent_of_check_host`` be called with no
 Odoo and no database, and what keeps ``__init__.py`` — imported by
@@ -24,9 +24,9 @@ Odoo and no database, and what keeps ``__init__.py`` — imported by
 
 .. py:data:: CHECK_PREFIX
    :type: str
-   :value: "check."
+   :value: os.environ.get("DMS_CHECK_HOST_PREFIX") or "check."
 
-   The hostname prefix that marks a verification host.
+   The hostname prefix that marks a verification host, lower-cased.
 
 .. note::
 
@@ -35,10 +35,10 @@ Odoo and no database, and what keeps ``__init__.py`` — imported by
    constant, even with ``:undoc-members:``. Check the value against
    :ghsrc:`hosts.py` if it matters to you.
 
-The prefix, as a module-level constant with nothing behind it — no setting, no
-``ir.config_parameter``, no environment variable. Changing it is a source edit,
-and that is deliberate: the value has to be known before any database exists, so
-it cannot live in one. See :doc:`../limits` for the longer version of that
+The prefix, read once at import from the ``DMS_CHECK_HOST_PREFIX`` environment
+variable, defaulting to ``check.``. There is no ``ir.config_parameter`` behind
+it: the value has to be known before any database exists, so it cannot live in
+one. See :doc:`../limits` for the longer version of that
 argument.
 
 Note the trailing dot. It is part of the constant, which is why
@@ -246,5 +246,5 @@ See also
   diagram these functions sit inside.
 * :doc:`../development/index` — importing ``is_check_host`` from your own addon,
   with a worked example.
-* :doc:`../limits` — the hard-coded prefix, ``check.check.``, and the missing
+* :doc:`../limits` — the env-configured prefix, ``check.check.``, and the missing
   tests, each argued at length.
