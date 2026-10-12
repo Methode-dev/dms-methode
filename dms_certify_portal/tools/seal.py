@@ -45,6 +45,11 @@ SEAL_BAND_H = 24 * MM
 SEAL_QR_SIDE = 18 * MM
 SEAL_QR_GAP = 3 * MM
 SEAL_TEXT_W = 62 * MM
+# The seal's ink on a light page, and always on the yellow highlight.
+SEAL_INK = (0.06, 0.19, 0.31)
+# Below this mean luminance (0-255) the corner is dark and the seal's text is
+# printed light: a letterhead's coloured foot band, not a white page.
+SEAL_DARK_LUMINANCE = 128
 # Clearance kept between the seal block and anything the document already
 # prints, when deciding whether the corner is free.
 SEAL_CLEARANCE = 5.0
@@ -324,9 +329,10 @@ def _band_geometry(page_rect, corner):
 def _corner_is_free(page, corner):
     """True when nothing the document prints reaches into the seal's corner.
 
-    Consulted only in 'auto' band mode. Full-page drawings are ignored: a
-    background panel or a border frame covers the corner by definition and
-    would otherwise push every document into the scaled branch.
+    Consulted only in 'auto' band mode. Full-page drawings and images are
+    ignored: a background panel, a border frame or a letterhead printed behind
+    the text covers the corner by definition and would otherwise push every
+    document into the scaled branch.
     """
     probe = _seal_rect(page.rect, corner) + (
         -SEAL_CLEARANCE, -SEAL_CLEARANCE, SEAL_CLEARANCE, SEAL_CLEARANCE)
@@ -341,11 +347,25 @@ def _corner_is_free(page, corner):
             return False
     try:
         for info in page.get_image_info():
-            if probe.intersects(pymupdf.Rect(info['bbox'])):
+            bbox = pymupdf.Rect(info['bbox'])
+            if bbox.get_area() < page_area * 0.8 and probe.intersects(bbox):
                 return False
     except Exception:  # noqa: BLE001 - image info is best effort
         pass
     return True
+
+
+def _is_dark(page, rect):
+    """Whether *rect* of *page*, as printed so far, is dark on average."""
+    pix = page.get_pixmap(clip=rect, dpi=24, colorspace=pymupdf.csRGB,
+                          alpha=False)
+    samples = pix.samples
+    if not samples:
+        return False
+    # Rec. 601 luma, averaged over every pixel of the corner.
+    total = sum(0.299 * samples[i] + 0.587 * samples[i + 1]
+                + 0.114 * samples[i + 2] for i in range(0, len(samples), 3))
+    return total / (len(samples) / 3) < SEAL_DARK_LUMINANCE
 
 
 def _draw_seal_block(page, spec, band_top=None):
@@ -357,12 +377,22 @@ def _draw_seal_block(page, spec, band_top=None):
     block = _seal_rect(page.rect, spec.qr_corner, band_top)
     left, top = block.x0, block.y0
 
+    # No backing card: the block sits on the page's own corner (a letterhead's
+    # dark foot band), so on a dark corner the text goes white and bold. The QR
+    # keeps the white quiet zone qr_png draws, which a scanner needs.
+    on_dark = _is_dark(page, block)
+    if on_dark:
+        ink = muted = faint = (1.0, 1.0, 1.0)
+        mono = 'cobo'
+    else:
+        ink, muted, faint = SEAL_INK, (0.35, 0.38, 0.42), (0.47, 0.50, 0.54)
+        mono = 'cour'
+
     page.insert_image(
         pymupdf.Rect(left, top, left + SEAL_QR_SIDE, top + SEAL_QR_SIDE),
         stream=qr_png(spec.verify_url), keep_proportion=True,
     )
 
-    ink = (0.06, 0.19, 0.31)
     text_x = left + SEAL_QR_SIDE + SEAL_QR_GAP
     cursor = top + 5.4
 
@@ -375,13 +405,13 @@ def _draw_seal_block(page, spec, band_top=None):
     shape.commit(overlay=True)
     page.insert_text(pymupdf.Point(text_x, cursor),
                      'TO BE CHECKED BY THE EMBASSY:',
-                     fontname='hebo', fontsize=5.4, color=ink)
+                     fontname='hebo', fontsize=5.4, color=SEAL_INK)
     cursor += 7.4
     # Printed without the scheme, the way the design does it: the QR carries
     # the full URL, and the line under it is there to be retyped, not clicked.
     printed_url = spec.verify_url.split('://', 1)[-1]
     page.insert_text(pymupdf.Point(text_x, cursor), printed_url,
-                     fontname='cour', fontsize=5.8, color=(0.35, 0.38, 0.42))
+                     fontname=mono, fontsize=5.8, color=muted)
     cursor += 10.5
     page.insert_text(pymupdf.Point(text_x, cursor), spec.reference,
                      fontname='hebo', fontsize=10.5, color=ink)
@@ -389,7 +419,7 @@ def _draw_seal_block(page, spec, band_top=None):
         cursor += 8.0
         page.insert_text(pymupdf.Point(text_x, cursor),
                          'SHA-256 %s' % spec.source_hash[:12],
-                         fontname='cour', fontsize=5.6, color=(0.47, 0.50, 0.54))
+                         fontname=mono, fontsize=5.6, color=faint)
 
 
 # ---------------------------------------------------------------------------

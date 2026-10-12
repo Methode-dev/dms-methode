@@ -9,6 +9,18 @@ Changelog
    therefore have no entry here — the gaps are gaps in the evidence, not
    quiet releases. The first recorded step is 19.0.3.0.0.
 
+Unreleased
+----------
+
+Changed
+^^^^^^^
+
+* **The seal reads on a letterhead.** A full-page image behind the text no
+  longer counts as occupying the seal's corner, so a letter on a letterhead is
+  not shrunk to make room. On a dark corner — a letterhead's foot band — the
+  seal's text is printed white, in the bold faces; the QR keeps its
+  own white quiet zone. See ``tools/seal.py``.
+
 19.0.6.0.0
 ----------
 
