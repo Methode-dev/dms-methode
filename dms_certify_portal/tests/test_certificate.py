@@ -856,6 +856,16 @@ class TestCertificateDesk(TransactionCase):
         self.assertEqual((first | second).mapped('state'),
                          ['certified', 'certified'])
 
+    def test_the_revoke_wizard_revokes_nothing_it_did_not_offer(self):
+        offered, other = self._certified(), self._certified()
+        wizard = self.env['dms.certificate.revoke'].with_context(
+            active_model='dms.certificate', active_ids=offered.ids,
+        ).create({'reason': 'Crew change cancelled'})
+        wizard.certificate_ids = [(4, other.id)]
+        wizard.action_revoke()
+        self.assertEqual(offered.state, 'revoked')
+        self.assertEqual(other.state, 'certified')
+
     def test_the_revoke_list_names_the_kind_of_document(self):
         """A run's documents all have a reference of the same shape; the list
         has to say which one is the letter."""

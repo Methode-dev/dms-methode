@@ -63,6 +63,8 @@ Fixed
 Changed
 ^^^^^^^
 
+* The revoke dialog only ever revokes documents it offered: the ticked list
+  is client data, so it is intersected with ``candidate_ids``.
 * **The revoke dialog takes several documents.** Opened with several
   ``active_ids``, ``dms.certificate.revoke`` lists them (``candidate_ids``), all
   ticked (``certificate_ids``, a checkbox list), and revokes the ticked ones

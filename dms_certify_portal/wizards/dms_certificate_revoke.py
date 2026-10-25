@@ -59,7 +59,8 @@ class DmsCertificateRevoke(models.TransientModel):
         self.ensure_one()
         # The ticked list once there was a list to tick, even emptied: falling
         # back to the first entry would revoke one somebody just unticked.
-        targets = (self.certificate_ids if self.candidate_ids
+        # Only ever what the dialog offered: the ticked list is client data.
+        targets = (self.certificate_ids & self.candidate_ids if self.candidate_ids
                    else self.certificate_id).filtered(
             lambda certificate: certificate.state != 'revoked')
         if not targets:
