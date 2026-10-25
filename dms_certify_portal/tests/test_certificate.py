@@ -72,6 +72,17 @@ def build_pdf_with_opaque_background():
 
 
 @tagged('post_install', '-at_install')
+def build_pdf_pages(count):
+    """*count* one-line pages, standing in for a letter split over pages."""
+    document = pymupdf.open()
+    for number in range(1, count + 1):
+        page = document.new_page(width=595.28, height=841.89)
+        page.insert_text((60, 90), 'LETTER, page %d' % number, fontsize=12)
+    raw = document.tobytes()
+    document.close()
+    return raw
+
+
 class TestCertificate(TransactionCase):
 
     @classmethod
@@ -651,6 +662,31 @@ class TestCertificateDesk(TransactionCase):
     # ------------------------------------------------------------------
     # Preview
     # ------------------------------------------------------------------
+    def _sealed_pages(self, **options):
+        spec = sealing.SealSpec(
+            reference='ICS-2026-TST-0000-00',
+            verify_url='https://check.example/d/ICS-2026-TST-0000-00',
+            source_hash='0' * 64, **options)
+        document = pymupdf.open(stream=sealing.seal(build_pdf_pages(3), spec),
+                                filetype='pdf')
+        try:
+            # The caption is the seal block's own; the reference alone is
+            # also in the microtext, which is on every page regardless.
+            return [page.get_text().count('TO BE CHECKED') for page in document]
+        finally:
+            document.close()
+
+    def test_the_seal_block_is_on_the_last_page_by_default(self):
+        self.assertEqual(self._sealed_pages(), [0, 0, 1])
+
+    def test_the_seal_block_can_go_on_every_page(self):
+        self.assertEqual(self._sealed_pages(seal_every_page=True), [1, 1, 1])
+
+    def test_on_every_page_means_every_marked_page(self):
+        self.assertEqual(
+            self._sealed_pages(seal_every_page=True, watermark_pages=[1, 2]),
+            [0, 1, 1])
+
     def test_preview_is_the_sealed_pdf_not_a_picture_of_it(self):
         """A rasterised preview cannot stay sharp when the operator zooms in
         to check a stamp; the document itself can."""
@@ -789,6 +825,45 @@ class TestCertificateDesk(TransactionCase):
         wizard.action_revoke()
         self.assertEqual(certificate.state, 'revoked')
         self.assertEqual(certificate.revoke_reason, 'Replaced by a later letter')
+
+    def test_the_revoke_wizard_revokes_the_ticked_documents_only(self):
+        """Opened on several entries, every one is offered ticked; whoever
+        revokes unticks the ones to keep, and one reason covers the rest."""
+        first, second, third = (self._certified() for _index in range(3))
+        wizard = self.env['dms.certificate.revoke'].with_context(
+            active_model='dms.certificate', active_id=first.id,
+            active_ids=(first | second | third).ids,
+        ).create({'reason': 'Crew change cancelled'})
+        self.assertEqual(wizard.candidate_count, 3)
+        self.assertEqual(wizard.certificate_ids, first | second | third,
+                         "Everything offered arrives ticked.")
+
+        wizard.certificate_ids = [(3, second.id)]
+        wizard.action_revoke()
+
+        self.assertEqual((first | third).mapped('state'), ['revoked', 'revoked'])
+        self.assertEqual(second.state, 'certified', "Unticked, so kept.")
+        self.assertEqual(third.revoke_reason, 'Crew change cancelled')
+
+    def test_the_revoke_wizard_refuses_an_empty_selection(self):
+        first, second = self._certified(), self._certified()
+        wizard = self.env['dms.certificate.revoke'].with_context(
+            active_model='dms.certificate', active_ids=(first | second).ids,
+        ).create({'reason': 'Crew change cancelled'})
+        wizard.certificate_ids = [(5, 0, 0)]
+        with self.assertRaises(UserError):
+            wizard.action_revoke()
+        self.assertEqual((first | second).mapped('state'),
+                         ['certified', 'certified'])
+
+    def test_the_revoke_list_names_the_kind_of_document(self):
+        """A run's documents all have a reference of the same shape; the list
+        has to say which one is the letter."""
+        certificate = self._certified()
+        self.assertEqual(certificate.display_name, certificate.reference)
+        self.assertEqual(
+            certificate.with_context(dms_certify_show_type=True).display_name,
+            '%s — %s' % (self.doc_type.name, certificate.reference))
 
     # ------------------------------------------------------------------
     # Delivery

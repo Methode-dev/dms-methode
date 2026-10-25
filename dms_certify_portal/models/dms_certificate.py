@@ -70,6 +70,20 @@ class DmsCertificate(models.Model):
     _order = 'create_date desc, id desc'
     _rec_name = 'reference'
 
+    @api.depends('reference', 'type_id')
+    @api.depends_context('dms_certify_show_type')
+    def _compute_display_name(self):
+        """The reference, preceded by the kind of document where the
+        reference alone would not say which is which — the revoke dialog's
+        list of a run's documents, for one."""
+        show_type = self.env.context.get('dms_certify_show_type')
+        for record in self:
+            if show_type and record.type_id:
+                record.display_name = "%s — %s" % (
+                    record.type_id.name, record.reference)
+            else:
+                record.display_name = record.reference
+
     _reference_unique = models.Constraint(
         'UNIQUE(reference_key)',
         "This certificate reference already exists.",
@@ -496,24 +510,50 @@ class DmsCertificate(models.Model):
         """Record where each listed person appears on the source document.
 
         Measuring once, when the document is registered, means a lookup blanks
-        exactly the places this person's details were found rather than
-        searching the page again for strings that might also appear in the
-        letter body. When the measurements no longer match the document,
-        ``_public_bytes`` falls back to searching.
+        exactly what was measured rather than searching the page again. When
+        the measurements no longer match the document, ``_public_bytes``
+        measures again.
 
         :param dict secrets: ``{holder_id: [extra strings]}`` printed for that
-            person on top of what the holder record already carries.
+            person on top of what the holder record already carries. Only
+            used for a person no table row could be found for.
         """
         self.ensure_one()
         _filename, raw = self._certify_source()
         if not raw:
             return False
         source_hash = sealing.fingerprint(raw)
-        secrets = secrets or {}
-        for holder in self.holder_ids:
-            needles = holder._redaction_needles() + list(secrets.get(holder.id, []))
-            holder._store_boxes(sealing.locate(raw, needles), source_hash)
+        for holder, boxes in self._measure(raw, self.holder_ids, secrets).items():
+            holder._store_boxes(boxes, source_hash)
         return True
+
+    def _measure(self, raw, holders, secrets=None):
+        """Where each of *holders* is printed on *raw*: ``{holder: boxes}``.
+
+        Their table row, whole — every column, including the ones no holder
+        field carries (nationality, birthplace, seaman's book), and nothing
+        outside it. Only a person no row can be found for falls back to
+        searching the page for their values, which is what this used to do for
+        everyone: it left whatever it was not told about, and blanked the same
+        date or town wherever else the letter printed it.
+        """
+        self.ensure_one()
+        secrets = secrets or {}
+        everyone = self.holder_ids
+        rows = dict(zip(everyone, sealing.locate_rows(
+            raw, [holder._redaction_key() for holder in everyone])))
+        result = {}
+        for holder in holders:
+            if rows.get(holder):
+                result[holder] = rows[holder]
+                continue
+            _logger.warning(
+                "dms_certify_portal: no table row for %s on %s; blanking their "
+                "values wherever they are printed instead",
+                holder.display_name_public, self.reference)
+            needles = holder._redaction_needles() + list(secrets.get(holder.id, []))
+            result[holder] = sealing.locate(raw, needles)
+        return result
 
     # ------------------------------------------------------------------
     # What a given lookup is allowed to see
@@ -557,12 +597,11 @@ class DmsCertificate(models.Model):
             # to show a page that an agent is standing at a counter waiting for.
             _logger.info(
                 "dms_certify_portal: %s has no current positions for %s; "
-                "redacting by value instead",
+                "measuring them again",
                 self.reference, ', '.join(unmeasured.mapped('display_name_public')))
-            needles = []
-            for other in unmeasured:
-                needles.extend(other._redaction_needles())
-            redacted = sealing.redact(redacted, needles)
+            boxes = [box for found in self._measure(raw, unmeasured).values()
+                     for box in found]
+            redacted = sealing.redact_boxes(redacted, boxes)
 
         # Closed loop. The boxes were measured against this document, but a
         # measurement is not a guarantee — so check the result against what is

@@ -21,6 +21,58 @@ Changed
   seal's text is printed white, in the bold faces; the QR keeps its
   own white quiet zone. See ``tools/seal.py``.
 
+19.0.6.2.0
+----------
+
+Fixed
+^^^^^
+
+* **A name shared with the letter's text no longer blocks the page.** The
+  closed-loop check after redaction (``dms.certificate.holder._survives``)
+  counted any single word of another person's name as a leak, so a crew
+  member whose first name also appeared elsewhere — in "acting on behalf of
+  Julien Calenge", say — made the confirm-only copy unservable for everybody
+  else on the letter, and the portal showed the verdict without the document.
+  A name now counts only whole (surname then first name, consecutive);
+  passport numbers are still checked everywhere, as typed and by hash.
+
+Added
+^^^^^
+
+* ``SealSpec.seal_every_page``: the seal block (QR code, reference,
+  fingerprint) on every marked page rather than the last one only. Off by
+  default; a producing module turns it on per kind of document.
+
+Fixed
+^^^^^
+
+* **A confirm-only copy blanks other people's table rows, whole.** Redaction
+  used to search the page for each other person's values: anything no holder
+  field carries (nationality, birthplace, seaman's book) stayed visible, a value
+  wrapped over two lines of its cell was missed, and the same date or town
+  printed above or below the crew table was blanked with it.
+  ``tools/seal.locate_rows`` finds each person's row in the document's tables
+  (``find_tables``) by their passport number — a whole word of the row — or
+  their name, and ``dms.certificate._measure`` blanks that row. Searching for
+  values remains only for a person no row is found for, with a warning in the
+  log; the closed-loop check is unchanged.
+
+19.0.6.1.0
+----------
+
+Changed
+^^^^^^^
+
+* **The revoke dialog takes several documents.** Opened with several
+  ``active_ids``, ``dms.certificate.revoke`` lists them (``candidate_ids``), all
+  ticked (``certificate_ids``, a checkbox list), and revokes the ticked ones
+  under one reason; unticking every one is refused rather than falling back to
+  the first. Opened on one entry it reads as before. Before, it revoked
+  ``active_id`` alone whatever it was opened on.
+* ``dms.certificate``'s display name is "Type — reference" under the context
+  key ``dms_certify_show_type``, so that list can say which document is which.
+  Everywhere else it is the reference, as before.
+
 19.0.6.0.0
 ----------
 

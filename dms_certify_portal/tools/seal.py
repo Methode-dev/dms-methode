@@ -149,7 +149,7 @@ class SealSpec:
         watermark_text='', watermark_opacity=9, watermark_angle=-32,
         watermark_size=24, watermark_mode='tile', watermark_color='#10314F',
         guilloche=True, microtext=True, qr_corner='br', band='auto',
-        watermark_pages=None,
+        watermark_pages=None, seal_every_page=False,
     ):
         self.reference = reference or ''
         self.verify_url = verify_url or ''
@@ -172,6 +172,12 @@ class SealSpec:
         # with its covering letter must not come out claiming to be the letter.
         self.watermark_pages = (
             None if watermark_pages is None else frozenset(watermark_pages))
+        # Where the seal block (the QR code, the reference, the fingerprint)
+        # goes: the last page by default, where a reader looks for a
+        # signature; every marked page when set, so a letter of several pages
+        # carries it on each one and no page can be lifted out of the set
+        # without it.
+        self.seal_every_page = bool(seal_every_page)
 
 
 # ---------------------------------------------------------------------------
@@ -438,8 +444,9 @@ def seal(pdf_bytes, spec):
     """Return *pdf_bytes* stamped according to *spec*.
 
     The guilloche and microtext go on every page; the seal block is printed
-    once, on the last page, which is where a reader looks for a signature. The
-    watermark goes on every page too unless *spec* names a subset — see
+    once, on the last page, which is where a reader looks for a signature —
+    or on every marked page, see ``SealSpec.seal_every_page``. The watermark
+    goes on every page too unless *spec* names a subset — see
     ``SealSpec.watermark_pages``.
     """
     source = pymupdf.open(stream=pdf_bytes, filetype='pdf')
@@ -451,8 +458,10 @@ def seal(pdf_bytes, spec):
                 src_page = source[index]
                 src_rect = src_page.rect
                 page = out.new_page(width=src_rect.width, height=src_rect.height)
+                marked = spec.watermark_pages is None or index in spec.watermark_pages
+                stamped = marked if spec.seal_every_page else index == last
                 band_top = None
-                if index == last and _needs_band(src_page, spec):
+                if stamped and _needs_band(src_page, spec):
                     target, band_top = _band_geometry(src_rect, spec.qr_corner)
                 else:
                     target = pymupdf.Rect(0, 0, src_rect.width, src_rect.height)
@@ -462,10 +471,10 @@ def seal(pdf_bytes, spec):
 
                 if spec.guilloche:
                     _draw_guilloche(page, rgb(spec.watermark_color))
-                if spec.watermark_pages is None or index in spec.watermark_pages:
+                if marked:
                     _draw_watermark(page, spec)
                 _draw_microtext(page, spec)
-                if index == last:
+                if stamped:
                     _draw_seal_block(page, spec, band_top)
             return out.tobytes(deflate=True, garbage=3)
         finally:
@@ -523,6 +532,68 @@ def locate(pdf_bytes, needles):
                     boxes.append({'p': index,
                                   'r': [round(value, 2) for value in rect]})
         return boxes
+    finally:
+        document.close()
+
+
+def _squash(text):
+    """*text* without case or whitespace, so a value wrapped over two lines
+    of a cell still matches the value typed on one."""
+    return ''.join((text or '').split()).casefold()
+
+
+def locate_rows(pdf_bytes, keys):
+    """The table rows each person is printed on.
+
+    *keys* holds, per person, the strings that identify them — their passport
+    number, or failing that their name. Returns one list of boxes per person,
+    in the same order, each box a whole table row (``{'p', 'r'}`` as
+    ``locate`` returns them); an empty list means no row carries that
+    person's key alone.
+
+    A row rather than the values on it: the confirm-only copy has to blank
+    *everything* printed about another person — nationality, rank, birthplace,
+    whatever a template adds later — and nothing printed about anybody else.
+    Searching for values does neither: a value it was not given stays, and the
+    same date or town printed above the table is blanked with it.
+    """
+    wanted = [[str(value) for value in person if value and _squash(str(value))]
+              for person in keys]
+
+    def carries(words, text, value):
+        # A one-word value (a passport number) has to be a whole word of the
+        # row, so P123 does not claim the row of P1234. A longer one (a name)
+        # may wrap inside its cell, so it is matched on the squashed text.
+        if len(value.split()) == 1:
+            return _squash(value) in words
+        return _squash(value) in text
+
+    found = [[] for _person in wanted]
+    document = pymupdf.open(stream=pdf_bytes, filetype='pdf')
+    try:
+        for index, page in enumerate(document):
+            try:
+                tables = page.find_tables().tables
+            except Exception:  # noqa: BLE001 - no table is not an error
+                continue
+            for table in tables:
+                for row in table.rows:
+                    rect = pymupdf.Rect(row.bbox)
+                    raw_text = page.get_textbox(rect)
+                    text = _squash(raw_text)
+                    words = {_squash(word) for word in raw_text.split()}
+                    owners = [position for position, person in enumerate(wanted)
+                              if person and all(carries(words, text, value)
+                                                for value in person)]
+                    # A row naming two people at once is not one person's
+                    # line; blanking it would hide the person looking too.
+                    if len(owners) != 1:
+                        continue
+                    found[owners[0]].append({
+                        'p': index,
+                        'r': [round(value, 2) for value in rect],
+                    })
+        return found
     finally:
         document.close()
 

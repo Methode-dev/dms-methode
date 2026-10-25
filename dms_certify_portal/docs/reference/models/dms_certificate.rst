@@ -390,10 +390,12 @@ The seal
 
    Empty is the normal case and the behaviour that predates the field. A range
    exists for the one situation that needs it: **a file holding several
-   documents but carrying a single certificate.** ``operations_certify`` files a
-   manifeste together with its movement's covering letter as one PDF whose
-   certificate is the letter's, so marking the whole file would print the
-   letter's watermark across a manifeste nobody certified.
+   documents but carrying a single certificate.** ``operations_certify`` used to
+   file a manifeste together with its movement's covering letter as one PDF
+   whose certificate was the letter's, so marking the whole file would have
+   printed the letter's watermark across a manifeste nobody certified. It now
+   files each document on its own and leaves this empty; only its older entries
+   carry a range.
 
    Parsed by :py:meth:`DmsCertificate._marked_page_indices`, which logs and
    falls back to *every page* for an unreadable or impossible value rather than

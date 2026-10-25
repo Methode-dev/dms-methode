@@ -103,13 +103,14 @@ Every page, unless the entry's :guilabel:`Marked pages` names a range —
 holding one document wants and what every caller got before the field existed.
 
 A range matters when **one file holds several documents and only one of them is
-certified**. ``operations_certify`` files a manifeste together with its
+certified**. ``operations_certify`` used to file a manifeste together with its
 movement's covering letter as a single PDF carrying a single certificate, and
-that certificate is the letter's: marking the whole file would print
-``CONFIDENTIAL`` across a manifeste nobody certified and which has no entry of
-its own. So it sets the range to the letter's pages, and the producing module is
+that certificate was the letter's: marking the whole file would have printed
+``CONFIDENTIAL`` across a manifeste nobody certified and which had no entry of
+its own. So it set the range to the letter's pages, and the producing module is
 the only thing that can — the boundaries are known while the parts are being
-concatenated and nowhere afterwards.
+concatenated and nowhere afterwards. It now files every document on its own and
+writes no range; entries it sealed on merged files still carry theirs.
 
 The guilloche and the microtext are deliberately **not** ranged. They are
 anti-forgery features of the file, and they make no claim about which document

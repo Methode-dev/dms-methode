@@ -6,13 +6,26 @@
         <field name="model">dms.certificate.revoke</field>
         <field name="arch" type="xml">
             <form string="Revoke document">
-                <div class="alert alert-warning" role="alert">
+                <field name="candidate_count" invisible="1"/>
+                <field name="candidate_ids" invisible="1"/>
+                <div class="alert alert-warning" role="alert"
+                     invisible="candidate_count &gt; 1">
                     Revoking <field name="reference" readonly="1" class="oe_inline"/>
                     is permanent. Anyone checking it from now on is told not to
                     accept it, and given the reason below.
                 </div>
+                <div class="alert alert-warning" role="alert"
+                     invisible="candidate_count &lt;= 1">
+                    Revoking is permanent. Anyone checking a ticked document
+                    from now on is told not to accept it, and given the reason
+                    below. Untick the ones to keep.
+                </div>
                 <group>
                     <field name="certificate_id" invisible="1"/>
+                    <field name="certificate_ids" widget="many2many_checkboxes"
+                           domain="[('id', 'in', candidate_ids)]"
+                           context="{'dms_certify_show_type': True}"
+                           invisible="candidate_count &lt;= 1"/>
                     <field name="reason"
                            placeholder="Shown to the embassy on the refusal notice"/>
                 </group>

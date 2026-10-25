@@ -187,18 +187,29 @@ class DmsCertificateHolder(models.Model):
             return None
 
     def _survives(self, tokens):
-        """Which of this person's details are still in *tokens*.
+        """Which of this person's details are still in *tokens*, the page's
+        words in reading order.
 
         The passport is checked by hashing each word the page still contains
         and comparing against the stored hash — the only way to look for
-        something that was never kept.
+        something that was never kept. The name only counts as surviving
+        whole — surname and first name, one after the other, as a crew line
+        prints them: a single word of it is not this person, and a first name
+        shared with the customer the letter is written for ("acting on behalf
+        of Julien Calenge") used to refuse the page to everybody.
         """
         self.ensure_one()
         found = []
-        printed = {value for value in (self.name, self.first_name,
-                                       self.passport_number) if value}
+        full_name = ' '.join(filter(None, [self.name, self.first_name])).split()
+        if full_name:
+            wanted = [word.casefold() for word in full_name]
+            words = [token.casefold() for token in tokens]
+            for start in range(len(words) - len(wanted) + 1):
+                if words[start:start + len(wanted)] == wanted:
+                    found.append(' '.join(full_name))
+                    break
         for token in tokens:
-            if token in printed:
+            if self.passport_number and token == self.passport_number:
                 found.append(token)
                 continue
             normalized = self._normalize(token)
@@ -208,6 +219,14 @@ class DmsCertificateHolder(models.Model):
                     self.passport_hash, self._keyed_hash(normalized) or ''):
                 found.append('<passport>')
         return found
+
+    def _redaction_key(self):
+        """What picks this person's line out of a crew table: the passport
+        number, unique to them, or their name when none was given."""
+        self.ensure_one()
+        if self.passport_number:
+            return [self.passport_number]
+        return [value for value in (self.name, self.first_name) if value]
 
     def _redaction_needles(self):
         """Every string of this holder that is printed on the document.
