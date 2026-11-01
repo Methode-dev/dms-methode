@@ -144,10 +144,15 @@ class DmsAccessGroups(models.Model):
         "explicit_user_ids",
     )
     def _compute_users(self):
+        # Odoo 19 split res.users.group_ids (explicit only) from all_group_ids
+        # (explicit + implied): match the latter so a user holding a group
+        # through an implying one (e.g. Documents Manager → User) still counts.
+        # Membership changes on the res.users / res.groups side don't reach
+        # this stored field through @api.depends; they call _recompute_users().
         for record in self:
             if record.group_ids:
                 group_users = self.env["res.users"].search(
-                    [("group_ids", "in", record.group_ids.ids)]
+                    [("all_group_ids", "in", record.group_ids.ids)]
                 )
             else:
                 group_users = self.env["res.users"]
@@ -157,6 +162,19 @@ class DmsAccessGroups(models.Model):
                 | record.parent_group_id.users
             )
             record.update({"users": users, "count_users": len(users)})
+
+    @api.model
+    def _recompute_users(self):
+        """Refresh the stored members of every access group after users were
+        added to / removed from Odoo groups. Without it, a user granted e.g.
+        Documents / User after the access group was saved never becomes a
+        member, and the computed DMS rules deny them access."""
+        groups = self.sudo().search([])
+        if not groups:
+            return
+        self.env.add_to_compute(self._fields["users"], groups)
+        self.env.add_to_compute(self._fields["count_users"], groups)
+        groups.flush_recordset(["users", "count_users"])
 
     def copy_data(self, default=None):
         vals_list = super().copy_data(default)
