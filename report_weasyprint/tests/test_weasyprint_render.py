@@ -97,6 +97,44 @@ class TestWeasyprintRender(TransactionCase):
         self.assertTrue(any('Lato' in name for name in fonts), fonts)
 
     # ------------------------------------------------------------------
+    # Own stylesheet only
+    # ------------------------------------------------------------------
+    def _render_spying_bundles(self, own_stylesheet):
+        """Render a 10pt line; return the bundles fetched and its drawn size."""
+        report = self._report(
+            f'probe_own_{own_stylesheet}',
+            PAGE % '<p style="font-size: 10pt">hello</p>')
+        report.weasyprint_own_stylesheet = own_stylesheet
+        fetched = []
+        original = OdooUrlFetcher._asset_bundle
+
+        def spy(fetcher, url, path):
+            fetched.append(path)
+            return original(fetcher, url, path)
+
+        self.patch(OdooUrlFetcher, '_asset_bundle', spy)
+        document = self._render(report)
+        sizes = {
+            round(span['size'], 1)
+            for block in document[0].get_text('dict')['blocks']
+            for line in block.get('lines', [])
+            for span in line['spans']
+            if span['text'].strip() == 'hello'
+        }
+        return fetched, sizes
+
+    def test_own_stylesheet_leaves_the_bundles_out(self):
+        fetched, sizes = self._render_spying_bundles(own_stylesheet=True)
+        self.assertEqual(fetched, [], "No report bundle may be cascaded.")
+        self.assertEqual(sizes, {round(10 / 1.1712, 1)},
+                         "Same zoom as any other report: only the bundles go.")
+
+    def test_by_default_the_bundles_are_kept(self):
+        fetched, sizes = self._render_spying_bundles(own_stylesheet=False)
+        self.assertTrue(fetched)
+        self.assertEqual(sizes, {round(10 / 1.1712, 1)})
+
+    # ------------------------------------------------------------------
     # What it refuses
     # ------------------------------------------------------------------
     def test_a_running_header_is_refused_not_dropped(self):

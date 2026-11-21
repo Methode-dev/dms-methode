@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <field name="report_type" position="after">
                 <field name="use_weasyprint"/>
+                <field name="weasyprint_own_stylesheet" invisible="not use_weasyprint"/>
             </field>
         </field>
     </record>
