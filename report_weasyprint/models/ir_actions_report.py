@@ -28,6 +28,13 @@ class IrActionsReport(models.Model):
              "The template must render its own letterhead inside the page: "
              "wkhtmltopdf's separate header and footer documents have no "
              "equivalent.")
+    weasyprint_own_stylesheet = fields.Boolean(
+        string="Own Stylesheet Only",
+        help="Render this report with its template's own styles alone: Odoo's "
+             "report bundles (Bootstrap) are left out. WeasyPrint spends most "
+             "of a render cascading those bundles, so a template that styles "
+             "itself renders many times faster without them. The page is "
+             "still drawn at the usual zoom (report_weasyprint.zoom).")
 
     def _run_wkhtmltopdf(self, bodies, report_ref=False, header=None,
                          footer=None, landscape=False,
@@ -43,6 +50,8 @@ class IrActionsReport(models.Model):
 
         self._weasyprint_refuse_running_parts(report, header, footer)
         base_url = self._get_report_url()
+        if report.weasyprint_own_stylesheet:
+            bodies = [self._weasyprint_drop_bundles(body) for body in bodies]
         zoom = self._weasyprint_zoom()
         _logger.info("Rendering %s with WeasyPrint (%d body/bodies, zoom %.4f)",
                      report.report_name, len(bodies), zoom)
@@ -115,6 +124,23 @@ class IrActionsReport(models.Model):
                 "report_weasyprint.zoom is %r, which is not a number; "
                 "falling back to %.4f", setting, render.WKHTMLTOPDF_PARITY_ZOOM)
             return render.WKHTMLTOPDF_PARITY_ZOOM
+
+    @staticmethod
+    def _weasyprint_drop_bundles(body):
+        """*body* without the asset bundles ``web.minimal_layout`` links.
+
+        Every PDF body is rebuilt in that layout whatever its template did, so
+        this is the only place to leave Odoo's report stylesheets out. Inline
+        ``<style>`` and the template's own markup are kept as they are.
+        """
+        root = lxml_html.document_fromstring(body)
+        for node in root.xpath(
+                "//link[starts-with(@href, $prefix)]"
+                " | //script[starts-with(@src, $prefix)]",
+                prefix=fetch.ASSETS_PREFIX):
+            node.getparent().remove(node)
+        return lxml_html.tostring(
+            root, encoding='unicode', doctype='<!DOCTYPE html>')
 
     def _weasyprint_refuse_running_parts(self, report, header, footer):
         """Refuse a template still relying on wkhtmltopdf's running parts.
